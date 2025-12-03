@@ -1,0 +1,8 @@
+## Interface: 38000
+## Author: oldhand
+## Version: 3.2.4
+## describe: 法师智能施法插件
+## Title: 智能施法插件(法师泰坦重铸服)
+## Notes: 智能施法插件(法师泰坦重铸服))
+## SavedVariables: Mage_SaveData,Mage_Settings,Mage_Icons
+Mage.xml

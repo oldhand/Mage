@@ -1,0 +1,325 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/
+..\..\FrameXML\UI.xsd">
+	<Script file="MageApi.lua"/>
+	<Script file="MageDecursive.lua"/>
+	<Script file="MageMacro.lua"/>
+	<Script file="MageFollow.lua"/>
+	<Script file="MageCombatLog.lua"/>
+	<Script file="MageAntiOffLine.lua"/>
+	<Script file="MageTalent.lua"/>
+	<Script file="MageBag.lua"/>
+	<Script file="MagePlayerSafe.lua"/>
+	<Script file="MageLog.lua"/>
+    <Script file="Mage.lua"/>
+	<Script file="MageOrganizeActionBar.lua"/>
+	<Script file="MageTargetBinder.lua"/>
+	<Script file="MageTargetBinder.lua"/>
+	<Script file="MageBossList.lua"/>
+	<Script file="MageRobot.lua"/>
+	
+	<Frame name="MageMainFrame" frameStrata="FULLSCREEN_DIALOG" parent="UIParent" toplevel="true">
+	 	<Size>
+			<AbsDimension x="26" y="26"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="UIParent" relativePoint="TOPLEFT">
+			<Offset>
+				<AbsDimension x="0" y="0"/>
+			</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer>
+				<Texture>
+					<Color a="1" r="1" g="0" b="0" />
+				</Texture>
+			</Layer>
+		</Layers>
+		<Frames>
+			<Frame name="MageColorFrame">
+				<Size>
+					<AbsDimension x="26" y="26"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="MageMainFrame" relativePoint="TOPLEFT">
+					<Offset>
+						<AbsDimension x="6" y="0"/>
+					</Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer>
+						<Texture name="MageCastColor">
+							<Color a="1" r="0" g="0" b="0" />
+						</Texture>
+					</Layer>
+				</Layers>
+			</Frame>
+		</Frames>
+		<Scripts>
+			<OnLoad>
+				Mage_RegisterEvents(self);
+			</OnLoad>
+			<OnUpdate>
+				Mage_Frame_OnUpdate();
+			</OnUpdate>
+			<OnEvent> 
+				Mage_OnEvent(event, arg1, arg2, arg3);
+			</OnEvent>
+		</Scripts>
+	</Frame>
+	<!-- COLORs FRAME -->  
+	<Button name="Mage_MSG_Frame"  frameStrata="LOW" movable="true">
+		<Size>
+			<AbsDimension x="220" y="21"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT" relativeTo="MageMainFrame" relativePoint="TOPRIGHT">
+				<Offset>
+					<AbsDimension x="10" y="0"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="Mage_MSG_Text" inherits="GameFontNormalSmall" justifyH="LEFT" text="" virtual="true">
+					<Size>
+						<AbsDimension x="116" y="16"/>
+					</Size>
+					<Anchors>
+						<Anchor point="LEFT">
+							<Offset x="0" y="0"/>
+						</Anchor>
+					</Anchors>
+					<FontHeight>
+						<AbsValue val="13"/>
+					</FontHeight>
+					<Color r="1" g="1" b="1"/>			
+				</FontString>
+			</Layer>		
+		</Layers>	 
+	</Button>
+
+
+
+<CheckButton name="MageFollowBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="Mage_MSG_Frame" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="50" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Inv_Misc_QuestionMark"/>
+	<CheckedTexture file="Interface\Icons\Ability_mount_dreadsteed"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<OnLoad>
+			Mage_Auto_Follow_OnLoad(self);
+		</OnLoad>
+		<OnEvent>
+			Mage_Auto_Follow_OnEvent(self, event, arg1, arg2);
+		</OnEvent>
+		<onClick>
+			Mage_Auto_Follow_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_Auto_Follow_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_Auto_Follow_OnUpdate();
+		</OnUpdate>		
+	</Scripts>
+</CheckButton>
+
+<CheckButton name="MageTalentModeBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageFollowBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Spell_Holy_LayOnHands"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<onClick>
+			Mage_TalentMode_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_TalentMode_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_TalentMode_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton>
+
+<CheckButton name="MageAutoModeBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageTalentModeBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Ability_Seal"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<onClick>
+			Mage_AutoMode_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_AutoMode_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_AutoMode_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton>
+
+<CheckButton name="MageCombatLogBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageAutoModeBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Inv_Misc_QuestionMark"/>
+	<CheckedTexture file="Interface\Icons\Spell_Holy_MindVision"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<onClick>
+			Mage_CombatLog_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_CombatLog_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_CombatLog_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton>
+
+ 
+<CheckButton name="MageAntiOffLineBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageCombatLogBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Inv_Misc_QuestionMark"/>
+	<CheckedTexture file="Interface\Icons\Ability_Rogue_Sprint"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<onClick>
+			Mage_AntiOffLine_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_AntiOffLine_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_AntiOffLine_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton>
+
+
+<CheckButton name="MageRobotBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageAntiOffLineBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\Inv_Misc_QuestionMark"/>
+	<CheckedTexture file="Interface\Icons\INV_Misc_Head_Clockwork_01"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<onClick>
+			Mage_Robot_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_Robot_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			GameTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_Robot_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton>
+ 
+<GameTooltip name="MageTooltip" inherits="GameTooltipTemplate" parent="UIParent" hidden="true">
+	<Scripts>
+		<OnLoad>
+			self:SetOwner(UIParent, "ANCHOR_NONE")
+		</OnLoad>
+	</Scripts>
+</GameTooltip>
+
+<GameTooltip name="MageBufftip" inherits="GameTooltipTemplate" parent="UIParent" hidden="true">
+	<Scripts>
+		<OnLoad>
+			self:SetOwner(UIParent, "ANCHOR_NONE")
+		</OnLoad>
+	</Scripts>
+</GameTooltip>
+
+</Ui>

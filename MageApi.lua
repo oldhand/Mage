@@ -1,0 +1,676 @@
+Mage_SaveData = nil;
+Mage_Settings = nil;
+Mage_Icons = nil;
+
+
+function Mage_TargetBU(s) local P,i="target",1  while UnitBuff(P,i)   do if string.find(UnitBuff(P,i),s)   then return true; end i=i+1 end return false end
+function Mage_TargetDeBU(s) local P,i="target",1  while UnitDebuff(P,i) do if string.find(UnitDebuff(P,i),s) then return true; end i=i+1 end return false end
+function Mage_PlayerBU(s) local P,i="player",1  while UnitBuff(P,i)   do if string.find(UnitBuff(P,i),s)   then return true; end i=i+1 end return false end
+function Mage_PlayerDeBU(s) local P,i="player",1  while UnitDebuff(P,i) do if string.find(UnitDebuff(P,i),s) then return true; end i=i+1 end return false end
+function Mage_UnitTargetBU(unit,s) local P,i=unit,1  while UnitBuff(P,i) do if string.find(UnitBuff(P,i),s) then return true; end i=i+1 end return false end
+function Mage_UnitTargetDeBU(unit,s) local P,i=unit,1  while UnitDebuff(P,i) do if string.find(UnitDebuff(P,i),s) then return true; end i=i+1 end return false end
+
+-- 取消玩家身上指定名称的 Buff
+-- 参数: buffName (字符串) - 要取消的 Buff 名字，例如 "保护之手"
+-- 返回: true (成功找到并取消), false (没找到该 Buff)
+function Mage_CancelBuff(buffName)
+    local i = 1
+    while true do
+        -- 获取第 i 个 Buff 的信息
+        local name = UnitBuff("player", i)
+
+        -- 如果没有 Buff 了，停止循环
+        if not name then
+            break
+        end
+
+        -- 如果名字匹配
+        if name == buffName then
+            -- 取消该位置的 Buff (WotLK API: CancelUnitBuff("player", index))
+            CancelUnitBuff("player", i)
+            return true
+        end
+
+        i = i + 1
+    end
+    return false
+end
+
+
+function Mage_GetPlayerCasting()
+    -- 1. 检查普通读条 (圣光术、炉石等)
+    local spellName = UnitCastingInfo("player")
+    if spellName then
+        return spellName
+    end
+
+    -- 2. 检查引导读条 (唤醒、奥术飞弹、急救绷带等)
+    -- 如果不检查这个，打绷带或者唤醒时插件可能会误判为“没在施法”从而移动打断
+    spellName = UnitChannelInfo("player")
+    if spellName then
+        return spellName
+    end
+
+    return nil
+end
+
+
+-- ==========================================================
+-- 函数: Mage_GetBeaconTimeByName
+-- 参数: unit (string) - 例如 "party1", "target", "focus"
+-- 返回: number - 剩余秒数。如果没有道标，返回 0
+-- ==========================================================
+function Mage_GetBeaconTimeByName(unit,spellName)
+    -- 遍历单位身上的 Buff (通常检查前40个足够了)
+    for i = 1, 40 do
+        -- 获取 Buff 信息
+        -- 参数7 (source) 非常重要，必须是 "player"
+        local name, icon, count, debuffType, duration, expirationTime, source = UnitBuff(unit, i)
+        -- 如果没有 buff 了，提前结束循环
+        if not name then break end
+
+        -- 核心判断：名字匹配 + 来源是我自己
+        if string.find(name,spellName) then
+            -- expirationTime 是 buff 结束的时刻 (GetTime格式)
+            -- 剩余时间 = 结束时刻 - 当前时刻
+            local timeLeft = expirationTime - GetTime()
+            -- 稍微修正一下，防止返回负数
+            if timeLeft < 0 then timeLeft = 0 end
+            return timeLeft
+        end
+    end
+    return 0 -- 没找到
+end
+
+function Mage_GetSpellCooldown(spellname)
+	local start, duration, enable = GetSpellCooldown(spellname);
+	if enabled == 0 then
+		 return 0;
+	elseif ( start ~= nil and duration ~= nil and start > 0 and duration > 0) then
+		 return (start + duration - GetTime());
+	else
+		 return 0;
+	end
+	return duration;
+end
+
+
+
+
+function Mage_HasSpell(spell)
+	local actionid = Mage_all_GetActionID(spell);
+	if actionid == 0 then return false; end;
+	return true;
+ end
+
+function Mage_IsUsableSpell(spell)
+   local actionid = Mage_GetActionID(spell);
+   if actionid == 0 then return false; end;
+   if not IsUsableAction(actionid) then return false; end;
+   if Mage_GetActionCooldown(actionid) ~= 0 then return false; end;
+   return true;
+end
+
+
+function Mage_IsAttack()
+	local actionid  = Mage_all_GetActionID("攻击");
+    if actionid == 0 then return false; end;
+	if IsAttackAction(actionid) and IsCurrentAction(actionid) then return true; end;
+	return false;
+end;
+
+
+
+function Mage_GetActionCooldown(i)
+	local start, duration, enable = GetActionCooldown(i);
+	if enabled == 0 then
+		 return 0;
+	elseif ( start > 0 and duration > 0) then
+		 return (start + duration - GetTime());
+	else
+		 return 0;
+	end
+	return duration;
+end
+
+function Mage_all_GetActionID(spellname)
+	for i = 1, 120 do
+    		 if HasAction(i) then
+    			local type, globalID, subType = GetActionInfo(i);
+    			if type == "spell" then
+    				local name, _, _ = GetSpellInfo(globalID);
+    				if  name == spellname then return i; end;
+    			elseif type == "macro" then
+    				local name, iconTexture, body, isLocal = GetMacroInfo(globalID);
+    				if name == spellname then return i; end;
+    			elseif type == "item" then
+    				local name, sLink, iRarity, iLevel, iMinLevel, sType, sSubType, iStackCount = GetItemInfo(globalID);
+    				if name then
+    					if  string.find(name, spellname) then return i; end;
+    				end;
+    			end
+    		end
+    	end
+	return 0;
+end
+
+function Mage_A_GetActionID(spellname)
+	for i = 73, 85 do
+		 if ( HasAction(i) ) then
+			local type, globalID, subType = GetActionInfo(i);
+			if type == "spell" then
+				local name, _, _ = GetSpellInfo(globalID);
+				if  name == spellname then return i; end;
+			elseif type == "macro" then
+				local name, iconTexture, body, isLocal = GetMacroInfo(globalID);
+				if name == spellname then return i; end;
+			elseif type == "item" then
+				local name, sLink, iRarity, iLevel, iMinLevel, sType, sSubType, iStackCount = GetItemInfo(globalID);
+				if name then
+					if  string.find(name, spellname) then return i; end;
+				end;
+			end
+		end
+	end
+	return 0;
+end
+
+function Mage_GetActionID(spellname)
+	for i = 1, 120 do
+		 if ( HasAction(i) ) and ( i < 48 or i > 60) then
+			local type, globalID, subType = GetActionInfo(i);
+			if type == "spell" then
+				local name, _, _ = GetSpellInfo(globalID);
+				---if  string.find(name, spellname) then return i; end;
+				if  name == spellname then return i; end;
+			elseif type == "macro" then
+				local name, iconTexture, body, isLocal = GetMacroInfo(globalID);
+				-- Mage_Default_AddMessage("____"..name.."______"..globalID.."____");
+				if name == spellname then return i; end;
+			elseif type == "item" then
+				local name, sLink, iRarity, iLevel, iMinLevel, sType, sSubType, iStackCount = GetItemInfo(globalID);
+				if name then
+					if  string.find(name, spellname) then return i; end;
+				end;
+			end
+		end
+	end
+	return 0;
+end
+
+
+function Mage_CastSpell(spellname)
+	local actionid = 0;
+    if GetShapeshiftForm(true) == 1 or GetShapeshiftForm(true) == 2 then
+	 	   actionid = Mage_A_GetActionID(spellname);
+	 	   if actionid == 0 then actionid = Mage_GetActionID(spellname); end;
+	else
+		actionid = Mage_GetActionID(spellname);
+    end;
+
+   if actionid == 0 then return false; end;
+
+   local _, globalid = GetActionInfo(actionid);
+
+   if not IsUsableAction(actionid)  then return false; end;
+   if Mage_GetActionCooldown(actionid) ~= 0 then return false; end;
+
+   if actionid >= 1 and actionid <= 12 then
+		Mage_SetText(spellname,actionid );	------ key = 1234567890-=
+		return true;
+   elseif actionid >= 73 and actionid <= 85 then
+		Mage_SetText(spellname,actionid - 72);	------ key = 1234567890-=
+		return true;
+   elseif actionid >= 61 and actionid <= 72 then
+		Mage_SetText(spellname,actionid - 48);	---------  F1 F2 F3 ] F5  ... F12
+		return true;
+   elseif actionid >= 25 and actionid <= 36 then
+		Mage_SetText(spellname,actionid + 24);	-------------  key = SHIFT-F1 SHIFT-F2 SHIFT-F3 [ SHIFT-F5  ... SHIFT-F12
+		return true;
+    elseif actionid >= 37 and actionid <= 48 then
+		Mage_SetText(spellname,actionid);	-------------  key = CTRL-F1 CTRL-F2 CTRL-F3 [ CTRL-F5  ... CTRL-F12
+		return true;
+    end;
+   return false;
+end
+
+
+
+function Test_Target_IsMe()
+	if UnitExists("playertargettarget") then
+		if UnitIsUnit("playertargettarget", "player") then
+			return true;
+		end
+	end
+	return false;
+end
+
+function Mage_GetItemInfo(slotId)
+	local mainHandLink = GetInventoryItemLink("player",slotId);
+	local _, _, itemCode = strfind(mainHandLink, "(%d+):");
+	local itemName, _, _, _, _, itemType = GetItemInfo(itemCode);
+	return itemName;
+end
+
+
+function Mage_TestTrinket(TrinketName)
+	if string.find(Mage_GetItemInfo(13),TrinketName) or string.find(Mage_GetItemInfo(14),TrinketName) then
+		return true;
+	end
+	return false;
+end
+
+function Mage_GetMainHandType()
+	local mainHandLink = GetInventoryItemLink("player",16);
+	local _, _, itemCode = strfind(mainHandLink, "(%d+):");
+	local itemName, _, _, _, _,_, itemType = GetItemInfo(itemCode);
+	return itemType;
+end
+
+function Mage_Warning_AddMessage(str)
+	if Messagestr ~= str then
+		Messagestr = str;
+		if (UnitInRaid("player")) then
+			SendChatMessage(str,"Raid");
+		else
+			if GetNumGroupMembers() > 0 then
+				SendChatMessage(str,"Party");
+			else
+				DEFAULT_CHAT_FRAME:AddMessage("|cffffff00战斗信息:|r |cff00ff00" .. str .. "|r");
+			end;
+		end
+	end
+end
+
+function Mage_Test_Battlefield()
+	-- IsInInstance() 返回两个值：
+    -- 1. inInstance (boolean): 是否在副本/实例中
+    -- 2. instanceType (string): 实例的类型
+    local inInstance, instanceType = IsInInstance()
+    -- instanceType 的返回值说明：
+    -- "none"  = 野外
+    -- "pvp"   = 战场 (战歌、阿拉希、奥山、远古海滩等)
+    -- "arena" = 竞技场
+    -- "party" = 5人本
+    -- "raid"  = 团本
+    if instanceType == "pvp" then
+        return true;
+    end
+    return false;
+end
+
+function Mage_PlayerInArena()
+    local inInstance, instanceType = IsInInstance()
+    if instanceType == "arena" then
+        return true;
+    end
+    return false;
+end
+
+function Mage_Default_AddMessage(str)
+	if Messagestr ~= str then
+		Messagestr = str;
+		DEFAULT_CHAT_FRAME:AddMessage("|cffffff00战斗信息:|r |cff00ff00" .. str .. "|r");
+	end
+end
+
+function Mage_AddMessage(str)
+	if Messagestr ~= str then
+		Messagestr = str;
+		DEFAULT_CHAT_FRAME:AddMessage("|cffffff00战斗信息:|r |cff00ff00" .. str .. "|r");
+	end
+end
+
+function Mage_Combat_AddMessage(str)
+	if Noticestr ~= str then
+		Noticestr = str;
+		Blizzard_AddMessage(str,0.93,0.78,0.06,"crit");
+	end
+end
+
+
+function Mage_SendChatMessage(message,name)
+    if ChatMessagestr ~= message then
+        ChatMessagestr = message;
+        SendChatMessage(message,"WHISPER",nil,name);
+    end
+end
+
+local lastYellTime = GetTime()
+
+function Mage_SendYellMessage(message)
+	if GetTime() - lastYellTime > 30 then
+		lastYellTime = GetTime()
+		SendChatMessage(message,"YELL")
+	end
+end
+
+function Mage_SendPartyMessage(message)
+	if PartyMessage ~= message then
+		PartyMessage = message;
+		if message ~= "" then
+			SendChatMessage(message,"PARTY")
+		end
+	end
+end
+
+
+function Blizzard_AddMessage(text, r, g, b, sticky)
+    -- 1. 检查并加载暴雪自带的浮动战斗信息插件
+    if not IsAddOnLoaded("Blizzard_CombatText") then
+        UIParentLoadAddOn("Blizzard_CombatText")
+    end
+
+    -- 2. 检查 CVar 设置是否开启 (比模拟点击按钮更安全)
+    -- 如果当前设置为 "0" (关闭)，则强制设为 "1" (开启)
+    if GetCVar("enableFloatingCombatText") == "0" then
+        SetCVar("enableFloatingCombatText", "1")
+    end
+
+    -- 3. 发送信息
+    if CombatText_AddMessage then
+        -- 如果 sticky 为 true，则使用 "crit" (暴击) 样式，否则为 nil
+        local scrollType = CombatText_StandardScroll -- 获取默认滚动方式
+        local stickyType = sticky and "crit" or nil
+
+        CombatText_AddMessage(text, scrollType, r, g, b, stickyType, false)
+    end
+end
+
+function Mage_SetText(str,rgb)
+	Mage_MSG_Text:SetText(str);
+	local R = math.modf(rgb / 100) / 10 - 0.02
+	local G = math.modf(rgb % 100 / 10) / 10 - 0.02
+	local B = rgb % 10 / 10 - 0.02
+--     Mage_AddMessage("spellname " .. str .." = " .. rgb .. "  => G:" .. G .." , R:" .. R .. ", B:" .. B );
+	getglobal("MageCastColor"):SetColorTexture(R, G, B, 1);
+end
+
+function  Mage_GetUnitHealthPercent(unit)
+	local health, healthmax  = UnitHealth(unit), UnitHealthMax(unit);
+	local healthPercent = floor(health/healthmax*100+0.5);
+	return healthPercent;
+end
+
+function  Mage_GetUnitLoseHealth(unit)
+	local health, healthmax  = UnitHealth(unit), UnitHealthMax(unit);
+	return healthmax - health;
+end
+
+function Mage_GetUnitManaPercent(unit)
+	if UnitIsDeadOrGhost("player") then return 100; end
+	local mana, manamax = UnitPower("player"), UnitPowerMax("player");
+	local ManaPercent = floor(mana/manamax*100+0.5);
+	return ManaPercent;
+end
+
+
+
+
+function GUIDToFriendUnit(GUID)
+	if (not GUID) then
+		return false;
+	elseif (GUID == UnitGUID("player")) then
+		return "player";
+	elseif (GUID == UnitGUID("party1")) then
+		return "party1";
+	elseif (GUID == UnitGUID("party2")) then
+		return "party2";
+	elseif (GUID == UnitGUID("party3")) then
+		return "party3";
+	elseif (GUID == UnitGUID("party4")) then
+		return "party4";
+	elseif (GUID == UnitGUID("playerpet")) then
+		return "playerpet";
+	elseif (GUID == UnitGUID("party1pet")) then
+		return "party1pet";
+	elseif (GUID == UnitGUID("party2pet")) then
+		return "party2pet";
+	elseif (GUID == UnitGUID("party3pet")) then
+		return "party3pet";
+	elseif (GUID == UnitGUID("party4pet")) then
+		return "party4pet";
+	else
+			for i=1, 40 do
+				if GUID == UnitGUID("raid"..i) then
+					return "raid"..i;
+				end
+			end
+	end
+	return false;
+end
+
+
+function Mage_Get_Target_Unit(name)
+    if UnitInRaid("player") then
+		for id=1, 40  do
+			local unit = "raid"..id;
+			if  UnitExists(unit)  then
+				if UnitName("target",unit) == name then
+					 return unit;
+				end
+			end
+		end
+	else
+		for id=1, GetNumGroupMembers()  do
+			local unit = "party"..id;
+			if  UnitExists(unit)  then
+				if UnitName("target",unit) == name  then
+					 return unit;
+				end
+			end
+		end
+	end
+	return "";
+end
+
+
+function Mage_Use_INV_Jewelry_TrinketPVP()
+		local Trinketpvp_01 = Mage_GetActionID("荣誉勋章");
+		if Trinketpvp_01 ~= 0  then
+			if  Mage_PlayerDeBU("心灵尖啸")
+			   or  Mage_PlayerDeBU("精神控制")
+			   or  Mage_PlayerDeBU("恐惧")
+			   or  Mage_PlayerDeBU("击倒")
+			   or  Mage_PlayerDeBU("撂倒")
+			   or  Mage_PlayerDeBU("肾击")
+			   or  Mage_PlayerDeBU("冻结")
+			   or  Mage_PlayerDeBU("深结")
+			   or  Mage_PlayerDeBU("偷袭")
+			   or  Mage_PlayerDeBU("突袭")
+			   or  Mage_PlayerDeBU("猛击")
+			   or  Mage_PlayerDeBU("割碎")
+			   or  Mage_PlayerDeBU("恐惧嚎叫")
+			   or  Mage_PlayerDeBU("女妖媚惑")
+			   or  Mage_PlayerDeBU("破胆怒吼")
+			   or  Mage_PlayerDeBU("震荡猛击")
+			   or  Mage_PlayerDeBU("震荡波")
+			   or  Mage_PlayerDeBU("休眠")
+			   or  Mage_PlayerDeBU("飓风术")
+			   or  Mage_PlayerDeBU("逃跑")
+			   or  Mage_PlayerDeBU("媚惑")
+			   or  Mage_PlayerDeBU("魅惑")
+			   or  Mage_PlayerDeBU("妖术")
+			   or  Mage_PlayerDeBU("休眠")
+			   or  Mage_PlayerDeBU("致盲")
+			   or  Mage_PlayerDeBU("冰冻陷阱")
+			   or  Mage_PlayerDeBU("翼龙钉刺")
+			   or  Mage_PlayerDeBU("深度冻结")
+			   or  Mage_PlayerDeBU("忏悔")
+			   or  Mage_PlayerDeBU("霜寒刺骨")
+			   or  Mage_PlayerDeBU("制裁之锤")
+			   or  Mage_PlayerDeBU("制裁之拳")
+			   or  Mage_PlayerDeBU("风暴之锤")
+			   or  Mage_PlayerDeBU("震荡波")
+			   or  Mage_PlayerDeBU("饥饿之寒")
+			   or  Mage_PlayerDeBU("诱惑")
+			   or  Mage_PlayerDeBU("冲击")
+			   or  Mage_PlayerDeBU("混乱新星")
+			   then
+				if Mage_CastSpell("荣誉勋章") then
+					StartTimer("TrinketPVP");
+					Mage_Default_AddMessage("**使用勋章...**");
+					return true;
+				end
+			end
+		end
+	return false;
+end
+
+function Mage_Check_Dot_Debuff()
+	if  Mage_TargetDeBU("月火术")
+	or  Mage_TargetDeBU("撕裂")
+	or  Mage_TargetDeBU("腐蚀术")
+	or  Mage_TargetDeBU("痛苦诅咒")
+	or  Mage_TargetDeBU("吸取生命")
+	or  Mage_TargetDeBU("献祭")
+	or  Mage_TargetDeBU("火球术")
+	or  Mage_TargetDeBU("点燃")
+	or  Mage_TargetDeBU("燃烧")
+	or  Mage_TargetDeBU("流血")
+	or  Mage_TargetDeBU("活体炸弹")
+	or  Mage_TargetDeBU("寒冰炸弹")
+	or  Mage_TargetDeBU("虚空风暴")
+	or  Mage_TargetDeBU("暗言术：痛")
+	or  Mage_TargetDeBU("噬灵瘟疫")
+	or  Mage_TargetDeBU("毒蛇钉刺")
+	or  Mage_TargetDeBU("割裂")
+	or  Mage_TargetDeBU("重伤")
+	then
+		return true;
+	end
+	return false;
+end
+
+function Mage_Test_Targert_Control()
+	if  UnitExists("playertarget") then
+			if UnitCanAttack("player","target") then
+				if  Mage_TargetDeBU("媚惑")
+				or  Mage_TargetDeBU("变形术")
+				or  Mage_TargetDeBU("妖术")
+				or  Mage_TargetDeBU("休眠")
+				or  Mage_TargetDeBU("致盲")
+				or  Mage_TargetDeBU("冰冻陷阱")
+				or  Mage_TargetDeBU("忏悔")
+				or  Mage_TargetDeBU("闷棍")
+				or  Mage_TargetDeBU("恐吓野兽")
+				or  Mage_TargetDeBU("驱散射击")
+				or  Mage_TargetDeBU("心灵尖啸")
+				or  Mage_TargetDeBU("精神控制")
+				or  Mage_TargetDeBU("恐惧嚎叫")
+				or  Mage_TargetDeBU("女妖媚惑")
+				or  Mage_TargetDeBU("翼龙钉刺")
+				or  Mage_TargetDeBU("忏悔")
+				or  Mage_TargetDeBU("凿击")
+ 			    or  Mage_TargetDeBU("肾击")
+ 			    or  Mage_TargetDeBU("冻结")
+ 			    or  Mage_TargetDeBU("深结")
+ 			    or  Mage_TargetDeBU("偷袭")
+ 			    or  Mage_TargetDeBU("突袭")
+ 			    or  Mage_TargetDeBU("猛击")
+				then
+					return true;
+				end
+			end
+	end
+	return false;
+end
+
+
+function Mage_Test_Target_Debuff()
+	if  UnitExists("playertarget") then
+			if UnitCanAttack("player","target") then
+				if  Mage_TargetDeBU("媚惑")
+				or  Mage_TargetDeBU("变形术")
+				or  Mage_TargetDeBU("妖术")
+				or  Mage_TargetDeBU("休眠")
+				or  Mage_TargetDeBU("致盲")
+				or  Mage_TargetDeBU("冰冻陷阱")
+				or  Mage_TargetDeBU("忏悔")
+				or  Mage_TargetDeBU("闷棍")
+				or  Mage_TargetDeBU("恐吓野兽")
+				or  Mage_TargetDeBU("驱散射击")
+				or  Mage_TargetDeBU("心灵尖啸")
+				or  Mage_TargetDeBU("精神控制")
+				or  Mage_TargetDeBU("恐惧嚎叫")
+				or  Mage_TargetDeBU("女妖媚惑")
+				or  Mage_TargetDeBU("翼龙钉刺")
+				or  Mage_TargetDeBU("忏悔")
+				or  Mage_TargetDeBU("凿击")
+				then
+					return true;
+				end
+			end
+	end
+	return false;
+end
+
+function Mage_Passive()
+	  if  UnitExists("playerpet") then
+		  for i = 1, 10 do
+			 local name,_,_,_,active,_,_,exists = GetPetActionInfo(i);
+			 if name == "PET_MODE_PASSIVE" and active == 1  then  return true; end;
+		  end;
+	  end;
+	  return false;
+end
+
+
+
+function Mage_Is_Need_Interrupt_Boss()
+  	  local Need_Interrupt_Boss = {"烈焰行者医师","烈焰行者祭司","预言者斯克拉姆"};
+	  if  UnitExists("target") then
+		    if string.find(UnitName("target"),"斯克拉姆") then return true end
+			for key,name in pairs(Need_Interrupt_Boss) do
+				if name == UnitName("target") then return true end
+			end
+	  end;
+	  return false;
+end
+
+function Mage_Is_Need_Interrupt_Spell(spellname)
+  	local Need_Interrupt_Spell = {"治疗祷言","黑暗治疗"};
+	for key,name in pairs(Need_Interrupt_Spell) do
+		if name == spellname then return true end
+	end
+	return false;
+end
+
+
+
+
+
+local TimerDatas = {};
+
+function StartTimer(id)
+	for k, v in pairs(TimerDatas) do
+		if(id == v["Name"]) then
+			v["Time"] = GetTime();
+			return ;
+		end
+	end
+	table.insert(TimerDatas,
+		{
+		["Name"] = id,
+		["Time"] = GetTime(),
+		});
+end
+
+function GetTimer(id)
+	for k, v in pairs(TimerDatas) do
+		if(id == v["Name"]) then
+			local now = GetTime();
+			local startTime = v["Time"];
+			return (now - startTime), startTime, now;
+		end
+	end
+	return 999;
+end
+function EndTimer(id)
+	for k, v in pairs(TimerDatas) do							
+		if(id == v["Name"]) then
+			table.remove(TimerDatas,k);
+			return ;			
+		end		
+	end
+end

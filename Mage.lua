@@ -8,6 +8,12 @@ local ChatEditBox = nil;
 
 local Mage_movement = false;
 
+
+local Mage_Polymorph = 0; --  变形术
+local Mage_Blizzard = 0; --  暴风雪
+local Mage_Teleport = 0; --  闪现术
+local Mage_Purge = 0; --  唤醒
+
 function Mage_Check_Movement()
 	return Mage_movement;
 end
@@ -90,6 +96,56 @@ function getChatEditBox()
 	end;
 end;
 
+
+function Mage_SendCommand(flag)
+	if flag == 1 then
+        if  UnitExists("target") and UnitCanAttack("player", "target") then
+            Mage_Polymorph = 1;
+            Mage_Combat_AddMessage("**准备使用变形术...**");
+            StartTimer("Mage_Polymorph");
+        else
+            Mage_Combat_AddMessage("**没有敌对目标，无法变形术**");
+		end
+	elseif flag == 2 then
+		 if Mage_GetSpellCooldown("闪现术") == 0 then
+		 	 Mage_Combat_AddMessage("准备闪现术..");
+	 		 StartTimer("Mage_Teleport");
+			 Mage_Teleport = 1;
+		 else
+			 Mage_AddMessage("**闪现术CD中**");
+			 Mage_Combat_AddMessage("**闪现术CD中**");
+		 end;
+  	elseif flag == 3 then
+		if UnitAffectingCombat("player") then
+			if Mage_GetUnitManaPercent("player") < 50 then
+				if Mage_GetSpellCooldown("唤醒") == 0 then
+		   		 	 Mage_Combat_AddMessage("准备唤醒..");
+		   	 		 StartTimer("Mage_Purge");
+		   			  Mage_Purge = 1;
+		   		 else
+		   			 Mage_AddMessage("**唤醒CD中**");
+		   			 Mage_Combat_AddMessage("**唤醒CD中**");
+		   		 end;
+			else
+   			 Mage_AddMessage("**蓝还比较多，不需要唤醒**");
+   			 Mage_Combat_AddMessage("**蓝还比较多，不需要唤醒**");
+			end
+		else
+			 Mage_AddMessage("**没有进入战斗，不需要唤醒**");
+			 Mage_Combat_AddMessage("**没有进入战斗，不需要唤醒**");
+		end
+    elseif flag == 4 then
+      if Mage_IsManaEnough("暴风雪") then
+         Mage_Blizzard = 1;
+         Mage_Combat_AddMessage("**准备使用鼠标位置使用暴风雪...**");
+         StartTimer("Mage_Blizzard");
+      else
+         Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
+         Mage_Blizzard = 0;
+      end
+    end
+end;
+
 function Mage_Frame_OnUpdate()
 	if UnitClass("player") ~= "法师" then return; end;
 
@@ -107,6 +163,14 @@ function Mage_Frame_OnUpdate()
 		return; 
 	end
 
+    if IsFalling() then
+		if not Mage_PlayerBU("缓落术") and GetTimer("Mage_parachute_cloak") > 2 then
+			if Mage_CastSpell("缓落术") then  return true; end;
+		end;
+	else
+		StartTimer("Mage_parachute_cloak");
+	end;
+
 
 	if UnitOnTaxi("player") == 1 then Mage_SetText("航线飞行中",0); return; end;
 
@@ -114,36 +178,26 @@ function Mage_Frame_OnUpdate()
 		if GetTimer("威慑凝视") > 1 then				
 			StartTimer("威慑凝视");				
 			Mage_Default_AddMessage("**威慑凝视**");
-			Blizzard_AddMessage("**威慑凝视，停止施法**",1,0,0,"crit");
+			Mage_Combat_AddMessage("**威慑凝视，停止施法**");
 		end; 
 		Mage_SetText("威慑凝视",0);
 		return;
 	end;
 
-    local castspell = UnitCastingInfo("player")
-    if not castspell then
-        castspell = UnitChannelInfo("player")
-    end
+    local castspell = Mage_GetPlayerCasting()
 
-    if castspell and UnitExists("target") and not UnitCanAttack("player", "target") then
-        if string.find(castspell, "圣光") then
-            local targetHealth = Mage_GetUnitHealthPercent("target")
-            if string.find(castspell, "圣光术") then
-                if targetHealth > 98 then
-                    if Mage_StopCasting() then return true end
-                end
-            else
-                if targetHealth > 99 then
-                    if Mage_StopCasting() then return true end
-                end
-            end
-        elseif string.find(castspell, "救赎") then
-            if not UnitIsDead(target) then
-                if Mage_StopCasting() then return true end
-            else
-                Mage_SendYellMessage("正在复活>>" .. UnitName(target) .. "<<,请勿重复!")
-            end
-        end
+    if castspell then
+        if string.find(castspell, "寒冰箭") then
+            Mage_SetText("正在施放"..castspell,0);
+            if Mage_GetCastRemainingTime("player") > 0.3 then return; end
+        elseif string.find(castspell, "暴风雪") then
+            Mage_Blizzard = 0;
+            Mage_SetText("正在施放"..castspell,0);
+            return;
+        else
+            Mage_SetText("正在施放"..castspell,0);
+            return;
+        end;
     end
 
 -- 	if Mage_AutoMount() then return; end
@@ -157,11 +211,13 @@ function Mage_Frame_OnUpdate()
 	
 	if not UnitAffectingCombat("player") then
         if  Mage_PlayerBU("饮用") or Mage_PlayerBU("喝水") then
-            Mage_SetText("喝水中",0);
---             if Mage_PlayerInParty() then
---                 Mage_SendYellMessage("正在喝水回蓝中,开怪请稍等!!!");
---             end
-            return ;
+            if not Mage_Get_AntiOffLineMode() then
+                Mage_SetText("喝水中",0);
+                --             if Mage_PlayerInParty() then
+                --                 Mage_SendYellMessage("正在喝水回蓝中,开怪请稍等!!!");
+                --             end
+                return ;
+            end
         end
 	end; 
 
@@ -231,7 +287,42 @@ function Mage_Frame_OnUpdate()
 		if Mage_Use_INV_Jewelry_TrinketPVP() then return true end;
 	end;
 
+	if Mage_Teleport == 1 then
+            if GetTimer("Mage_Teleport") > 2 then  Mage_Default_AddMessage("**闪现术命令超时...**"); Mage_Teleport = 0; end;
+            if Mage_GetSpellCooldown("闪现术") ~= 0 then
+                 Mage_Teleport = 0;
+            end;
+            if Mage_CastSpell("闪现术") then return true; end;
+    end
 	if Mage_playerSafe() then return true end;
+
+    if Mage_Purge == 1 then
+            if GetTimer("Mage_Purge") > 2 then  Mage_Default_AddMessage("**唤醒命令超时...**"); Mage_Purge = 0; end;
+            if Mage_GetSpellCooldown("唤醒") ~= 0 then
+                 Mage_Default_AddMessage("**唤醒目前在CD...**");
+                 Mage_Combat_AddMessage("**唤醒目前在CD**");
+                 Mage_Purge = 0;
+            end;
+            if not Mage_movement then
+                if Mage_CastSpell("唤醒") then return true; end;
+            end
+    end;
+
+    if Mage_Blizzard == 1 then
+        if not Mage_movement then
+              if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
+              if Mage_IsManaEnough("暴风雪") then
+                   if Mage_CastBlizzard() then return true; end;
+              else
+                   Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
+                   Mage_Blizzard = 0;
+              end
+        else
+            if GetTimer("Mage_Blizzard") > 2 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
+        end
+        Mage_SetText("准备暴风雪中",0);
+        return;
+    end
 	
 	if not UnitExists("target")  then
 		if Mage_AntiOffLine() then return ; end;
@@ -268,7 +359,7 @@ function Mage_Frame_OnUpdate()
 			if UnitHealth("target") > 1  then
 				if GetTimer("猎人假死") > 1 then				
 					  StartTimer("猎人假死");				
-					  Blizzard_AddMessage("**猎人假死状态，速度鞭尸**",1,0,0,"crit");
+					  Mage_Combat_AddMessage("**猎人假死状态，速度鞭尸**");
 				end; 
 			else
 		        Mage_SetText("目标死亡",0);
@@ -287,55 +378,17 @@ function Mage_Frame_OnUpdate()
 		if GetTimer("目标已经被控制") > 1 then				
 			StartTimer("目标已经被控制");				
 			Mage_Default_AddMessage(UnitName("target").."目标已经被控制...");
-			Blizzard_AddMessage(UnitName("target").."目标已经被控制...",1,0,0,"crit");
+			Mage_Combat_AddMessage(UnitName("target").."目标已经被控制...");
 		end; 
 		Mage_SetText("目标已经被控制",0);
 		return;
 	end
 	
-    Mage_playervsnpc();
+    Mage_playerCombat();
 end;
 
 
  
-
-function Mage_playervsnpc()
-	if not UnitAffectingCombat("player") and not UnitAffectingCombat("target")  then
-		if  UnitCreatureType("target") == "野生宠物" then
-			    Mage_SetText("野生宠物",0);
-			    return true;
-		end;
-		if  UnitClassification("target") == "rareelite"  then
-			    Mage_SetText("稀有精英",0);
-			    return true;
-		end;
-		if  UnitClassification("target") == "worldboss" or  UnitClassification("target") == "elite" then  
-				 Mage_SetText("精英目标",0);
-			    return true;
-		end
-	end;
-    if UnitAffectingCombat("target") and Mage_HasSpell("火焰冲击") and IsSpellInRange("火焰冲击","target") == 1 and Mage_GetSpellCooldown("火焰冲击") == 0 then
-        if Mage_CastSpell("火焰冲击") then return true; end;
-    end
-
-   if CheckInteractDistance("target", 3) then
-       if Mage_HasSpell("冰霜新星") and Mage_GetSpellCooldown("冰霜新星") == 0 then
-              if Mage_CastSpell("冰霜新星") then return true; end;
-       end
-    end
-
-	if not Mage_Check_Movement() and IsSpellInRange("寒冰箭", "target") == 1 then
-         if Mage_CastSpell("寒冰箭") then return true; end;
-    end
-
-	if not Mage_Check_Movement() then
-		Mage_SetText("无动作",0);
-		return;
-	else 
-		Mage_SetText("移动中",0);
-		return;
-	end
-end;
 
 
   

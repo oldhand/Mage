@@ -29,7 +29,7 @@ function Mage_AntiOffLine()
 -- 			Mage_SetText("跳跃",200);
 			return true;
 		end;
-		if GetTimer("AntiOffLine") > 120 then
+		if GetTimer("AntiOffLine") > 100 then
 -- 			Mage_SetText("跳跃",200);
             if Mage_CastSpell("造水术") then return true; end;
 			StartTimer("AntiOffLine");
@@ -39,7 +39,7 @@ function Mage_AntiOffLine()
             if Mage_CastSpell("魔法纯净水") then return true; end;
             return true;
         end;
-        if GetTimer("魔法纯净水") > 3 then
+        if GetTimer("魔法纯净水") > 10 then
             if Mage_CastSpell("魔法纯净水") then return true; end;
             StartTimer("魔法纯净水");
             return true;

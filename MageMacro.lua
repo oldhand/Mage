@@ -37,36 +37,54 @@
          key = "ALT-F6"
      },
      {
-          name = "ACM_RighteousDefense",
-          body = "/cast [help] 正义防御; [target=targettarget, harm] 正义防御",            -- 宏内容：正义防御
-          key = "ALT-F7"
+         name = "ACM_SelectTargetTarget",
+         body = "/tar targettarget",            -- 宏内容：选择目标的目标
+         key = "ALT-F7"
      },
      {
-           name = "ACM_SelectTargetTarget",
-           body = "/tar targettarget",            -- 宏内容：选择目标的目标
-           key = "ALT-F8"
+         name = "ACM_CastBlizzard",
+         body = "/cast [@cursor] 暴风雪",            -- 宏内容：使用暴风雪
+         key = "ALT-F8"
      },
      {
-         name = "ACM_Hammer_TT",
-         body = "/cast [target=targettarget, harm, nodead] 制裁之锤", -- 宏内容：对目标的目标施放制裁之锤
-         key = "ALT-F9"
+          name = "ACM_UserPolymorph",
+          body = "/script Mage_SendCommand(1);",            -- 宏内容：使用变形术
+          key = "F"
+     },
+     {
+         name = "ACM_UseTeleport",
+          body = "/script Mage_SendCommand(2);",            -- 宏内容：使用闪现术
+         key = "Q"
      },
       {
-          name = "ACM_Hammer_Wrath",
-          body = "/cast [target=targettarget, harm, nodead] 愤怒之锤", -- 宏内容：对目标的目标施放愤怒之锤
-          key = "ALT-F10"
+          name = "ACM_UsePurge",
+          body = "/script Mage_SendCommand(3);",            -- 宏内容：使用唤醒
+          key = "T"
       },
       {
-           name = "ACM_CancelAuraPlea",
-           body = "/cancelaura 神圣恳求",
-           key = "ALT-F11"
-      },
-      {
-          name = "ACM_Target_Battlefield_Officer",
-          body = "/cleartarget\n /target 里夏·魔环\n /target 阿拉希\n /script SetRaidTarget(\"target\", 8) \n /run InteractUnit(\"target\")", -- 宏内容：自动寻找并交互战场军官
-          key = "ALT-F12"
+           name = "ACM_UseBlizzard",
+          body = "/script Mage_SendCommand(4);",            -- 宏内容：使用暴风雪
+           key = "R"
       }
  }
+
+-- function Mage_UserPolymorpht()
+--     Mage_SetText("使用变形术", 68);
+--     return true;
+-- end
+--
+-- function Mage_UseTeleport()
+--     Mage_SetText("使用闪现术", 69);
+--     return true;
+-- end
+-- function Mage_UsePurge()
+--     Mage_SetText("使用唤醒", 70);
+--     return true;
+-- end
+-- function Mage_UseBlizzard()
+--     Mage_SetText("使用暴风雪", 71);
+--     return true;
+-- end
 
 function Mage_StartAttack()
     Mage_SetText("开始攻击", 61);
@@ -98,33 +116,13 @@ function Mage_CancelDrink()
     return true;
 end
 
-function Mage_RighteousDefense()
-    Mage_SetText("正义防御", 67);
-    return true;
-end
-
 function Mage_SelectTargetTarget()
-    Mage_SetText("选择目标的目标", 68);
+    Mage_SetText("选择目标的目标", 67);
     return true;
 end
 
-function Mage_Hammer_TT()
-    Mage_SetText("制裁之锤", 69);
-    return true;
-end
-
-function Mage_Hammer_Wrath()
-    Mage_SetText("愤怒之锤", 70);
-    return true;
-end
-
-function Mage_CancelAuraPlea()
-    Mage_SetText("取消神圣恳求", 71);
-    return true;
-end
-
-function Mage_Target_Battlefield_Officer()
-    Mage_SetText("战场军官", 71);
+function Mage_CastBlizzard()
+    Mage_SetText("暴风雪", 68);
     return true;
 end
 

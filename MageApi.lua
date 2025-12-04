@@ -10,31 +10,7 @@ function Mage_PlayerDeBU(s) local P,i="player",1  while UnitDebuff(P,i) do if st
 function Mage_UnitTargetBU(unit,s) local P,i=unit,1  while UnitBuff(P,i) do if string.find(UnitBuff(P,i),s) then return true; end i=i+1 end return false end
 function Mage_UnitTargetDeBU(unit,s) local P,i=unit,1  while UnitDebuff(P,i) do if string.find(UnitDebuff(P,i),s) then return true; end i=i+1 end return false end
 
--- 取消玩家身上指定名称的 Buff
--- 参数: buffName (字符串) - 要取消的 Buff 名字，例如 "保护之手"
--- 返回: true (成功找到并取消), false (没找到该 Buff)
-function Mage_CancelBuff(buffName)
-    local i = 1
-    while true do
-        -- 获取第 i 个 Buff 的信息
-        local name = UnitBuff("player", i)
 
-        -- 如果没有 Buff 了，停止循环
-        if not name then
-            break
-        end
-
-        -- 如果名字匹配
-        if name == buffName then
-            -- 取消该位置的 Buff (WotLK API: CancelUnitBuff("player", index))
-            CancelUnitBuff("player", i)
-            return true
-        end
-
-        i = i + 1
-    end
-    return false
-end
 
 
 function Mage_GetPlayerCasting()
@@ -82,6 +58,45 @@ function Mage_GetBeaconTimeByName(unit,spellName)
     return 0 -- 没找到
 end
 
+-- 获取指定单位当前施法/引导的剩余时间（秒）
+-- 参数: unit (默认为 "player")
+-- 返回:
+-- 1. 剩余秒数 (如果没有施法，返回 0)
+-- 2. 技能名称
+-- 3. 类型 ("casting" 或 "channeling")
+function Mage_GetCastRemainingTime(unit)
+    if not unit then unit = "player" end
+
+    local currentTime = GetTime() -- 获取当前系统时间(秒)
+
+    -- 1. 检查普通读条 (UnitCastingInfo)
+    -- 返回值: name, text, texture, startTime, endTime, ...
+    local name, _, _, _, endTime = UnitCastingInfo(unit)
+
+    if name and endTime then
+        -- endTime 单位是毫秒，需要除以 1000 换算成秒
+        local finishTime = endTime / 1000
+        local remaining = finishTime - currentTime
+
+        if remaining < 0 then remaining = 0 end
+        return remaining, name, "casting"
+    end
+
+    -- 2. 检查通道法术 (UnitChannelInfo) - 比如暴风雪、唤醒
+    local name, _, _, _, endTime = UnitChannelInfo(unit)
+
+    if name and endTime then
+        local finishTime = endTime / 1000
+        local remaining = finishTime - currentTime
+
+        if remaining < 0 then remaining = 0 end
+        return remaining, name, "channeling"
+    end
+
+    -- 3. 当前没有施法
+    return 0, nil, nil
+end
+
 function Mage_GetSpellCooldown(spellname)
 	local start, duration, enable = GetSpellCooldown(spellname);
 	if enabled == 0 then
@@ -108,6 +123,13 @@ function Mage_IsUsableSpell(spell)
    if actionid == 0 then return false; end;
    if not IsUsableAction(actionid) then return false; end;
    if Mage_GetActionCooldown(actionid) ~= 0 then return false; end;
+   return true;
+end
+
+function Mage_IsManaEnough(spell)
+   local actionid = Mage_GetActionID(spell);
+   if actionid == 0 then return false; end;
+   if not IsUsableAction(actionid) then return false; end;
    return true;
 end
 
@@ -240,6 +262,37 @@ function Test_Target_IsMe()
 	if UnitExists("playertargettarget") then
 		if UnitIsUnit("playertargettarget", "player") then
 			return true;
+		end
+	end
+	return false;
+end
+
+function Test_Raid_Target_IsMe()
+    if UnitInRaid("player") then
+		for id=1, GetNumGroupMembers()  do
+			local unit = "raid"..id;
+			if  UnitExists(unit)  then
+				if UnitExists(unit.."targettarget") and UnitLevel(unit.."target") >= 60 then
+					if  UnitClassification(unit.."target") == "worldboss" or UnitClassification(unit.."target") == "elite"   then
+						if UnitIsUnit(unit.."targettarget", "player") then
+							return true;
+						end
+					end
+				end
+			end
+		end
+	else
+		for id=1, GetNumGroupMembers() do
+			local unit = "party"..id;
+			if  UnitExists(unit)  then
+				if UnitExists(unit.."targettarget") and UnitLevel(unit.."target") >= 60 then
+					if  UnitClassification(unit.."target") == "worldboss" or UnitClassification(unit.."target") == "elite"   then
+						if UnitIsUnit(unit.."targettarget", "player") then
+							return true;
+						end
+					end
+				end
+			end
 		end
 	end
 	return false;

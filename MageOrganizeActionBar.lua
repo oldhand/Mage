@@ -29,182 +29,141 @@ end
 
 function Mage_OrganizeActionBar()
 
-    if Mage_PickupSpellByBook("圣光审判") then
+    if Mage_PickupSpellByBook("寒冰箭") then
         PlaceAction(1);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("奉献") then
+    if Mage_PickupSpellByBook("火焰冲击") then
         PlaceAction(2);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("制裁之锤") then
+    end;
+    if Mage_PickupSpellByBook("冰霜新星") then
         PlaceAction(3);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("圣光闪现") then
+    if Mage_PickupSpellByBook("冰锥术") then
         PlaceAction(4);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("圣光术") then
+    end;
+    if Mage_PickupSpellByBook("暴风雪") then
         PlaceAction(5);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("神圣震击") then
+    end;
+    if Mage_PickupSpellByBook("法术反制") then
         PlaceAction(6);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("神恩术") then
+    end;
+    if Mage_PickupSpellByBook("魔爆术") then
         PlaceAction(7);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("愤怒之锤") then
+    end;
+    if Mage_PickupSpellByBook("解除次级诅咒") then
         PlaceAction(8);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("圣光道标") then
+    if Mage_PickupSpellByBook("唤醒") then
         PlaceAction(9);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("智慧审判") then
+    end;
+    if Mage_PickupSpellByBook("火球术") then
         PlaceAction(10);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("智慧圣印") then
+    end;
+    if Mage_PickupSpellByBook("奥术飞弹") then
         PlaceAction(11);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("神启") then
-        PlaceAction(12);
-        ClearCursor();
-    end
+    end;
 
-    if Mage_PickupSpellByBook("圣盾术") then
+
+    if Mage_PickupSpellByBook("寒冰屏障") then
         PlaceAction(61);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("圣疗术") then
+    end;
+    if Mage_PickupSpellByBook("寒冰护体") then
         PlaceAction(62);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("纯净术") then
+    end;
+    if Mage_PickupSpellByBook("闪现术") then
         PlaceAction(63);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("清洁术") then
+    end;
+    if Mage_PickupSpellByBook("法力护盾") then
         PlaceAction(64);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("圣佑术") then
+    end;
+    if Mage_PickupSpellByBook("急速冷却") then
         PlaceAction(65);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("自由之手") then
+    if Mage_PickupSpellByBook("变形术") then
         PlaceAction(66);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("保护之手") then
+    if Mage_PickupSpellByBook("霜甲术") then
         PlaceAction(67);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("神圣恳求") then
+    if Mage_PickupSpellByBook("魔甲术") then
         PlaceAction(68);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("圣洁护盾") then
+    if Mage_PickupSpellByBook("缓落术") then
         PlaceAction(69);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("复仇之怒") then
-        PlaceAction(70);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("狮心") then
-        PlaceAction(71);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("生存意志") then
+
+    if Mage_PickupSpellByBook("逃命专家") then
         PlaceAction(72);
         ClearCursor();
     end
 
-
-    if Mage_PickupSpellByBook("救赎") then
-        PlaceAction(25);
-        ClearCursor();
-    end
-
-    if Mage_PickupSpellByBook("智慧祝福") then
+    if Mage_PickupSpellByBook("奥术智慧") then
         PlaceAction(26);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("强效智慧祝福") then
+    end;
+    if Mage_PickupSpellByBook("奥术光辉") then
         PlaceAction(27);
         ClearCursor();
-    end
-    if Mage_PickupSpellByBook("王者祝福") then
+    end;
+    if Mage_PickupSpellByBook("造水术") then
         PlaceAction(28);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("强效王者祝福") then
+    if Mage_PickupSpellByBook("造食术") then
         PlaceAction(29);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("力量祝福") then
+    if Mage_PickupSpellByBook("侦测魔法") then
         PlaceAction(30);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("强效力量祝福") then
+    if Mage_PickupSpellByBook("魔法增效") then
         PlaceAction(31);
         ClearCursor();
     end
-   if Mage_PickupSpellByBook("正义之怒") then
+    if Mage_PickupSpellByBook("魔法抑制") then
         PlaceAction(32);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("正义防御") then
+    if Mage_PickupSpellByBook("制造魔法红宝石") then
         PlaceAction(33);
         ClearCursor();
-    end
-
-
-    if Mage_PickupSpellByBook("正义圣印") then
-        PlaceAction(37);
+    end;
+    if Mage_PickupSpellByBook("制造魔法黄水晶") then
+        PlaceAction(34);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("防护冰霜结界") then
+        PlaceAction(35);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("驱邪术") then
-        PlaceAction(38);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("清算之手") then
-        PlaceAction(39);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("牺牲之手") then
-        PlaceAction(40);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("拯救之手") then
-        PlaceAction(41);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("神圣愤怒") then
-        PlaceAction(42);
+    if Mage_PickupSpellByBook("防护火焰结界") then
+        PlaceAction(36);
         ClearCursor();
     end
 
 
-
-    if Mage_PickupSpellByBook("神圣牺牲") then
-        PlaceAction(47);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("神圣干涉") then
-        PlaceAction(48);
-        ClearCursor();
-    end
-
-
-    if Mage_PickupSpellByBook("攻击") then
+    if Mage_PickupSpellByBook("射击") then
         PlaceAction(49);
         ClearCursor();
     end

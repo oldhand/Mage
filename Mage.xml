@@ -9,6 +9,7 @@
 	<Script file="MageTalent.lua"/>
 	<Script file="MageBag.lua"/>
 	<Script file="MagePlayerSafe.lua"/>
+	<Script file="MageCombat.lua"/>
 	<Script file="MageLog.lua"/>
     <Script file="Mage.lua"/>
 	<Script file="MageOrganizeActionBar.lua"/>

@@ -50,77 +50,173 @@ function Mage_playerSafe()
     end
 
 
+--
+--     if Mage_HasSpell("霜甲术") and not Mage_PlayerBU("霜甲术") then
+--       if Mage_CastSpell("霜甲术") then return true; end;
+--     end
+--
+--     if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术智慧") then
+--         if Mage_CastSpell("奥术智慧") then return true; end;
+--     end
 
-    if Mage_HasSpell("霜甲术") and not Mage_PlayerBU("霜甲术") then
-      if Mage_CastSpell("霜甲术") then return true; end;
-    end
 
-    if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术智慧") then
-        if Mage_CastSpell("奥术智慧") then return true; end;
-    end
+--    if UnitAffectingCombat("player") and Mage_GetUnitManaPercent("player") < 10 then
+--    		if Mage_CheckBagHasItem("法力红宝石") then
+--    			 if Mage_CastSpell("法力红宝石") then  return true; end;
+--    		end
+--    		if Mage_CheckBagHasItem("法力黄水晶") then
+--    			 if Mage_CastSpell("法力黄水晶") then  return true; end;
+--    		end
+--    	end
+--    	if not UnitExists("target") or not UnitCanAttack("player","target")  then
+--    		if not UnitAffectingCombat("player") and not Mage_CheckBagHasItem("法力红宝石") and not Mage_movement then
+--    			if Mage_CastSpell("制造魔法红宝石") then return true; end;
+--    		end
+--    		if not UnitAffectingCombat("player") and not Mage_CheckBagHasItem("法力黄水晶") and not Mage_movement then
+--    			if Mage_CastSpell("制造魔法黄水晶") then return true; end;
+--    		end
+--    	end
 
 
-   if UnitAffectingCombat("player") then
-        if Mage_HasSpell("神启") and Mage_GetSpellCooldown("神启") == 0 and Mage_CheckPartyLowHealth() and not Mage_PlayerBU("神启") then
-            if Mage_CastSpell("神启") then return true; end;
+
+--    	if  Mage_PlayerDeBUCount() > 3 and not Mage_PlayerDeBU("低温") and not Mage_HasBattleFlag()  then
+--    		if Mage_GetUnitHealthPercent("player") < 95 and UnitAffectingCombat("player") and not Mage_Get_GuideMode() then
+--    			if Mage_GetSpellCooldown("寒冰屏障") == 0 then
+--    				if Mage_CastMacro("寒冰屏障") then return true; end;
+--    			end
+--    		end;
+--    	end;
+--
+--        local AttackMeNpcName = GetActiveMeleeCount();
+--        if AttackMeNpcName and  AttackMeNpcName >= 6 and UnitIsPlayer("target")  and not Mage_HasBattleFlag() then
+--    		if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_Get_GuideMode() then
+--    			if Mage_CastMacro("寒冰屏障") then
+--    				Mage_Default_AddMessage("**"..AttackMeNpcName.."个目标正在攻击我,被集火了,使用冰箱...**");
+--    				Mage_Combat_AddMessage("**"..AttackMeNpcName.."个目标正在攻击我,被集火了,使用冰箱...**");
+--    				return true;
+--    			end;
+--    		end;
+--    	end;
+
+   	if UnitAffectingCombat("player") then
+   		if  IsInInstance() then
+   			if  UnitClassification("target") == "worldboss" and Mage_GetUnitManaPercent("player") < 60 then
+   				if Mage_CheckBagHasItem("法力红宝石") then
+   					 if Mage_CastSpell("法力红宝石") then  return true; end;
+   				end
+   			end;
+   			if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
+   					if Test_Target_IsMe() and UnitLevel("target") >= 60 then
+   						if  not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   							if Mage_CastMacro("寒冰屏障") then
+   								Mage_Default_AddMessage("**OT了,使用冰箱...**");
+   								Mage_Combat_AddMessage("**OT了,使用冰箱...**");
+   								return true;
+   							end;
+   						end;
+   					end;
+   			end;
+   			if Test_Raid_Target_IsMe() then
+   				if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   					if Mage_CastMacro("寒冰屏障") then
+   						Mage_Default_AddMessage("**OT了,使用冰箱...**");
+   						Mage_Combat_AddMessage("**OT了,使用冰箱...**");
+   						return true;
+   					end;
+   				end;
+   			end;
+   		end
+   	end;
+
+   	if   Mage_PlayerDeBU("肾击")
+   	   or  Mage_PlayerDeBU("偷袭")
+   	   or  Mage_PlayerDeBU("突袭")
+   	   or  Mage_PlayerDeBU("割碎")
+   	   or  Mage_PlayerDeBU("寒冰箭")
+   	   or  Mage_PlayerDeBU("冲锋")
+   	   or  Mage_PlayerDeBU("饥饿之寒")
+   	   or  Mage_PlayerDeBU("暗影之怒")
+   	   or  Mage_PlayerDeBU("蛮力猛击")
+   	   or  Mage_PlayerDeBU("死亡之握")
+   	   or  Mage_PlayerDeBU("反手一击")
+   	   or  Mage_PlayerDeBU("窒息")
+   	   or  Mage_PlayerDeBU("震荡波")
+   	   or  Mage_PlayerDeBU("风暴之锤")
+   	   or  Mage_PlayerDeBU("扫堂腿")
+   	   or  Mage_PlayerDeBU("制裁之拳")
+   	   or  Mage_PlayerDeBU("制裁之锤")
+   	   or  Mage_PlayerDeBU("混乱新星")
+   			   then
+   				   if Mage_GetSpellCooldown("闪现术") == 0 then
+   		   				if Mage_CastSpell("闪现术") then
+   		   					Mage_Default_AddMessage("**因为昏迷使用闪现术...**");
+   		   					return true;
+   		   				end;
+   					else
+   						if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_Get_GuideMode() then
+   							if Mage_CastMacro("寒冰屏障") then return true; end;
+   						end;
+   				   end
+
+   	end;
+
+   	if IsInInstance() then
+   		if not Mage_PlayerBU("寒冰护体") and not UnitAffectingCombat("player") then
+   			if Mage_CastSpell("寒冰护体") then  return true; end;
+   		end;
+   	end
+
+   	if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("魔甲术") and not UnitAffectingCombat("player") then
+   		if Mage_CastSpell("霜甲术") then  return true; end;
+   	end;
+
+--    	if not UnitExists("target") or UnitIsUnit("target", "player") or UnitCanAttack("player","target")  then
+--    		if not Mage_PlayerBU("魔法抑制") and not UnitAffectingCombat("player") and not Test_HasCurer() then
+--    			if Mage_CastSpell("魔法抑制") then  return true; end;
+--    		end;
+--    	end
+
+
+
+   	if not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not UnitAffectingCombat("player") and IsUsableSpell("奥术智慧") then
+   		if Mage_playerSelectSelf() then
+            if Mage_CastSpell("奥术智慧") then return true; end;
+            Mage_SetText(">奥术智慧",0);
+            return true;
+        else
+            if Mage_TargetPlayer() then return true; end;
         end
-         if Mage_PlayerBU("神圣恳求") and not Mage_IsPartyHealthSafe() then
-            if Mage_CancelAuraPlea() then return true; end;
-        end
-        if Mage_IsTargetLegacyBoss() or Mage_CheckPartyLowHealth() then
-            if Mage_HasSpell("复仇之怒") and Mage_GetSpellCooldown("复仇之怒") == 0 and not Mage_PlayerBU("复仇之怒") then
-                if Mage_CastSpell("复仇之怒") then return true; end;
-            end
-        end
-    else
-          if Mage_HasSpell("神圣恳求") and Mage_GetSpellCooldown("神圣恳求") == 0 and Mage_GetUnitManaPercent("player") < 90 then
-              if Mage_CastSpell("神圣恳求") then return true; end;
-          end
-    end
+   	end;
+
+   	if UnitExists("target")  and UnitIsPlayer("target") then
+   		 if UnitClass("target") == "法师" and IsSpellInRange("侦测魔法","target") == 1 then
+   			  if Test_Target_IsMe() and UnitCanAttack("player","target") then
+   				   if Mage_CastMacro("防护冰霜结界") then  return true; end;
+   			  end
+   		 end
+   		 if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then
+   			if Mage_CastSpell("寒冰护体") then  return true; end;
+   			if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") then
+   				if Mage_CastSpell("法力护盾") then  return true; end;
+   			end
+   		 end;
+   	else
+   		if UnitExists("target") then
+   			 if not UnitAffectingCombat("player") and UnitCanAttack("player","target")  then
+   				if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then
+   					if Mage_CastSpell("寒冰护体") then  return true; end;
+   				end;
+   			 end;
+   			 if Test_Target_IsMe() and UnitCanAttack("player","target") then
+   				if not Mage_PlayerBU("寒冰护体") then
+   					if Mage_CastSpell("寒冰护体") then return true; end;
+   					if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") then
+   						if Mage_CastSpell("法力护盾") then  return true; end;
+   					end
+   				end;
+   			end;
+   		end;
+   	end;
 	return false;
 end
 
-
--- 检测小队所有成员（包括自己）血量是否都在 95% 以上
--- 返回: true (全员安全/满血), false (有人血量低于等于 95%)
-function Mage_IsPartyHealthSafe()
-    -- 1. 先检查自己
-    if Mage_GetUnitHealthPercent("player") <= 90 then
-        return false
-    end
-    for i = 1, 4 do
-        local unit = "party" .. i
-        if UnitExists(unit) and UnitIsConnected(unit) and not UnitIsDeadOrGhost(unit) and UnitIsVisible(unit) and IsSpellInRange("圣光术",unit) == 1 then
-            if Mage_GetUnitHealthPercent(unit) <= 90 then
-                return false
-            end
-        end
-    end
-    return true
-end
-
--- ============================================================
--- 函数: 检查小队(包括自己)是否有超过2人血量低于75%
--- 返回值: true (满足条件, 至少3人危急), false (不满足)
--- ============================================================
-function Mage_CheckPartyLowHealth()
-    local lowHealthCount = 0
-    local threshold = 75 -- 75% 血量阈值
-    local unitsToCheck = {"player", "party1", "party2", "party3", "party4"}
-    for _, unit in pairs(unitsToCheck) do
-        if UnitExists(unit) then
-            if not UnitIsDeadOrGhost(unit) and UnitIsConnected(unit) then
-                if Mage_GetUnitManaPercent(unit) < threshold then
-                    lowHealthCount = lowHealthCount + 1;
-                end
-                if Mage_GetUnitManaPercent(unit) < 30 then
-                    lowHealthCount = lowHealthCount + 2; -- 额外计数
-                end
-            end
-        end
-    end
-    if lowHealthCount > 2 then
-        return true
-    end
-    return false
-end

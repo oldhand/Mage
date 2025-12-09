@@ -98,25 +98,12 @@ local function Mage_IsUnitTargetingBoss(unit)
 end
 
 function Mage_IsTargetLegacyBoss()
-    -- 1. 如果在团队中
-    if UnitInRaid("player") then
-        local raidCount = GetNumRaidMembers()
-        for i = 1, raidCount do
-            local unit = "raid" .. i
-            if UnitExists(unit) and UnitIsVisible(unit) and Mage_IsUnitTargetingBoss(unit) then
-                return true
-            end
-        end
-    -- 2. 如果在小队中（或者只有自己）
-    else
-        -- 检查自己
-        if Mage_IsUnitTargetingBoss("player") then
-            return true
-        end
-        -- 检查队友
-        for i = 1, 4 do
-            local unit = "party" .. i
-            if UnitExists(unit) and UnitIsVisible(unit) and Mage_IsUnitTargetingBoss(unit) then
+    local prefix = UnitInRaid("player") and "raid" or "party"
+    local count = UnitInRaid("player") and 40 or 4
+    for id = 1, count do
+        local unit = prefix .. id
+         if UnitExists(unit) and IsSpellInRange("圣光术",unit) == 1 then
+             if Mage_IsUnitTargetingBoss(unit) then
                 return true
             end
         end

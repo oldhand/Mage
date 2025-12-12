@@ -25,10 +25,6 @@ function Mage_playerCombat()
 		end
 	end
 
-	if not Mage_PlayerBU("魔甲术") and not Mage_Test_Battlefield() and GetNumGroupMembers() > 0 and IsInInstance() then
-		if Mage_CastSpell("魔甲术") then  return true; end;
-	end
-
 	if  UnitIsPlayer("target") then
 		if UnitClass("target") == "法师" or UnitClass("target") == "圣骑士" then
 			if IsSpellInRange("侦测魔法","target") == 1 then
@@ -60,16 +56,30 @@ function Mage_playerCombat()
 
 -- 	if Mage_Interrupt_Casting() then return true; end;
 
+    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
+        if Mage_CastSpell("冰枪术") then  return true; end
+    end
+
+
+    if UnitClassification("player") and UnitClassification("target") then
+        if UnitIsPlayer("target") or
+           UnitClassification("target") == "worldboss" or
+           UnitClassification("target") == "elite" then
+            if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                if Mage_CastSpell("狮心") then return true; end;
+            end
+            if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                if Mage_CastSpell("冰冷血脉") then return true; end;
+            end
+        end
+    end
+
     if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then
           if Mage_HasSpell("霜火之箭") then
                if Mage_CastSpell("霜火之箭") then  return true; end
           else
                if Mage_CastSpell("火球术") then  return true; end
           end
-    end;
-
-    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
-        if Mage_CastSpell("冰枪术") then  return true; end
     end
 
 
@@ -128,7 +138,7 @@ function Mage_playerCombat()
 	    if Mage_CastSpell("火焰冲击") then return true; end
 	end
 
-	if not UnitIsPlayer("target") and Mage_GetUnitManaPercent("player") > 50 and Mage_GetUnitHealthPercent("target") < 95 and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
+	if not UnitIsPlayer("target") and Mage_GetUnitHealthPercent("target") < 95 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
 		if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
             if Mage_CastSpell("火焰冲击") then return true; end
 		end
@@ -137,14 +147,14 @@ function Mage_playerCombat()
 	if UnitHealthMax("target") == 100 then
 		if Mage_GetUnitHealthPercent("target") < 2 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2  then
             if Mage_CastSpell("火焰冲击") then return true; end
-			if CheckInteractDistance("target",2) then
+			if CheckInteractDistance("target",3) then
 				if Mage_CastSpell("魔爆术") then  return  true; end;
 			end
 		end
 	else
 		if UnitHealth("target") < 300 and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2  then
             if Mage_CastSpell("火焰冲击") then return true; end
-			if CheckInteractDistance("target",2) then
+			if CheckInteractDistance("target",3) then
 				if Mage_CastSpell("魔爆术") then  return  true; end;
 			end
 		end
@@ -174,12 +184,9 @@ function Mage_playerCombat()
 			if UnitAffectingCombat("player")  and  IsSpellInRange("火焰冲击","target") == 1 then
                 if Mage_CastSpell("火焰冲击") then return true; end
 			end
-			if CheckInteractDistance("target",2)  then
+			if CheckInteractDistance("target", 3)  then
 				if Mage_CastSpell("魔爆术") then  return  true; end;
 			end
--- 			if Mage_HasNearEnemy() and UnitIsPlayer("target") then
--- 				if Mage_CastSpell("魔爆术") then  return  true; end;
--- 			end
 	    end;
 		Mage_SetText("移动中",0);
 		return;

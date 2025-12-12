@@ -57,7 +57,7 @@ function Mage_OrganizeActionBar()
         PlaceAction(7);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("解除次级诅咒") then
+    if Mage_PickupSpellByBook("闪现术") then
         PlaceAction(8);
         ClearCursor();
     end
@@ -73,7 +73,7 @@ function Mage_OrganizeActionBar()
         PlaceAction(11);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("奥术飞弹") then
+    if Mage_PickupSpellByBook("冰冷血脉") then
         PlaceAction(12);
         ClearCursor();
     end;
@@ -87,7 +87,7 @@ function Mage_OrganizeActionBar()
         PlaceAction(62);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("闪现术") then
+    if Mage_PickupSpellByBook("解除次级诅咒") then
         PlaceAction(63);
         ClearCursor();
     end;
@@ -133,33 +133,47 @@ function Mage_OrganizeActionBar()
     end
 
     if Mage_PickupSpellByBook("奥术智慧") then
-        PlaceAction(26);
+        PlaceAction(25);
         ClearCursor();
     end;
     if Mage_PickupSpellByBook("奥术光辉") then
-        PlaceAction(27);
+        PlaceAction(26);
         ClearCursor();
     end;
     if Mage_PickupSpellByBook("造水术") then
-        PlaceAction(28);
+        PlaceAction(27);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("造食术") then
-        PlaceAction(29);
+        PlaceAction(28);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("侦测魔法") then
-        PlaceAction(30);
+        PlaceAction(29);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("魔法增效") then
-        PlaceAction(31);
+        PlaceAction(30);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("魔法抑制") then
+        PlaceAction(31);
+        ClearCursor();
+    end
+    if Mage_PickupSpellByBook("防护冰霜结界") then
         PlaceAction(32);
         ClearCursor();
     end
+    if Mage_PickupSpellByBook("防护火焰结界") then
+        PlaceAction(33);
+        ClearCursor();
+    end
+
+    if Mage_PickupSpellByBook("奥术飞弹") then
+        PlaceAction(37);
+        ClearCursor();
+    end;
+
     if Mage_PickupSpellByBook("制造魔法红宝石") then
         PlaceAction(33);
         ClearCursor();
@@ -168,14 +182,6 @@ function Mage_OrganizeActionBar()
         PlaceAction(34);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("防护冰霜结界") then
-        PlaceAction(35);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("防护火焰结界") then
-        PlaceAction(36);
-        ClearCursor();
-    end
 
 
     if Mage_PickupSpellByBook("射击") then

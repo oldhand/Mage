@@ -31,12 +31,6 @@ end
 
 
 function Mage_playerSafe()
-    -- 圣盾术判断逻辑
-    if Mage_GetUnitHealthPercent("player") < 20 and UnitAffectingCombat("player") then
---         if not Mage_PlayerDeBU("自律") and Mage_GetSpellCooldown("圣盾术") == 0 then
---              if Mage_CastSpell("圣盾术") then return true; end;
---         end
-    end
 
     if Mage_GetUnitHealthPercent("player") < 20 and UnitAffectingCombat("player") and not Mage_Test_Battlefield() and not Mage_PlayerBU("圣盾术") then
         -- 检测防抖定时器 (防止瞬间重复按键)
@@ -50,11 +44,7 @@ function Mage_playerSafe()
     end
 
 
---
---     if Mage_HasSpell("霜甲术") and not Mage_PlayerBU("霜甲术") then
---       if Mage_CastSpell("霜甲术") then return true; end;
---     end
---
+
     if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") then
         if Mage_CastSpell("奥术智慧") then return true; end;
     end
@@ -79,18 +69,18 @@ function Mage_playerSafe()
 
 
 
---    	if  Mage_PlayerDeBUCount() > 3 and not Mage_PlayerDeBU("低温") and not Mage_HasBattleFlag()  then
---    		if Mage_GetUnitHealthPercent("player") < 95 and UnitAffectingCombat("player") and not Mage_Get_GuideMode() then
---    			if Mage_GetSpellCooldown("寒冰屏障") == 0 then
---    				if Mage_CastMacro("寒冰屏障") then return true; end;
---    			end
---    		end;
---    	end;
---
+   	if Mage_HasSpell("寒冰屏障") and Mage_GetActiveMeleeCount() > 2 and not Mage_PlayerDeBU("低温") then
+   		if Mage_GetUnitHealthPercent("player") < 30 and UnitAffectingCombat("player") then
+   			if Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   				if Mage_CastSpell("寒冰屏障") then return true; end;
+   			end
+   		end;
+   	end;
+
 --        local AttackMeNpcName = GetActiveMeleeCount();
 --        if AttackMeNpcName and  AttackMeNpcName >= 6 and UnitIsPlayer("target")  and not Mage_HasBattleFlag() then
---    		if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_Get_GuideMode() then
---    			if Mage_CastMacro("寒冰屏障") then
+--    		if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+--    			if Mage_CastSpell("寒冰屏障") then
 --    				Mage_Default_AddMessage("**"..AttackMeNpcName.."个目标正在攻击我,被集火了,使用冰箱...**");
 --    				Mage_Combat_AddMessage("**"..AttackMeNpcName.."个目标正在攻击我,被集火了,使用冰箱...**");
 --    				return true;
@@ -106,7 +96,7 @@ function Mage_playerSafe()
    				end
    			end;
    			if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
-   					if Test_Target_IsMe() and UnitLevel("target") >= UnitLevel("player")  then
+   					if Test_Target_IsMe() and UnitLevel("target") > UnitLevel("player")  then
    						if  not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
    							if Mage_CastSpell("寒冰屏障") then
    								Mage_Default_AddMessage("**OT了,使用冰箱...**");
@@ -153,8 +143,8 @@ function Mage_playerSafe()
    		   					return true;
    		   				end;
    					else
-   						if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_Get_GuideMode() then
-   							if Mage_CastMacro("寒冰屏障") then return true; end;
+   						if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   							if Mage_CastSpell("寒冰屏障") then return true; end;
    						end;
    				   end
 
@@ -189,14 +179,10 @@ function Mage_playerSafe()
 --    		end;
 --    	end
 
-
-
--- ·
-
    	if UnitExists("target")  and UnitIsPlayer("target") then
    		 if UnitClass("target") == "法师" and IsSpellInRange("侦测魔法","target") == 1 then
    			  if Test_Target_IsMe() and UnitCanAttack("player","target") then
-   				   if Mage_CastMacro("防护冰霜结界") then  return true; end;
+   				   if Mage_CastSpell("防护冰霜结界") then  return true; end;
    			  end
    		 end
    		 if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then

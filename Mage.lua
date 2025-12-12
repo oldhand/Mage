@@ -88,7 +88,7 @@ end;
 
 
 
-function getChatEditBox()
+function Mage_getChatEditBox()
 	if ChatFrameEditBox ~= nil then
 		ChatEditBox = ChatFrameEditBox;
 	elseif ChatFrame1EditBox ~= nil then
@@ -166,7 +166,7 @@ function Mage_Frame_OnUpdate()
 			return;	
 		end;
 	else
-		getChatEditBox();
+		Mage_getChatEditBox();
 	end;  
 	
 	if UnitIsDeadOrGhost("player")  then

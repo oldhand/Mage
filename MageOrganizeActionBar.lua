@@ -123,6 +123,14 @@ function Mage_OrganizeActionBar()
         PlaceAction(70);
         ClearCursor();
     end
+    if Mage_PickupSpellByBook("狮心") then
+        PlaceAction(71);
+        ClearCursor();
+    end
+    if Mage_PickupSpellByBook("生存意志") then
+        PlaceAction(72);
+        ClearCursor();
+    end
 
     if Mage_PickupSpellByBook("奥术智慧") then
         PlaceAction(26);

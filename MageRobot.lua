@@ -53,15 +53,7 @@ function Mage_Robot_fun()
 	 end
 end
 
--- ======================================================
--- 创建插件的主框架
-local Mage_robot_frame = CreateFrame("Frame")
 
--- 注册事件
-Mage_robot_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-Mage_robot_frame:RegisterEvent("PLAYER_REGEN_DISABLED")
-Mage_robot_frame:RegisterEvent("PLAYER_REGEN_ENABLED")
-Mage_robot_frame:RegisterEvent("UI_ERROR_MESSAGE")
 
 -- 核心处理事件
 local function OnRobotEvent(self, event, ...)
@@ -103,7 +95,7 @@ function Mage_RobotUpdate()
     return false;
 end
 
-Mage_robot_frame:SetScript("OnEvent", OnRobotEvent)
+
 
 
 function Mage_IsPlayerInQueue()
@@ -122,4 +114,17 @@ function Mage_IsPlayerInQueue()
     end
 
     return false, nil
+end
+
+if UnitClass("player") == "法师" then
+    -- ======================================================
+    -- 创建插件的主框架
+    local Mage_robot_frame = CreateFrame("Frame")
+
+    -- 注册事件
+    Mage_robot_frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+    Mage_robot_frame:RegisterEvent("PLAYER_REGEN_DISABLED")
+    Mage_robot_frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    Mage_robot_frame:RegisterEvent("UI_ERROR_MESSAGE")
+    Mage_robot_frame:SetScript("OnEvent", OnRobotEvent)
 end

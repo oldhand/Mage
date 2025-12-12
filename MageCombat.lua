@@ -15,19 +15,6 @@ function Mage_playerCombat()
 		end
 	end;
 
---     if UnitAffectingCombat("target") and Mage_HasSpell("火焰冲击") and IsSpellInRange("火焰冲击","target") == 1 and Mage_GetSpellCooldown("火焰冲击") == 0 then
---         if Mage_CastSpell("火焰冲击") then return true; end;
---     end
---
---    if CheckInteractDistance("target", 3) then
---        if Mage_HasSpell("冰霜新星") and Mage_GetSpellCooldown("冰霜新星") == 0 then
---               if Mage_CastSpell("冰霜新星") then return true; end;
---        end
---     end
---
--- 	if not Mage_Check_Movement() and IsSpellInRange("寒冰箭", "target") == 1 then
---          if Mage_CastSpell("寒冰箭") then return true; end;
---     end
 
     if IsInInstance() and not UnitIsPlayer("target") and not Test_Target_IsMe()  then
 		if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then

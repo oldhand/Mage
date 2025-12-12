@@ -1,4 +1,33 @@
 ﻿
+
+-- 定义敌对单位的掩码
+local HOSTILE_FLAG = 0x00000040
+
+-- ======================================================
+-- 近战攻击者统计 (8秒窗口)
+-- ======================================================
+local meleeAttackers = {} -- 格式: { [GUID] = 最后攻击时间戳 }
+local MELEE_WINDOW = 5    -- n秒窗口
+
+-- 辅助函数: 计算当前8秒内有多少个单位在对你进行近战攻击
+function Mage_GetActiveMeleeCount()
+    local now = GetTime()
+    local count = 0
+
+    for guid, lastTime in pairs(meleeAttackers) do
+        if (now - lastTime) <= MELEE_WINDOW then
+            count = count + 1
+        else
+            -- 超过8秒没打过你，从表中移除（清理垃圾数据）
+            meleeAttackers[guid] = nil
+        end
+    end
+    return count
+end
+-- ======================================================
+
+
+
 if UnitClass("player") == "法师" then
     -- 创建插件的主框架
     local frame = CreateFrame("Frame")
@@ -8,33 +37,6 @@ if UnitClass("player") == "法师" then
     local totalDamage = 0
     local combatStartTime = 0
     local isInCombat = false
-
-    -- 定义敌对单位的掩码
-    local HOSTILE_FLAG = 0x00000040
-
-    -- ======================================================
-    -- 近战攻击者统计 (8秒窗口)
-    -- ======================================================
-    local meleeAttackers = {} -- 格式: { [GUID] = 最后攻击时间戳 }
-    local MELEE_WINDOW = 5    -- n秒窗口
-
-    -- 辅助函数: 计算当前8秒内有多少个单位在对你进行近战攻击
-    function GetActiveMeleeCount()
-        local now = GetTime()
-        local count = 0
-
-        for guid, lastTime in pairs(meleeAttackers) do
-            if (now - lastTime) <= MELEE_WINDOW then
-                count = count + 1
-            else
-                -- 超过8秒没打过你，从表中移除（清理垃圾数据）
-                meleeAttackers[guid] = nil
-            end
-        end
-        return count
-    end
-    -- ======================================================
-
 
     -- 注册事件
     frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -160,7 +162,7 @@ if UnitClass("player") == "法师" then
 
                 if inAmount > 0 then
                     -- 获取当前的围攻数量 (自动清理8秒前的数据)
-                    local attackerCount = GetActiveMeleeCount()
+                    local attackerCount = Mage_GetActiveMeleeCount()
 
                     -- 如果是近战伤害，在后面显示 [围攻: N]
                     local extraInfo = ""

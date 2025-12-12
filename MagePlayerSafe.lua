@@ -106,9 +106,9 @@ function Mage_playerSafe()
    				end
    			end;
    			if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
-   					if Test_Target_IsMe() and UnitLevel("target") >= 60 then
+   					if Test_Target_IsMe() and UnitLevel("target") >= UnitLevel("player")  then
    						if  not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
-   							if Mage_CastMacro("寒冰屏障") then
+   							if Mage_CastSpell("寒冰屏障") then
    								Mage_Default_AddMessage("**OT了,使用冰箱...**");
    								Mage_Combat_AddMessage("**OT了,使用冰箱...**");
    								return true;
@@ -118,7 +118,7 @@ function Mage_playerSafe()
    			end;
    			if Test_Raid_Target_IsMe() then
    				if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
-   					if Mage_CastMacro("寒冰屏障") then
+   					if Mage_CastSpell("寒冰屏障") then
    						Mage_Default_AddMessage("**OT了,使用冰箱...**");
    						Mage_Combat_AddMessage("**OT了,使用冰箱...**");
    						return true;

@@ -1,16 +1,15 @@
-﻿local bagFrame = CreateFrame("Frame")
-
--- 缓存表：[物品名] = {bag=0, slot=1}
+﻿-- 缓存表：[物品名] = {bag=0, slot=1}
 local Mage_ItemCache = {}
-
--- ========================================================
---  执行逻辑
--- ========================================================
-bagFrame:RegisterEvent("BAG_UPDATE")
-bagFrame:SetScript("OnEvent", function()
-    Mage_RefreshItemCache();
-end)
-
+if UnitClass("player") == "法师" then
+    local bagFrame = CreateFrame("Frame")
+    -- ========================================================
+    --  执行逻辑
+    -- ========================================================
+    bagFrame:RegisterEvent("BAG_UPDATE")
+    bagFrame:SetScript("OnEvent", function()
+        Mage_RefreshItemCache();
+    end)
+end
 -- 刷新缓存函数
 function Mage_RefreshItemCache()
     Mage_ItemCache = {} -- 清空旧缓存

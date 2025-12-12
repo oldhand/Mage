@@ -35,28 +35,6 @@ if UnitClass("player") == "法师" then
     end
     -- ======================================================
 
-    -- ======================================================
-    -- 动态平均值统计 (Session 级别，重载界面前一直保留)
-    -- ======================================================
-    -- 数据结构: { total = 总治疗量, count = 施法次数 }
-    local flashData = { total = 0, count = 0 }
-    local holyData = { total = 0, count = 0 }
-
-    -- 全局变量 (实时更新为平均值)
-    Mage_heal_benchmark = 0       -- 圣光闪现平均值
-    Mage_greaterheal_benchmark = 0 -- 圣光术平均值
-
-    function Mage_GetHealBenchmark()
-      return Mage_heal_benchmark
-    end
-
-    function Mage_GetGreaterHealBenchmark()
-      if Mage_greaterheal_benchmark == 0 then
-        Mage_greaterheal_benchmark = Mage_heal_benchmark * 2;
-      end
-      return Mage_greaterheal_benchmark
-    end
-    -- ======================================================
 
     -- 注册事件
     frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
@@ -103,7 +81,7 @@ if UnitClass("player") == "法师" then
                  StartTimer("FAILED_LINE_OF_SIGHT")
                  Blizzard_AddMessage("**视野遮档，无法施法**", 1, 0, 0, "crit")
                  Mage_SendFollowNotifyMessage("视野遮档，无法施法")
-                 if UnitExists("target") then
+                 if UnitExists("target") and not UnitCanAttack("player","target") then
                      StartTimer(UnitName("target").."_FAILED_LINE_OF_SIGHT");
                      Mage_SendChatMessage("视野遮档，无法给" .. UnitName("target").. "施放治疗法术", UnitName("target"));
                  end
@@ -151,34 +129,15 @@ if UnitClass("player") == "法师" then
                         if Mage_Get_CombatLogMode() then
                             Mage_AddMessage(string.format("|cffFF00FF[无效]|r %s 免疫了你的 <%s> !", destName or "目标", spellName))
                         end
-                    end
-                end
-
-                -- >>> 新增逻辑 D: 法师治疗平均值自动计算 <<<
-                if subevent == "SPELL_HEAL" then
-                    local spellName = arg13
-                    local amount = arg15
-                    local isCritical = arg18
-
-                    local currentAvg = 0
-                    -- 1. 识别并更新统计数据
-                    if not isCritical then
-                        if spellName == "圣光闪现" then
-                            flashData.total = flashData.total + amount
-                            flashData.count = flashData.count + 1
-
-                            -- 更新全局基准值为当前平均值
-                            Mage_heal_benchmark = math.floor(flashData.total / flashData.count)
-                            currentAvg = Mage_heal_benchmark
-
-                        elseif spellName == "圣光术" then
-                            holyData.total = holyData.total + amount
-                            holyData.count = holyData.count + 1
-
-                            -- 更新全局基准值为当前平均值
-                            Mage_greaterheal_benchmark = math.floor(holyData.total / holyData.count)
-                            currentAvg = Mage_greaterheal_benchmark
-                        end
+                      local g_FindNpcName = false;
+                      for k, v in pairs(Mage_SaveData) do
+                          if v["npcname"] == destName and  v["spellname"] == spellName then
+                         g_FindNpcName = true;
+                          end
+                      end
+                      if not g_FindNpcName then
+                          table.insert(Mage_SaveData,{["npcname"] = destName,["spellname"] = spellName,});
+                      end;
                     end
                 end
             end

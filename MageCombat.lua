@@ -14,6 +14,7 @@ function Mage_playerCombat()
 			    return true;
 		end
 	end;
+
 --     if UnitAffectingCombat("target") and Mage_HasSpell("火焰冲击") and IsSpellInRange("火焰冲击","target") == 1 and Mage_GetSpellCooldown("火焰冲击") == 0 then
 --         if Mage_CastSpell("火焰冲击") then return true; end;
 --     end
@@ -27,6 +28,7 @@ function Mage_playerCombat()
 -- 	if not Mage_Check_Movement() and IsSpellInRange("寒冰箭", "target") == 1 then
 --          if Mage_CastSpell("寒冰箭") then return true; end;
 --     end
+
     if IsInInstance() and not UnitIsPlayer("target") and not Test_Target_IsMe()  then
 		if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
 			if UnitHealth("target") == UnitHealthMax("target") then
@@ -63,7 +65,25 @@ function Mage_playerCombat()
 		return;
 	end;
 
+	if UnitExists("pet") and not UnitIsDead("pet") then
+        if not Mage_IsPetAttacking() then
+             if Mage_PetAttack() then  return true; end
+        end
+    end
+
 -- 	if Mage_Interrupt_Casting() then return true; end;
+
+    if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then
+          if Mage_HasSpell("霜火之箭") then
+               if Mage_CastSpell("霜火之箭") then  return true; end
+          else
+               if Mage_CastSpell("火球术") then  return true; end
+          end
+    end;
+
+    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
+        if Mage_CastSpell("冰枪术") then  return true; end
+    end
 
 
   	if Mage_TargetDeBU("冰霜新星")  and CheckInteractDistance("target",2) and Mage_Target_Face and GetTimer("变形术") > 2 then
@@ -185,4 +205,104 @@ function Mage_playerCombat()
 		Mage_SetText("移动中",0);
 		return;
 	end
+end;
+
+
+
+function Mage_Interrupt_Casting()
+	if UnitExists("target") and Mage_GetSpellCooldown("法术反制") == 0 then
+		if UnitIsPlayer("target") and (UnitClass("target") == "法师" or UnitClass("target") == "牧师") then
+			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
+				local spellname = UnitCastingInfo("target")
+				if spellname  then
+					 if string.find(spellname,"变形术") or string.find(spellname,"治疗") then
+				 		if Mage_CastSpell("法术反制") then
+				 			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
+				 			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
+				 			return true;
+				 		end;
+					end;
+				end
+			end;
+		else
+			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
+				local spellname = UnitCastingInfo("target")
+				if spellname  then
+					 if not string.find(spellname,"稳固射击")  and not string.find(spellname,"眼镜蛇射击") then
+						if  UnitIsPlayer("target")  then
+							if Mage_do_Interrupt_Casting(spellname) then return true; end;
+						else
+							if not Mage_ImmuneSpell("法术反制") then
+							    if Mage_do_Interrupt_Casting(spellname) then return true; end;
+							end;
+						end;
+					end;
+				end
+				spellname = UnitChannelInfo("target")
+				if spellname then
+					if  UnitIsPlayer("target")  then
+						if Mage_do_Interrupt_Casting(spellname) then return true; end;
+					else
+						if not Mage_ImmuneSpell("法术反制")  then
+						    if Mage_do_Interrupt_Casting(spellname) then return true; end;
+						end;
+					end;
+				end
+			end;
+		end
+	end;
+    return false;
+end;
+
+
+function Mage_force_Interrupt_Casting()
+	if UnitExists("target") and Mage_GetSpellCooldown("法术反制") == 0 then
+			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
+				local spellname = UnitCastingInfo("target")
+				if spellname then
+					 if not UnitIsPlayer("target")  then
+						 if Mage_Is_Need_Interrupt_Boss() and not Mage_Is_Need_Interrupt_Spell(spellname) then
+							Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
+							return false;
+						 end
+					 end
+					 if string.find(spellname,"变形术") or string.find(spellname,"治疗") then
+				 		if Mage_CastSpell("法术反制") then
+				 			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
+				 			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
+				 			return true;
+				 		end;
+					end;
+				end
+			end;
+	end;
+    return false;
+end;
+
+function Mage_do_Interrupt_Casting(spellname)
+	 if not UnitIsPlayer("target")  then
+		 if Mage_Is_Need_Interrupt_Boss() and not Mage_Is_Need_Interrupt_Spell(spellname) then
+			 Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
+			 Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
+			 return false;
+		 end
+	 end
+	if UnitClassification("target") ~= "worldboss" then
+		if Mage_UnitTargetBU("target","不灭决心") then
+			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",但免疫打断【不灭决心】...**");
+			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",但免疫打断【不灭决心】...**");
+			return false;
+		end
+		if Mage_UnitTargetBU("target","虔诚光环") then
+			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",但免疫打断【虔诚光环】...**");
+			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",但免疫打断【虔诚光环】...**");
+			return false;
+		end
+		if Mage_CastSpell("法术反制") then
+			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用法术反制...**");
+			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用法术反制...**");
+			return true;
+		end;
+	end
+	return false;
 end;

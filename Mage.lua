@@ -136,6 +136,17 @@ function Mage_SendCommand(flag)
 		end
     elseif flag == 4 then
       if Mage_IsManaEnough("暴风雪") then
+          local castspell = Mage_GetPlayerCasting()
+          if castspell then
+              if string.find(castspell, "暴风雪") then
+                 local RemainingTime =  Mage_GetCastRemainingTime("player");
+                 if RemainingTime > 2 then
+                      Mage_Blizzard = 0;
+                      Mage_Combat_AddMessage("**正在施放暴风雪(" .. string.format("%.1f", RemainingTime) .. ")...**");
+                      return;
+                  end
+              end;
+          end
          Mage_Blizzard = 1;
          Mage_Combat_AddMessage("**准备使用鼠标位置使用暴风雪...**");
          StartTimer("Mage_Blizzard");
@@ -191,9 +202,11 @@ function Mage_Frame_OnUpdate()
             Mage_SetText("正在施放"..castspell,0);
             if Mage_GetCastRemainingTime("player") > 0.3 then return; end
         elseif string.find(castspell, "暴风雪") then
-            Mage_Blizzard = 0;
-            Mage_SetText("正在施放"..castspell,0);
-            return;
+           if Mage_GetCastRemainingTime("player") > 0.5 then
+                Mage_Blizzard = 0;
+                Mage_SetText("正在施放"..castspell,0);
+               return;
+            end
         else
             Mage_SetText("正在施放"..castspell,0);
             return;
@@ -213,9 +226,6 @@ function Mage_Frame_OnUpdate()
         if  Mage_PlayerBU("饮用") or Mage_PlayerBU("喝水") then
             if not Mage_Get_AntiOffLineMode() then
                 Mage_SetText("喝水中",0);
-                --             if Mage_PlayerInParty() then
-                --                 Mage_SendYellMessage("正在喝水回蓝中,开怪请稍等!!!");
-                --             end
                 return ;
             end
         end

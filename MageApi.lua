@@ -109,7 +109,22 @@ function Mage_GetSpellCooldown(spellname)
 	return duration;
 end
 
+function Mage_IsPetAttacking()
 
+    local petTarget = "pettarget"
+
+    -- 3. 检查目标是否存在
+    if UnitExists(petTarget) then
+        -- 4. 深度检查：
+        -- a. 目标必须是可以攻击的 (UnitCanAttack 排除掉友方目标)
+        -- b. 目标必须是活着的 (UnitIsDead 排除掉已经打死的尸体)
+        if UnitCanAttack("pet", petTarget) and not UnitIsDead(petTarget) then
+            return true
+        end
+    end
+
+    return false
+end
 
 
 function Mage_HasSpell(spell)

@@ -69,8 +69,12 @@ function Mage_OrganizeActionBar()
         PlaceAction(10);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("奥术飞弹") then
+    if Mage_PickupSpellByBook("冰枪术") then
         PlaceAction(11);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("奥术飞弹") then
+        PlaceAction(12);
         ClearCursor();
     end;
 
@@ -103,17 +107,20 @@ function Mage_OrganizeActionBar()
         PlaceAction(67);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("魔甲术") then
+    if Mage_PickupSpellByBook("冰甲术") then
+        PlaceAction(67);
+        ClearCursor();
+    end
+    if Mage_PickupSpellByBook("法师护甲") then
         PlaceAction(68);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("缓落术") then
+    if Mage_PickupSpellByBook("召唤水元素") then
         PlaceAction(69);
         ClearCursor();
     end
-
-    if Mage_PickupSpellByBook("逃命专家") then
-        PlaceAction(72);
+    if Mage_PickupSpellByBook("缓落术") then
+        PlaceAction(70);
         ClearCursor();
     end
 

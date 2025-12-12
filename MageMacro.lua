@@ -42,9 +42,14 @@
          key = "ALT-F7"
      },
      {
-         name = "ACM_CastBlizzard",
-         body = "/cast [@cursor] 暴风雪",            -- 宏内容：使用暴风雪
-         key = "ALT-F8"
+          name = "ACM_CastBlizzard",
+          body = "/cast [@cursor] 暴风雪",            -- 宏内容：使用暴风雪
+          key = "ALT-F8"
+      },
+     {
+         name = "ACM_PetAttack",
+         body = "/petattack",            -- 宏内容：使用暴风雪
+         key = "ALT-F9"
      },
      {
           name = "ACM_UserPolymorph",
@@ -123,6 +128,11 @@ end
 
 function Mage_CastBlizzard()
     Mage_SetText("暴风雪", 68);
+    return true;
+end
+
+function Mage_PetAttack()
+    Mage_SetText("宠物攻击", 69);
     return true;
 end
 

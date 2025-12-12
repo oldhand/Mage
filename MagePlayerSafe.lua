@@ -55,9 +55,9 @@ function Mage_playerSafe()
 --       if Mage_CastSpell("霜甲术") then return true; end;
 --     end
 --
---     if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术智慧") then
---         if Mage_CastSpell("奥术智慧") then return true; end;
---     end
+    if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") then
+        if Mage_CastSpell("奥术智慧") then return true; end;
+    end
 
 
 --    if UnitAffectingCombat("player") and Mage_GetUnitManaPercent("player") < 10 then
@@ -166,8 +166,21 @@ function Mage_playerSafe()
    		end;
    	end
 
-   	if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("魔甲术") and not UnitAffectingCombat("player") then
-   		if Mage_CastSpell("霜甲术") then  return true; end;
+
+   	if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not UnitAffectingCombat("player") then
+        if Mage_Test_Battlefield() or Mage_PlayerInArena() then
+             if Mage_HasSpell("冰甲术") then
+                if Mage_CastSpell("冰甲术") then  return true; end;
+             else
+                if Mage_CastSpell("霜甲术") then  return true; end;
+            end
+        else
+              if Mage_HasSpell("法师护甲") then
+                    if Mage_CastSpell("法师护甲") then  return true; end;
+              else
+                    if Mage_CastSpell("霜甲术") then  return true; end;
+              end
+        end
    	end;
 
 --    	if not UnitExists("target") or UnitIsUnit("target", "player") or UnitCanAttack("player","target")  then
@@ -178,15 +191,7 @@ function Mage_playerSafe()
 
 
 
-   	if not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not UnitAffectingCombat("player") and IsUsableSpell("奥术智慧") then
-   		if Mage_playerSelectSelf() then
-            if Mage_CastSpell("奥术智慧") then return true; end;
-            Mage_SetText(">奥术智慧",0);
-            return true;
-        else
-            if Mage_TargetPlayer() then return true; end;
-        end
-   	end;
+-- ·
 
    	if UnitExists("target")  and UnitIsPlayer("target") then
    		 if UnitClass("target") == "法师" and IsSpellInRange("侦测魔法","target") == 1 then

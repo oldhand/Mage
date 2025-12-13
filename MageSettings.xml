@@ -4,7 +4,7 @@
 
 	<Frame name="MageSettings" toplevel="true" movable="true" enableMouse="true" parent="UIParent" hidden="true" inherits="BackdropTemplate" clampedToScreen="true">
 		<Size>
-			<AbsDimension x="300" y="340"/>
+			<AbsDimension x="300" y="180"/>
 		</Size>
 		<Anchors>
 			<Anchor point="CENTER"/>
@@ -52,7 +52,7 @@
 			</OnShow>
 		</Scripts>
 		<Frames>
-			<CheckButton name="$parentHealMainTank" inherits="UICheckButtonTemplate">
+			<CheckButton name="$parentMainTank" inherits="UICheckButtonTemplate">
 				<Size><AbsDimension x="24" y="24"/></Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -74,10 +74,10 @@
 				</Layers>
 				<Scripts>
 					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("治疗主坦克");
+						getglobal(self:GetName().."LbL"):SetText("设置主坦克");
 					</OnShow>
 					<onClick>
-						Mage_Setting_onClick("HealMainTank");
+						Mage_Setting_onClick("MainTank");
 					</onClick>
 				</Scripts>
 			</CheckButton>
@@ -86,7 +86,7 @@
 					<AbsDimension x="120" y="30"/>
 				</Size>
 				<Anchors>
-					<Anchor point="LEFT" relativeTo="$parentHealMainTank" relativePoint="BOTTOMLEFT">
+					<Anchor point="LEFT" relativeTo="$parentMainTank" relativePoint="BOTTOMLEFT">
 						<Offset><AbsDimension x="150" y="15"/></Offset>
 					</Anchor>
 				</Anchors>
@@ -105,7 +105,7 @@
 			<CheckButton name="$parentAllDispel" inherits="UICheckButtonTemplate">
 				<Size><AbsDimension x="24" y="24"/></Size>
 				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentHealMainTank" relativePoint="BOTTOMLEFT">
+					<Anchor point="TOPLEFT" relativeTo="$parentMainTank" relativePoint="BOTTOMLEFT">
 						<Offset><AbsDimension x="0" y="-2"/></Offset>
 					</Anchor>
 				</Anchors>
@@ -129,171 +129,13 @@
 					</OnClick>
 				</Scripts>
 			</CheckButton>
-			<CheckButton name="$parentAllHeal" inherits="UICheckButtonTemplate">
-				<Size><AbsDimension x="24" y="24"/></Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentAllDispel" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset><AbsDimension x="25" y="0"/></Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("全团治疗");
-					</OnShow>
-					<OnClick>
-						 Mage_Setting_onClick("AllHeal");
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parentMyGroup" inherits="UICheckButtonTemplate">
-				<Size><AbsDimension x="24" y="24"/></Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentAllHeal" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset><AbsDimension x="25" y="0"/></Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("治疗本小队");
-					</OnShow>
-					<OnClick>
-						 Mage_Setting_onClick("MyGroup");
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<CheckButton name="$parentOtherGroup" inherits="UICheckButtonTemplate">
-				<Size><AbsDimension x="24" y="24"/></Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMyGroup" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset><AbsDimension x="25" y="0"/></Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("治疗其他小队");
-					</OnShow>
-					<OnClick>
-						  Mage_Setting_onClick("OtherGroup");
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-			<Button name="$parentOtherGroupName" inherits="GameMenuButtonTemplate" text="选择小队">
-				<Size>
-					<AbsDimension x="120" y="30"/>
-				</Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentMyGroup" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="150" y="2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Scripts>
-					<OnClick>
-						 Mage_SelectOtherGroup_onClick();
-					</OnClick>
-					<OnEnter>
-						Mage_SelectOtherGroup_OnEnter();
-					</OnEnter>
-					<OnLeave>
-						MageSettingsTooltip:Hide();
-					</OnLeave>
-				</Scripts>
-			</Button>
-			<CheckButton name="$parentHealTargetTarget" inherits="UICheckButtonTemplate">
-				<Size><AbsDimension x="24" y="24"/></Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentOtherGroup" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset><AbsDimension x="25" y="0"/></Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("治疗坦克目标的目标");
-					</OnShow>
-					<OnClick>
-						 Mage_Setting_onClick("HealTargetTarget");
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-
-			<CheckButton name="$parentAuxDps" inherits="UICheckButtonTemplate">
-				<Size><AbsDimension x="24" y="24"/></Size>
-				<Anchors>
-					<Anchor point="TOPLEFT" relativeTo="$parentHealTargetTarget" relativePoint="BOTTOMLEFT">
-						<Offset><AbsDimension x="0" y="-2"/></Offset>
-					</Anchor>
-				</Anchors>
-				<Layers>
-					<Layer level="ARTWORK">
-						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
-							<Anchors>
-								<Anchor point="LEFT">
-									<Offset><AbsDimension x="25" y="0"/></Offset>
-								</Anchor>
-							</Anchors>
-						</FontString>
-					</Layer>
-				</Layers>
-				<Scripts>
-					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("辅助输出");
-					</OnShow>
-					<OnClick>
-						 Mage_Setting_onClick("AuxDps");
-					</OnClick>
-				</Scripts>
-			</CheckButton>
-
 
 			<Button name="$parentCloseButton" inherits="UIPanelButtonTemplate" text="关闭">
                 <Size>
                     <AbsDimension x="80" y="30"/>
                 </Size>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="$parentAuxDps" relativePoint="BOTTOMLEFT">
+                    <Anchor point="TOPLEFT" relativeTo="$parentAllDispel" relativePoint="BOTTOMLEFT">
                       	<Offset><AbsDimension x="100" y="-2"/></Offset>
                     </Anchor>
                 </Anchors>

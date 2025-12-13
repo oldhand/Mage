@@ -174,12 +174,12 @@ function Mage_OrganizeActionBar()
         ClearCursor();
     end;
 
-    if Mage_PickupSpellByBook("制造魔法红宝石") then
-        PlaceAction(33);
+    if Mage_PickupSpellByBook("制造法力宝石") then
+        PlaceAction(38);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("制造魔法黄水晶") then
-        PlaceAction(34);
+    if Mage_PickupSpellByBook("") then
+        PlaceAction(38);
         ClearCursor();
     end;
 

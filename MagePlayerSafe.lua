@@ -46,7 +46,13 @@ function Mage_playerSafe()
 
 
     if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") then
-        if Mage_CastSpell("奥术智慧") then return true; end;
+         if Mage_playerSelectSelf() then
+                if Mage_CastSpell("奥术智慧") then  return true; end;
+                Mage_SetText(">奥术智慧",0);
+                return true;
+         else
+             if Mage_TargetPlayer() then return true; end;
+         end
     end
 
 
@@ -74,8 +80,8 @@ function Mage_playerSafe()
    			if Mage_GetSpellCooldown("寒冰屏障") == 0 then
    				if Mage_CastSpell("寒冰屏障") then return true; end;
    			end
-   		end;
-   	end;
+   		end
+   	end
 
 --        local AttackMeNpcName = GetActiveMeleeCount();
 --        if AttackMeNpcName and  AttackMeNpcName >= 6 and UnitIsPlayer("target")  and not Mage_HasBattleFlag() then
@@ -208,6 +214,20 @@ function Mage_playerSafe()
    			end;
    		end;
    	end;
+
+
+   	local counts = Mage_DecursiveScanUnit("player");
+   	if counts["Curse"] > 0 then
+        if Mage_HasSpell("解除次级诅咒") then
+            if Mage_playerSelectSelf() then
+                if Mage_CastSpell("解除次级诅咒") then return true; end;
+                Mage_SetText(">解除次级诅咒",0);
+                return true;
+            else
+                if Mage_TargetPlayer() then return true; end;
+            end
+        end
+    end
 	return false;
 end
 

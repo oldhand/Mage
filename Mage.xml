@@ -2,6 +2,7 @@
 ..\..\FrameXML\UI.xsd">
 	<Script file="MageApi.lua"/>
 	<Script file="MageDecursive.lua"/>
+	<Script file="MageDispel.lua"/>
 	<Script file="MageMacro.lua"/>
 	<Script file="MageFollow.lua"/>
 	<Script file="MageCombatLog.lua"/>
@@ -17,6 +18,7 @@
 	<Script file="MageTargetBinder.lua"/>
 	<Script file="MageBossList.lua"/>
 	<Script file="MageRobot.lua"/>
+	<Script file="MageSettings.lua"/>
 	
 	<Frame name="MageMainFrame" frameStrata="FULLSCREEN_DIALOG" parent="UIParent" toplevel="true">
 	 	<Size>
@@ -205,13 +207,49 @@
 		</OnUpdate>
 	</Scripts>
 </CheckButton>
-
-<CheckButton name="MageCombatLogBtn" frameStrata="FULLSCREEN_DIALOG">
+<CheckButton name="MageSettingBtn" frameStrata="FULLSCREEN_DIALOG">
 	<Size>
 		<AbsDimension x="21" y="21"/>
 	</Size>
 	<Anchors>
 		<Anchor point="TOPLEFT" relativeTo="MageAutoModeBtn" relativePoint="TOPRIGHT">
+			<Offset>
+				<AbsDimension x="2" y="0"/>
+			</Offset>
+		</Anchor>
+	</Anchors>
+	<Color r="0" g="0" b="0" a="0"/>
+	<NormalTexture file="Interface\Icons\INV_Misc_Gear_08"/>
+	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
+	<Scripts>
+		<OnLoad>
+			Mage_Settings_OnLoad(self);
+		</OnLoad>
+		<OnEvent>
+			Mage_Settings_OnEvent(event);
+		</OnEvent>
+		<onClick>
+			Mage_Settings_fun();
+		</onClick>
+		<OnEnter>
+			GameTooltip:SetOwner(self, "ANCHOR_TOPLEFT");
+			GameTooltip:SetText(Mage_Settings_Hit);
+			GameTooltip:Show();
+		</OnEnter>
+		<OnLeave>
+			MageTooltip:Hide();
+		</OnLeave>
+		<OnUpdate>
+			Mage_Settings_OnUpdate();
+		</OnUpdate>
+	</Scripts>
+</CheckButton> 
+<CheckButton name="MageCombatLogBtn" frameStrata="FULLSCREEN_DIALOG">
+	<Size>
+		<AbsDimension x="21" y="21"/>
+	</Size>
+	<Anchors>
+		<Anchor point="TOPLEFT" relativeTo="MageSettingBtn" relativePoint="TOPRIGHT">
 			<Offset>
 				<AbsDimension x="2" y="0"/>
 			</Offset>

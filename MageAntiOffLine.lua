@@ -38,11 +38,17 @@ function Mage_AntiOffLine()
         if GetTimer("回蓝") < 0.5 then
             if Mage_CastSpell("魔法泉水") then return true; end;
             if Mage_CastSpell("魔法纯净水") then return true; end;
+            if Mage_CastSpell("魔法晶水") then return true; end;
+            if Mage_CastSpell("魔法山泉水") then return true; end;
+            if Mage_CastSpell("魔法冰川水") then return true; end;
             return true;
         end;
         if GetTimer("回蓝") > 10 then
             if Mage_CastSpell("魔法泉水") then return true; end;
             if Mage_CastSpell("魔法纯净水") then return true; end;
+            if Mage_CastSpell("魔法晶水") then return true; end;
+            if Mage_CastSpell("魔法山泉水") then return true; end;
+                        if Mage_CastSpell("魔法冰川水") then return true; end;
             StartTimer("回蓝");
             return true;
         end

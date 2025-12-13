@@ -6,3 +6,4 @@
 ## Notes: 智能施法插件(法师泰坦重铸服))
 ## SavedVariables: Mage_SaveData,Mage_Settings,Mage_Icons
 Mage.xml
+MageSettings.xml

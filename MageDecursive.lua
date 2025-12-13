@@ -68,7 +68,7 @@ function Mage_DecursiveScanUnit(Unit)
     local Curse_Count   = 0;
 
     -- 确保单位存在
-    if not UnitExists(Unit) then return nil end
+    if not UnitExists(Unit) then  return { ["Magic"]=0, ["Curse"]=0, ["Poison"]=0, ["Disease"]=0 }; end
 
     local _, UClass = UnitClass(Unit);
 

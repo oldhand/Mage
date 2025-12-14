@@ -75,19 +75,19 @@ function Mage_RobotUpdate()
 --             /run if GossipFrame:IsShown() then SelectGossipOption(1) endw
 --             /run if BattlefieldFrame:IsShown() then JoinBattlefield(0) end
 
-            if not IsPlayerInQueue() then
-                if GetTimer("Target_Battlefield_Officer") < 0.5 then
-                   if Mage_Target_Battlefield_Officer() then return true; end;
-                    return true;
-                end;
-                if GetTimer("Target_Battlefield_Officer") > 10 then
-                   if Mage_Target_Battlefield_Officer() then return true; end;
-                    StartTimer("Target_Battlefield_Officer");
-                    return true;
-                end
-            else
-
-            end
+--             if not IsPlayerInQueue() then
+--                 if GetTimer("Target_Battlefield_Officer") < 0.5 then
+--                    if Mage_Target_Battlefield_Officer() then return true; end;
+--                     return true;
+--                 end;
+--                 if GetTimer("Target_Battlefield_Officer") > 10 then
+--                    if Mage_Target_Battlefield_Officer() then return true; end;
+--                     StartTimer("Target_Battlefield_Officer");
+--                     return true;
+--                 end
+--             else
+--
+--             end
         end
     else
 

@@ -132,7 +132,7 @@ function Mage_playerCombat()
             end
         else
             if UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
-                if Paladin_GetUnitHealthPercent("target") < 90 then
+                if Mage_GetUnitHealthPercent("target") < 90 then
                     if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
                         if Mage_CastSpell("狮心") then return true; end;
                     end
@@ -152,18 +152,7 @@ function Mage_playerCombat()
           end
     end
 
-
-  	if Mage_TargetDeBU("冰霜新星")  and CheckInteractDistance("target",2) and Mage_Target_Face and GetTimer("变形术") > 2 then
-		if  Mage_TargetDeBuff_CastByPlayer("冰霜新星") then
-			if GetTimer("冰霜新星") > 3 then
-				if Mage_CastSpell("冰锥术") then  return true; end;
-			end
-		else
-			if Mage_CastSpell("冰锥术") then  return true; end
-		end
- 	end
-
-	if not Mage_TargetDeBU("寒冰箭")  and CheckInteractDistance("target",2) and Mage_Target_Face and GetTimer("变形术") > 2  then
+	if Mage_TargetDeBU("冰霜新星")  and CheckInteractDistance("target",2) and GetTimer("变形术") > 2  then
 		 if Mage_CastSpell("冰锥术") then  return true; end
 	end
 

@@ -415,11 +415,11 @@ function Mage_Test()
 	for i = 1, 120 do		    
 		if HasAction(i)  then	
 			if not GetActionText(i) then
-				PaladinTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-				PaladinTooltipTextRight1:SetText()
-				PaladinTooltip:SetAction(i)
-				local name = PaladinTooltipTextLeft1:GetText()
-				PaladinTooltip:Hide();
+				MageTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+				MageTooltipTextRight1:SetText()
+				MageTooltip:SetAction(i)
+				local name = MageTooltipTextLeft1:GetText()
+				MageTooltip:Hide();
 			   if name and IsUsableAction(i) ~= 1 then
 					Mage_AddMessage("**_"..name.."__"..i.."_____");
 				end

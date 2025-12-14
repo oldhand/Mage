@@ -39,7 +39,7 @@ end
 
 function Mage_Auto_Follow_OnLoad(self)
     if UnitClass("player") ~= "法师" then
-        if PaladinFollowBtn then HideUIPanel(PaladinFollowBtn) end
+        if MageFollowBtn then HideUIPanel(MageFollowBtn) end
         return
     end
     self:RegisterEvent("PLAYER_ENTERING_WORLD")
@@ -60,7 +60,7 @@ function Mage_Auto_Follow_OnEvent(self, event, arg1, arg2)
             if unit and UnitExists(unit) then
                 Mage_AddMessage("**进入跟随模式，跟随目标>>" .. Mage_follow .. "<<**")
                 Mage_Auto_Follow_Hit = "跟随模式【" .. Mage_follow .. "】"
-                if PaladinTooltip then PaladinTooltip:SetText(Mage_Auto_Follow_Hit) end
+                if MageTooltip then MageTooltip:SetText(Mage_Auto_Follow_Hit) end
             end
         end
     elseif (event == "GROUP_ROSTER_UPDATE") then
@@ -222,12 +222,12 @@ function Mage_Auto_Follow_OnUpdate()
 
     -- 状态同步
     if Mage_follow == nil then
-        if PaladinFollowBtn and PaladinFollowBtn:GetChecked() then
-            PaladinFollowBtn:SetChecked(false)
+        if MageFollowBtn and MageFollowBtn:GetChecked() then
+            MageFollowBtn:SetChecked(false)
         end
     else
-        if PaladinFollowBtn and not PaladinFollowBtn:GetChecked() then
-            PaladinFollowBtn:SetChecked(true)
+        if MageFollowBtn and not MageFollowBtn:GetChecked() then
+            MageFollowBtn:SetChecked(true)
         end
     end
 
@@ -244,15 +244,15 @@ end
 -- 界面函数：点击按钮时的逻辑
 function Mage_Auto_Follow_fun()
     -- 切换逻辑
-    if PaladinFollowBtn:GetChecked() then
+    if MageFollowBtn:GetChecked() then
         if not Mage_UnitInParty() then
             FollowUnit("player") -- 停止跟随
             Mage_Settings["follow"] = ""
             Mage_follow = nil
             Mage_AddMessage("**进入普通模式**")
             Mage_Auto_Follow_Hit = "没有队友，无法设置跟随模式"
-            if PaladinTooltip then PaladinTooltip:SetText(Mage_Auto_Follow_Hit) end
-            PaladinFollowBtn:SetChecked(false)
+            if MageTooltip then MageTooltip:SetText(Mage_Auto_Follow_Hit) end
+            MageFollowBtn:SetChecked(false)
         else
             Mage_AddMessage("**请选择跟随目标**")
             Mage_popuMenu()
@@ -264,7 +264,7 @@ function Mage_Auto_Follow_fun()
         Mage_AddMessage("**进入普通模式**")
         Blizzard_AddMessage("**进入普通模式**", 1, 0, 0, "crit")
         Mage_Auto_Follow_Hit = "普通模式"
-        if PaladinTooltip then PaladinTooltip:SetText(Mage_Auto_Follow_Hit) end
+        if MageTooltip then MageTooltip:SetText(Mage_Auto_Follow_Hit) end
     end
 end
 
@@ -278,8 +278,8 @@ function Mage_Group_Update()
             Mage_AddMessage("**找不到跟随目标,进入普通模式**")
             Blizzard_AddMessage("**找不到跟随目标,进入普通模式**", 1, 0, 0, "crit")
             Mage_Auto_Follow_Hit = "普通模式"
-            if PaladinTooltip then PaladinTooltip:SetText(Mage_Auto_Follow_Hit) end
-            if PaladinFollowBtn then PaladinFollowBtn:SetChecked(false) end
+            if MageTooltip then MageTooltip:SetText(Mage_Auto_Follow_Hit) end
+            if MageFollowBtn then MageFollowBtn:SetChecked(false) end
         end
     end
 end
@@ -302,7 +302,7 @@ function Mage_SetMode(self)
         if GetRaidTargetIndex(unit) ~= 1 then SetRaidTargetIcon(unit, 1) end
         if GetRaidTargetIndex("player") ~= 3 then SetRaidTargetIcon("player", 3) end
 
-        if PaladinTooltip then PaladinTooltip:SetText(Mage_Auto_Follow_Hit) end
+        if MageTooltip then MageTooltip:SetText(Mage_Auto_Follow_Hit) end
     else
          Mage_AddMessage("设置失败：目标不在队伍中")
     end
@@ -328,7 +328,7 @@ end
 function Mage_popuMenu()
     if Mage_UnitInParty() then
         if not Mage_Follow_PopMenu then
-            Mage_Follow_PopMenu = CreateFrame('Frame', 'PaladinFollowMenu', UIParent, 'UIDropDownMenuTemplate')
+            Mage_Follow_PopMenu = CreateFrame('Frame', 'MageFollowMenu', UIParent, 'UIDropDownMenuTemplate')
         end
         Mage_Follow_PopMenu.displayMode = "MENU"
         Mage_Follow_PopMenu.initialize = Mage_Follow_PopMenu_Initialize

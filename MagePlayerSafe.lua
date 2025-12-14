@@ -36,7 +36,7 @@ function Mage_playerSafe()
         -- 检测防抖定时器 (防止瞬间重复按键)
         if GetTimer("PotionRecovery") < 0.2 or GetTimer("PotionRecovery") > 3 then
             for _, itemName in ipairs(Mage_Survival_Items) do
-               if Mage_FindItemInBag(itemName) and Mage_IsItemReady(itemName) then
+               if Mage_FindItemInBag(itemName) and Mage_CheckItemIsReady(itemName) then
                   if Mage_CastSpell(itemName) then StartTimer("PotionRecovery"); return true; end;
               end
            end

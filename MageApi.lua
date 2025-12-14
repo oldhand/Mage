@@ -684,30 +684,6 @@ function Mage_Passive()
 end
 
 
-
-function Mage_Is_Need_Interrupt_Boss()
-  	  local Need_Interrupt_Boss = {"烈焰行者医师","烈焰行者祭司","预言者斯克拉姆"};
-	  if  UnitExists("target") then
-		    if string.find(UnitName("target"),"斯克拉姆") then return true end
-			for key,name in pairs(Need_Interrupt_Boss) do
-				if name == UnitName("target") then return true end
-			end
-	  end;
-	  return false;
-end
-
-function Mage_Is_Need_Interrupt_Spell(spellname)
-  	local Need_Interrupt_Spell = {"治疗祷言","黑暗治疗"};
-	for key,name in pairs(Need_Interrupt_Spell) do
-		if name == spellname then return true end
-	end
-	return false;
-end
-
-
-
-
-
 local TimerDatas = {};
 
 function StartTimer(id)

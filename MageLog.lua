@@ -24,7 +24,7 @@ function Mage_ImmuneSpell(spellName)
     local targetName = UnitName("target");
 
     -- 检查该目标是否有免疫记录
-    if Mage_Settings["Immune"][targetName] then
+    if Mage_Settings ~= nil and Mage_Settings["Immune"] ~= nil and Mage_Settings["Immune"][targetName] then
         -- 检查具体技能是否免疫 (例如传入 "法术反制")
         if Mage_Settings["Immune"][targetName][spellName] then
             return true; -- 找到了记录，返回免疫

@@ -412,24 +412,53 @@ end;
 
   
 function Mage_Test()
-	for i = 1, 120 do		    
-		if HasAction(i)  then	
-			if not GetActionText(i) then
-				MageTooltip:SetOwner(UIParent, "ANCHOR_NONE")
-				MageTooltipTextRight1:SetText()
-				MageTooltip:SetAction(i)
-				local name = MageTooltipTextLeft1:GetText()
-				MageTooltip:Hide();
-			   if name and IsUsableAction(i) ~= 1 then
-					Mage_AddMessage("**_"..name.."__"..i.."_____");
-				end
-		   else
-			   local name = GetActionText(i)	
-			   if name and IsUsableAction(i) ~= 1 then	
-					Mage_AddMessage("**_"..name.."__"..i.."______");
-			   end
-		   end 
-	   end
-   end
+-- 	for i = 1, 120 do
+-- 		if HasAction(i)  then
+-- 			if not GetActionText(i) then
+-- 				MageTooltip:SetOwner(UIParent, "ANCHOR_NONE")
+-- 				MageTooltipTextRight1:SetText()
+-- 				MageTooltip:SetAction(i)
+-- 				local name = MageTooltipTextLeft1:GetText()
+-- 				MageTooltip:Hide();
+-- 			   if name and IsUsableAction(i) ~= 1 then
+-- 					Mage_AddMessage("**_"..name.."__"..i.."_____");
+-- 				end
+-- 		   else
+-- 			   local name = GetActionText(i)
+-- 			   if name and IsUsableAction(i) ~= 1 then
+-- 					Mage_AddMessage("**_"..name.."__"..i.."______");
+-- 			   end
+-- 		   end
+-- 	   end
+--    end
+
+-- /script Mage_Test();
+
+   local Mage_Survival_Items = {
+       "邪能治疗石",       -- WotLK 80级 术士糖 (回血最多)
+       "大师级治疗石",     -- 70级 糖 (备用)
+       "无尽治疗药水",     -- 炼金师专用 (无限喝，回血量中等)
+       "治疗注射器",       -- 工程学专用 (回血，不占公用CD，如果你是工程)
+       "疯狂炼金师药水",   -- 炼金师专用 (随机效果，包含回血)
+       "符文治疗药水",     -- 80级 顶级红药 (回 2700-4500)
+       "符文法力药水",     -- (如果你想在这里顺便判断蓝药，也可以加，但建议分开)
+       "超级治疗药水",     -- 70级 红药
+       "强效治疗药水",     -- 60级 红药
+       "魔法冰川水",
+   };
+   for _, itemName in ipairs(Mage_Survival_Items) do
+       local  bag, slot = Mage_FindItemInBag(itemName);
+       if bag then
+           Mage_AddMessage("找到物品:"..itemName.." 在背包"..bag.."格子"..slot);
+           if Mage_CheckItemIsReady(itemName) then
+               Mage_AddMessage("物品:"..itemName.." 可以使用");
+           else
+               Mage_AddMessage("物品:"..itemName.." 不可使用");
+           end
+       else
+           Mage_AddMessage("没有找到物品:"..itemName);
+       end
+  end
+
 end;
 

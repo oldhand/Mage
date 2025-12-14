@@ -27,12 +27,8 @@ function Mage_RefreshItemCache()
                     if itemName then
                         -- 优化：避免同名物品覆盖（存储为数组）
                         if not Mage_ItemCache[itemName] then
-                            Mage_ItemCache[itemName] = {}
+                            Mage_ItemCache[itemName] = { bag = bagID, slot = slotID };
                         end
-                        table.insert(Mage_ItemCache[itemName], {
-                            bag = bagID,
-                            slot = slotID
-                        })
                     end
                 end
             end
@@ -40,20 +36,26 @@ function Mage_RefreshItemCache()
     end
 end
 
+
+
 -- 优化后的查找函数，直接读缓存，不再遍历背包
 function Mage_FindItemInBag(targetName)
     local data = Mage_ItemCache[targetName]
-    if data then
+    if data and data.bag and data.slot then
         -- 再次校验物品是否真的还在（防止缓存未及时更新的极端情况）
-        local link = GetContainerItemLink(data.bag, data.slot)
-        if link and GetItemInfo(link) == targetName then
-            return data.bag, data.slot
-        end
+        local link = C_Container.GetContainerItemLink(data.bag, data.slot)
+       if link then
+            local name = GetItemInfo(link)
+            if name == targetName then
+                return data.bag, data.slot
+            end
+       end
     end
     return nil,nil;
 end
 
-function Mage_CheckItemIsReady(bag, slot)
+function Mage_CheckItemIsReady(targetName)
+    local bag,slot = Mage_FindItemInBag(targetName)
     if (not bag or not slot) then
         return false;
     end
@@ -61,8 +63,7 @@ function Mage_CheckItemIsReady(bag, slot)
     -- startTime: 冷却开始时间 (0表示无冷却)
     -- duration: 冷却总时长 (0表示无冷却)
     -- isEnabled: 物品是否已启用 (1表示启用)
-    local startTime, duration, isEnabled = GetContainerItemCooldown(bag, slot)
-
+    local startTime, duration, isEnabled = C_Container.GetContainerItemCooldown(bag, slot)
     -- 只有当 开始时间为0 且 持续时间为0 且 物品处于启用状态 时，才算可用
     if (startTime == 0 and duration == 0 and isEnabled == 1) then
         return true;

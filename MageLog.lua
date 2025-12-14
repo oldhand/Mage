@@ -1,6 +1,39 @@
 ﻿
 Mage_Settings = nil;
 
+
+-- ======================================================
+-- [配置] 需要监控免疫的打断技能列表
+-- ======================================================
+local Mage_Interrupt_Spells = {
+    ["法术反制"] = true, -- 法师核心打断
+    ["沉默"] = true,     -- 牧师
+    ["拳击"] = true,       -- 战士
+    ["脚踢"] = true,       -- 盗贼
+    ["心灵冰冻"] = true,   -- DK
+    ["责难"] = true,       -- 骑士
+    ["风剪"] = true,       -- 萨满
+    ["法术封锁"] = true,   -- 术士狗
+}
+-- ==========================================================
+-- 函数: 检查当前目标是否对某技能免疫
+-- 返回: true (免疫/不要打) / false (不免疫/可以打)
+-- ==========================================================
+function Mage_ImmuneSpell(spellName)
+    if not UnitExists("target") then return false; end
+    local targetName = UnitName("target");
+
+    -- 检查该目标是否有免疫记录
+    if Mage_Settings["Immune"][targetName] then
+        -- 检查具体技能是否免疫 (例如传入 "法术反制")
+        if Mage_Settings["Immune"][targetName][spellName] then
+            return true; -- 找到了记录，返回免疫
+        end
+    end
+
+    return false;
+end
+
 -- 定义敌对单位的掩码
 local HOSTILE_FLAG = 0x00000040
 
@@ -115,6 +148,40 @@ if UnitClass("player") == "法师" then
                 end
             end
 
+            -- ==========================================================
+            -- [新增] 全局免疫(Immune)监控与记录
+            -- 目的: 自动记录怪物对哪些技能免疫 (保存到 Mage_Settings)
+            -- ==========================================================
+            if subevent == "SPELL_MISSED" then
+                -- arg13: 技能名称, arg15: 失败类型(missType)
+                if arg15 == "IMMUNE" then
+                    -- 1. 必须是打断技能 (在白名单中)
+                    if Mage_Interrupt_Spells[arg13] then
+                        -- 2. 目标存在且不是自己
+                        if destName and destGUID ~= UnitGUID("player") then
+
+                            -- 初始化存储表
+                            if Mage_Settings["Immune"] == nil then
+                                Mage_Settings["Immune"] = {}
+                            end
+                            if Mage_Settings["Immune"][destName] == nil then
+                                Mage_Settings["Immune"][destName] = {}
+                            end
+
+                            -- 记录免疫
+                            if not Mage_Settings["Immune"][destName][arg13] then
+                                Mage_Settings["Immune"][destName][arg13] = true
+
+                                -- 提示信息
+                                if Mage_Get_CombatLogMode() then
+                                     Mage_AddMessage("|cffFF0000[打断免疫]|r 目标 >>"..destName.."<< 免疫 ["..arg13.."]，已自动记录，不再尝试打断。")
+                                end
+                            end
+                        end
+                    end
+                end
+            end
+
             -- --------------------------------------------------
             -- 逻辑 B & D: 玩家自己的动作 (伤害 + 治疗分析)
             -- --------------------------------------------------
@@ -180,6 +247,8 @@ if UnitClass("player") == "法师" then
                     end
                 end
             end
+
+
         end
     end
 

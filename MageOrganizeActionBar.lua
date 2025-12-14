@@ -119,7 +119,7 @@ function Mage_OrganizeActionBar()
         PlaceAction(69);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("缓落术") then
+    if Mage_PickupSpellByBook("法术吸取") then
         PlaceAction(70);
         ClearCursor();
     end
@@ -178,8 +178,16 @@ function Mage_OrganizeActionBar()
         PlaceAction(38);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("") then
-        PlaceAction(38);
+    if Mage_PickupSpellByBook("缓落术") then
+        PlaceAction(39);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("隐形术") then
+        PlaceAction(40);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("镜像") then
+        PlaceAction(41);
         ClearCursor();
     end;
 

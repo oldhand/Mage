@@ -1,5 +1,48 @@
 
 function Mage_playerCombat()
+
+    if Mage_Polymorph == 1 then
+        if UnitAffectingCombat("player") then
+            if GetTimer("Mage_Polymorph") > 2 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
+        else
+            if GetTimer("Mage_Polymorph") > 15 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
+        end
+        if not Mage_Check_Movement() then
+            if IsSpellInRange("变形术","target") == 1  then
+                if Mage_UnitTargetBU("target","法术反射") or
+                   Mage_UnitTargetBU("target","魔法反射") or
+                   Mage_UnitTargetBU("target","群体反射") then
+                    Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在反射效果，无法施放变形术...**");
+                end;
+                if Mage_UnitTargetBU("target","反魔法盾") or
+                   Mage_UnitTargetBU("target","暗影斗蓬") then
+                    Mage_Combat_AddMessage("**对目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
+                end;
+                if  not Mage_UnitTargetBU("target","法术反射") and
+                    not Mage_UnitTargetBU("target","群体反射") and
+                    not Mage_UnitTargetBU("target","魔法反射") and
+                    not Mage_UnitTargetBU("target","反魔法盾") and
+                    not Mage_UnitTargetBU("target","暗影斗蓬") then
+                        if UnitExists("pet") and not UnitIsDead("pet") then
+                            if Mage_IsPetAttacking() then
+                                 if Mage_StopPetAttack() then  return true; end
+                            end
+                        end
+                        if Mage_CastSpell("变形术") then return true; end;
+                end;
+            else
+                if GetTimer("变形术目标距离太远") > 0.5 then
+                      StartTimer("变形术目标距离太远");
+                      Blizzard_AddMessage("**目标距离太远，无法施放变形术**",1,0,0,"crit");
+                end;
+                Mage_SetText("变形术距离太远",0);
+                return;
+            end
+        end
+        Mage_SetText("等待变形术",0);
+        return;
+    end
+
 	if not UnitAffectingCombat("player") and not UnitAffectingCombat("target")  then
 		if  UnitCreatureType("target") == "野生宠物" then
 			    Mage_SetText("野生宠物",0);
@@ -54,10 +97,28 @@ function Mage_playerCombat()
         end
     end
 
--- 	if Mage_Interrupt_Casting() then return true; end;
+    if UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
+        if Mage_CastSpell("召唤水元素") then return true; end;
+    end
+
+	if Mage_Interrupt_Casting() then return true; end;
 
     if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
         if Mage_CastSpell("冰枪术") then  return true; end
+    end
+
+    if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") then
+        -- 利用 MageDecursive.lua 中的函数扫描目标身上是否有 Magic 类型的 Buff
+        local hasMagicBuff, buffName = Mage_ScanUnitMagicBuff("target");
+
+        if hasMagicBuff then
+            -- 如果有可偷取的魔法Buff，执行偷取
+            if Mage_CastSpell("法术吸取") then
+                Mage_Combat_AddMessage("**发现目标增益 [".. buffName .."] -> 使用法术吸取**");
+                Mage_Default_AddMessage("**偷取目标Buff: [".. buffName .."]**");
+                return true;
+            end
+        end
     end
 
 
@@ -210,86 +271,40 @@ function Mage_playerCombat()
 	end
 end;
 
-
-
 function Mage_Interrupt_Casting()
-	if UnitExists("target") and Mage_GetSpellCooldown("法术反制") == 0 then
-		if UnitIsPlayer("target") and (UnitClass("target") == "法师" or UnitClass("target") == "牧师") then
-			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
-				local spellname = UnitCastingInfo("target")
-				if spellname  then
-					 if string.find(spellname,"变形术") or string.find(spellname,"治疗") then
-				 		if Mage_CastSpell("法术反制") then
-				 			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
-				 			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
-				 			return true;
-				 		end;
-					end;
-				end
-			end;
-		else
-			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
-				local spellname = UnitCastingInfo("target")
-				if spellname  then
-					 if not string.find(spellname,"稳固射击")  and not string.find(spellname,"眼镜蛇射击") then
-						if  UnitIsPlayer("target")  then
-							if Mage_do_Interrupt_Casting(spellname) then return true; end;
-						else
-							if not Mage_ImmuneSpell("法术反制") then
-							    if Mage_do_Interrupt_Casting(spellname) then return true; end;
-							end;
-						end;
-					end;
-				end
-				spellname = UnitChannelInfo("target")
-				if spellname then
-					if  UnitIsPlayer("target")  then
-						if Mage_do_Interrupt_Casting(spellname) then return true; end;
-					else
-						if not Mage_ImmuneSpell("法术反制")  then
-						    if Mage_do_Interrupt_Casting(spellname) then return true; end;
-						end;
-					end;
-				end
-			end;
-		end
-	end;
-    return false;
-end;
+    if UnitExists("target") and Mage_GetSpellCooldown("法术反制") == 0 then
+        -- 基础检查：不死、可见、敌对、在射程内
+        if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
 
+            -- 获取读条信息
+            local spellname = UnitCastingInfo("target")
+            if not spellname then
+                spellname = UnitChannelInfo("target") -- 同时也检查引导法术（如唤醒、苦修）
+            end
 
-function Mage_force_Interrupt_Casting()
-	if UnitExists("target") and Mage_GetSpellCooldown("法术反制") == 0 then
-			if not UnitIsDead("target") and UnitIsVisible("target") and UnitCanAttack("player","target") and IsSpellInRange("法术反制","target") == 1 then
-				local spellname = UnitCastingInfo("target")
-				if spellname then
-					 if not UnitIsPlayer("target")  then
-						 if Mage_Is_Need_Interrupt_Boss() and not Mage_Is_Need_Interrupt_Spell(spellname) then
-							Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
-							return false;
-						 end
-					 end
-					 if string.find(spellname,"变形术") or string.find(spellname,"治疗") then
-				 		if Mage_CastSpell("法术反制") then
-				 			Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
-				 			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",使用打断施法并法术反制...**");
-				 			return true;
-				 		end;
-					end;
-				end
-			end;
-	end;
+            if spellname then
+                -- 1. 猎人读条通常不打断 (稳固/眼镜蛇无威胁且频率高)
+                if string.find(spellname,"稳固射击") or string.find(spellname,"眼镜蛇射击") then
+                    return false;
+                end
+
+                -- 2. 尝试执行打断
+                if UnitIsPlayer("target") then
+                    -- PVP逻辑：如果是玩家，直接尝试打断 (移除了只打断法师变形术的限制，改为全打断)
+                    -- 如果您只想打断特定法术，请在这里恢复之前的 if string.find... 逻辑
+                    if Mage_do_Interrupt_Casting(spellname) then return true; end;
+                else
+                    if not Mage_ImmuneSpell(spellname) then
+                        if Mage_do_Interrupt_Casting(spellname) then return true; end;
+                    end;
+                end;
+            end
+        end
+    end;
     return false;
 end;
 
 function Mage_do_Interrupt_Casting(spellname)
-	 if not UnitIsPlayer("target")  then
-		 if Mage_Is_Need_Interrupt_Boss() and not Mage_Is_Need_Interrupt_Spell(spellname) then
-			 Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
-			 Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",不需要打断...**");
-			 return false;
-		 end
-	 end
 	if UnitClassification("target") ~= "worldboss" then
 		if Mage_UnitTargetBU("target","不灭决心") then
 			Mage_Default_AddMessage("**目标>>"..UnitName("target").."<<正在施放"..spellname..",但免疫打断【不灭决心】...**");
@@ -309,7 +324,6 @@ function Mage_do_Interrupt_Casting(spellname)
 	end
 	return false;
 end;
-
 
 
 function Mage_AutoSelectTarget()

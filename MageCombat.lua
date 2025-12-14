@@ -283,7 +283,7 @@ function Mage_Interrupt_Casting()
                     -- 如果您只想打断特定法术，请在这里恢复之前的 if string.find... 逻辑
                     if Mage_do_Interrupt_Casting(spellname) then return true; end;
                 else
-                    if not Mage_ImmuneSpell(spellname) then
+                    if not Mage_ImmuneSpell() then
                         if Mage_do_Interrupt_Casting(spellname) then return true; end;
                     end;
                 end;

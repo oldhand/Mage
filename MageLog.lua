@@ -19,16 +19,14 @@ local Mage_Interrupt_Spells = {
 -- 函数: 检查当前目标是否对某技能免疫
 -- 返回: true (免疫/不要打) / false (不免疫/可以打)
 -- ==========================================================
-function Mage_ImmuneSpell(spellName)
+function Mage_ImmuneSpell()
     if not UnitExists("target") then return false; end
     local targetName = UnitName("target");
 
     -- 检查该目标是否有免疫记录
     if Mage_Settings ~= nil and Mage_Settings["Immune"] ~= nil and Mage_Settings["Immune"][targetName] then
-        -- 检查具体技能是否免疫 (例如传入 "法术反制")
-        if Mage_Settings["Immune"][targetName][spellName] then
-            return true; -- 找到了记录，返回免疫
-        end
+        -- 检查是否免疫打断技能
+        return true; -- 找到了记录，返回免疫
     end
 
     return false;
@@ -165,14 +163,8 @@ if UnitClass("player") == "法师" then
                                 Mage_Settings["Immune"] = {}
                             end
                             if Mage_Settings["Immune"][destName] == nil then
-                                Mage_Settings["Immune"][destName] = {}
-                            end
-
-                            -- 记录免疫
-                            if not Mage_Settings["Immune"][destName][arg13] then
-                                Mage_Settings["Immune"][destName][arg13] = true
-
-                                -- 提示信息
+                                Mage_Settings["Immune"][destName] = true
+                                 -- 提示信息
                                 if Mage_Get_CombatLogMode() then
                                      Mage_AddMessage("|cffFF0000[打断免疫]|r 目标 >>"..destName.."<< 免疫 ["..arg13.."]，已自动记录，不再尝试打断。")
                                 end
@@ -199,15 +191,6 @@ if UnitClass("player") == "法师" then
                         if Mage_Get_CombatLogMode() then
                             Mage_AddMessage(string.format("|cffFF00FF[无效]|r %s 免疫了你的 <%s> !", destName or "目标", spellName))
                         end
-                      local g_FindNpcName = false;
-                      for k, v in pairs(Mage_SaveData) do
-                          if v["npcname"] == destName and  v["spellname"] == spellName then
-                         g_FindNpcName = true;
-                          end
-                      end
-                      if not g_FindNpcName then
-                          table.insert(Mage_SaveData,{["npcname"] = destName,["spellname"] = spellName,});
-                      end;
                     end
                 end
             end

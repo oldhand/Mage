@@ -48,8 +48,18 @@
           },
          {
              name = "ACM_PetAttack",
-             body = "/petattack",            -- 宏内容：使用暴风雪
+             body = "/petattack\n/petdefensive",            -- 宏内容：宠物攻击
              key = "ALT-F9"
+         },
+         {
+              name = "ACM_StopPetAttack",
+              body = "/petfollow\n/petpassive",            -- 宏内容：宠物停止攻击
+              key = "ALT-F10"
+         },
+         {
+               name = "ACM_TargetEnemy",
+               body = "/cleartarget [dead]\n/targetenemy",            -- 宏内容：智能攻击（有目标打目标，没目标打最近）
+               key = "ALT-F11"
          },
          {
               name = "ACM_UserPolymorph",
@@ -154,5 +164,15 @@ end
 
 function Mage_PetAttack()
     Mage_SetText("宠物攻击", 69);
+    return true;
+end
+
+function Mage_StopPetAttack()
+    Mage_SetText("宠物停止攻击", 70);
+    return true;
+end
+
+function Mage_TargetEnemy()
+    Mage_SetText("选择最近的目标", 71);
     return true;
 end

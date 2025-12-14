@@ -1,4 +1,5 @@
 ﻿
+Mage_Settings = nil;
 
 -- 定义敌对单位的掩码
 local HOSTILE_FLAG = 0x00000040

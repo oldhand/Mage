@@ -304,6 +304,8 @@ function Mage_Frame_OnUpdate()
             end;
             if Mage_CastSpell("闪现术") then return true; end;
     end
+
+
 	if Mage_playerSafe() then return true end;
 
     if Mage_Purge == 1 then
@@ -333,6 +335,10 @@ function Mage_Frame_OnUpdate()
         Mage_SetText("准备暴风雪中",0);
         return;
     end
+
+	if Mage_Dispel() then return; end;
+
+	if Mage_AutoSelectTarget() then return; end;
 	
 	if not UnitExists("target")  then
 		if Mage_AntiOffLine() then return ; end;
@@ -343,7 +349,9 @@ function Mage_Frame_OnUpdate()
 	if not UnitCanAttack("player","target")  then
         Mage_SetText("友善目标",0);
 		return;
-	end;	 
+	end;
+
+
 	
 	if Mage_TargetBU("圣盾术") or  Mage_TargetBU("保护祝福") or  Mage_TargetBU("寒冰屏障")  then
 		Mage_Combat_AddMessage("**目标无法攻击**");

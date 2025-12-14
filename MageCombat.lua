@@ -62,14 +62,23 @@ function Mage_playerCombat()
 
 
     if UnitClassification("player") and UnitClassification("target") then
-        if UnitIsPlayer("target") or
-           UnitClassification("target") == "worldboss" or
-           UnitClassification("target") == "elite" then
+        if UnitIsPlayer("target") then
             if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
                 if Mage_CastSpell("狮心") then return true; end;
             end
             if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                 if Mage_CastSpell("冰冷血脉") then return true; end;
+            end
+        else
+            if UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
+                if Paladin_GetUnitHealthPercent("target") < 90 then
+                    if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                        if Mage_CastSpell("狮心") then return true; end;
+                    end
+                    if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                        if Mage_CastSpell("冰冷血脉") then return true; end;
+                    end
+                end
             end
         end
     end
@@ -300,3 +309,18 @@ function Mage_do_Interrupt_Casting(spellname)
 	end
 	return false;
 end;
+
+
+
+function Mage_AutoSelectTarget()
+    if Mage_GetAutoMode() then
+        if UnitExists("target") and UnitCanAttack("player","target") and UnitHealth("target") > 0 then
+            return false;
+        end
+        if not UnitAffectingCombat("player")  then
+             return false;
+        end
+        if Mage_TargetEnemy() then return true; end;
+    end
+    return false;
+end

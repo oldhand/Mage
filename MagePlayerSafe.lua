@@ -124,6 +124,36 @@ function Mage_playerSafe()
    		end
    	end;
 
+    -- ========================================================
+    -- 隐形术保命/清仇恨逻辑
+    -- ========================================================
+    if UnitAffectingCombat("player") and Mage_HasSpell("隐形术") and Mage_GetSpellCooldown("隐形术") == 0 then
+        -- 1. OT 清仇恨逻辑
+        -- 如果在副本中，目标是强力怪，且目标正在看我
+        if  Mage_PlayerDeBU("低温") and IsInInstance() and Test_Target_IsMe() then
+             local targetType = UnitClassification("target");
+             if targetType == "worldboss" or targetType == "elite" then
+                 if Mage_CastSpell("隐形术") then
+                     Mage_Default_AddMessage("**检测到OT且无法冰箱 (目标看我)，使用隐形术清仇恨...**");
+                     Mage_Combat_AddMessage("**检测到OT且无法冰箱，隐形术启动!**");
+                     return true;
+                 end
+             end
+        end
+
+        -- 2. 残血保命逻辑 (优先级低于冰箱，但作为备选)
+        -- 如果血量低于 20% 且 冰箱在冷却(或者有低温BUFF)
+        if Mage_GetUnitHealthPercent("player") < 20 then
+            if Mage_PlayerDeBU("低温") or Mage_GetSpellCooldown("寒冰屏障") > 0 then
+                 if Mage_CastSpell("隐形术") then
+                     Mage_Default_AddMessage("**血量危急且无法冰箱，使用隐形术跑路...**");
+                     Mage_Combat_AddMessage("**血量危急且无法冰箱，使用隐形术跑路...**");
+                     return true;
+                 end
+            end
+        end
+    end
+
    	if   Mage_PlayerDeBU("肾击")
    	   or  Mage_PlayerDeBU("偷袭")
    	   or  Mage_PlayerDeBU("突袭")

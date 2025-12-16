@@ -1,35 +1,98 @@
+-- ========================================================
+-- 配置：反射与免疫类 Buff 列表
+-- ========================================================
+local Mage_Reflect_Buffs = {
+    ["法术反射"] = true,     -- 战士
+    ["魔法反射"] = true,     -- 怪物
+    ["群体反射"] = true,     -- 怪物/副本
+    ["根基图腾"] = true,     -- 萨满 (虽然是图腾，但有时会显示为Buff或需特殊处理，此处作为Buff处理)
+    ["法术偏斜"] = true,     -- 部分怪物
+}
+
+local Mage_Immune_Control_Buffs = {
+    ["反魔法盾"] = true,     -- DK 绿坝
+    ["暗影斗蓬"] = true,     -- 盗贼 斗篷
+    ["圣盾术"] = true,       -- 骑士 无敌
+    ["寒冰屏障"] = true,     -- 法师 冰箱
+    ["神圣之火"] = true,     -- 或者是类似的免控Buff
+    ["剑刃风暴"] = true,     -- 战士 大风车(免疫控制)
+    ["兽心"] = true,         -- 猎人 红人
+}
+
+-- ========================================================
+-- 辅助函数：一次性扫描目标身上的关键 Buff
+-- 返回: isReflect (是否有反射), isImmuneControl (是否免控/免疫法术)
+-- ========================================================
+local function Mage_ScanTargetStatus(unit)
+    if not UnitExists(unit) then return false, false end
+
+    local isReflect = false
+    local isImmuneControl = false
+
+    local i = 1
+    while true do
+        local name = UnitBuff(unit, i)
+        if not name then break end
+        
+        -- 检查是否为反射 Buff
+        if Mage_Reflect_Buffs[name] then
+            isReflect = true
+        end
+
+        -- 检查是否为免疫/免控 Buff
+        if Mage_Immune_Control_Buffs[name] then
+            isImmuneControl = true
+        end
+
+        -- 如果两个都找到了，可以提前退出循环（优化）
+        if isReflect and isImmuneControl then
+            break
+        end
+
+        i = i + 1
+    end
+
+    return isReflect, isImmuneControl
+end
+
 
 function Mage_playerCombat()
 
+    -- ========================================================
+    -- [优化] 每一帧开始时，先获取目标的状态快照
+    -- 避免后续逻辑重复调用 UnitBuff 遍历
+    -- ========================================================
+    local targetIsReflect, targetIsImmuneControl = false, false
+    if UnitExists("target") then
+        targetIsReflect, targetIsImmuneControl = Mage_ScanTargetStatus("target")
+    end
+    -- ========================================================
+
+
+    -- 1. 变羊术逻辑
     if Mage_Polymorph == 1 then
         if UnitAffectingCombat("player") then
             if GetTimer("Mage_Polymorph") > 2 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
         else
             if GetTimer("Mage_Polymorph") > 15 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
         end
+
         if not Mage_Check_Movement() then
             if IsSpellInRange("变形术","target") == 1  then
-                if Mage_UnitTargetBU("target","法术反射") or
-                   Mage_UnitTargetBU("target","魔法反射") or
-                   Mage_UnitTargetBU("target","群体反射") then
+                -- 使用缓存的状态进行判断
+                if targetIsReflect then
                     Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在反射效果，无法施放变形术...**");
-                end;
-                if Mage_UnitTargetBU("target","反魔法盾") or
-                   Mage_UnitTargetBU("target","暗影斗蓬") then
-                    Mage_Combat_AddMessage("**对目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
-                end;
-                if  not Mage_UnitTargetBU("target","法术反射") and
-                    not Mage_UnitTargetBU("target","群体反射") and
-                    not Mage_UnitTargetBU("target","魔法反射") and
-                    not Mage_UnitTargetBU("target","反魔法盾") and
-                    not Mage_UnitTargetBU("target","暗影斗蓬") then
-                        if UnitExists("pet") and not UnitIsDead("pet") then
-                            if Mage_IsPetAttacking() then
-                                 if Mage_StopPetAttack() then  return true; end
-                            end
+                elseif targetIsImmuneControl then
+                    Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
+                else
+                    -- 既无反射也无免疫，执行变羊
+                    if UnitExists("pet") and not UnitIsDead("pet") then
+                        if Mage_IsPetAttacking() then
+                             if Mage_StopPetAttack() then  return true; end
                         end
-                        if Mage_CastSpell("变形术") then return true; end;
-                end;
+                    end
+                    if Mage_CastSpell("变形术") then return true; end;
+                end
             else
                 if GetTimer("变形术目标距离太远") > 0.5 then
                       StartTimer("变形术目标距离太远");
@@ -43,6 +106,7 @@ function Mage_playerCombat()
         return;
     end
 
+    -- 2. 非战斗/特殊目标检查
 	if not UnitAffectingCombat("player") and not UnitAffectingCombat("target")  then
 		if  UnitCreatureType("target") == "野生宠物" then
 			    Mage_SetText("野生宠物",0);
@@ -68,24 +132,6 @@ function Mage_playerCombat()
 		end
 	end
 
-	if  UnitIsPlayer("target") then
-		if UnitClass("target") == "法师" or UnitClass("target") == "圣骑士" then
-			if IsSpellInRange("侦测魔法","target") == 1 then
-				    if not Mage_TargetDeBU("侦测魔法")  then
-				 		if Mage_CastSpell("侦测魔法") then return true; end;
-				    end;
-			end;
-		end
-	else
-		if IsSpellInRange("侦测魔法","target") == 1  then
-			if UnitClassification("target") == "worldboss" then
-			    if not Mage_TargetDeBU("侦测魔法")  then
-			 		if Mage_CastSpell("侦测魔法") then return true; end;
-			    end;
-			end;
-		end;
-	end
-
 	if IsSpellInRange("寒冰箭","target") == 0 then
 		Mage_SetText("距离过远",0);
 		return;
@@ -101,6 +147,25 @@ function Mage_playerCombat()
         if Mage_CastSpell("召唤水元素") then return true; end;
     end
 
+    -- ========================================================
+    -- [优化] 战斗中的法术反射处理
+    -- 使用之前获取的 targetIsReflect 状态
+    -- ========================================================
+    if targetIsReflect then
+        Mage_SetText("目标反射",0);
+        -- 尝试使用冰枪术破盾 (瞬发, 伤害低, 适合破反射)
+        if Mage_HasSpell("冰枪术") and Mage_GetSpellCooldown("冰枪术") == 0 then
+             if Mage_CastSpell("冰枪术") then
+                 Mage_Combat_AddMessage("**目标存在反射，使用冰枪术破盾...**");
+                 return true;
+             end
+        end
+        -- 如果没有冰枪术，则停止输出，防止被反伤/反制
+        Mage_Combat_AddMessage("**目标存在反射，停止施法...**");
+        return true;
+    end
+    -- ========================================================
+
 	if Mage_Interrupt_Casting() then return true; end;
 
     if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
@@ -108,11 +173,8 @@ function Mage_playerCombat()
     end
 
     if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") then
-        -- 利用 MageDecursive.lua 中的函数扫描目标身上是否有 Magic 类型的 Buff
         local hasMagicBuff, buffName = Mage_ScanUnitMagicBuff("target");
-
         if hasMagicBuff then
-            -- 如果有可偷取的魔法Buff，执行偷取
             if Mage_CastSpell("法术吸取") then
                 Mage_Combat_AddMessage("**发现目标增益 [".. buffName .."] -> 使用法术吸取**");
                 Mage_Default_AddMessage("**偷取目标Buff: [".. buffName .."]**");
@@ -142,6 +204,20 @@ function Mage_playerCombat()
                 end
             end
         end
+        -- ========================================================
+        -- 镜像使用逻辑
+        -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
+        -- ========================================================
+        if Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
+            local targetType = UnitClassification("target");
+            -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
+            if UnitIsPlayer("target") or targetType == "worldboss" or targetType == "elite" or targetType == "rareelite" then
+                 if Mage_CastSpell("镜像") then
+                     Mage_Combat_AddMessage("**遭遇强敌，开启镜像爆发/降仇恨...**");
+                     return true;
+                 end
+            end
+        end
     end
 
     if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then
@@ -163,7 +239,9 @@ function Mage_playerCombat()
 	if UnitClass("target") == "法师" and Mage_GetUnitHealthPercent("target") > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
 		if IsSpellInRange("变形术","target") == 1 then
 			if not Mage_UnitTargetDeBU("target","变形术") then
-				if Mage_CastSpell("变形术") then return true; end;
+                if not targetIsReflect and not targetIsImmuneControl then
+				    if Mage_CastSpell("变形术") then return true; end;
+                end
 			end;
 		end
 	end
@@ -173,7 +251,9 @@ function Mage_playerCombat()
 				if  Mage_GetUnitHealthPercent("target") > 70 and GetTimer("变形术_"..UnitName("target")) > 12 then
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
-							if Mage_CastSpell("变形术") then return true; end;
+                            if not targetIsReflect and not targetIsImmuneControl then
+							    if Mage_CastSpell("变形术") then return true; end;
+                            end
 						end;
 					end
 				else
@@ -186,7 +266,9 @@ function Mage_playerCombat()
 				if  Mage_GetUnitHealthPercent("target") > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
-							if Mage_CastSpell("变形术") then return true; end;
+                            if not targetIsReflect and not targetIsImmuneControl then
+							    if Mage_CastSpell("变形术") then return true; end;
+                            end
 						end;
 					end
 				end

@@ -69,6 +69,10 @@ function Mage_OrganizeActionBar()
         PlaceAction(10);
         ClearCursor();
     end;
+    if Mage_PickupSpellByBook("霜火之箭") then
+        PlaceAction(10);
+        ClearCursor();
+    end;
     if Mage_PickupSpellByBook("冰枪术") then
         PlaceAction(11);
         ClearCursor();

@@ -2,8 +2,8 @@
 ## Author: oldhand
 ## Version: 3.2.4
 ## describe: 法师智能施法插件
-## Title: 智能施法插件(法师泰坦重铸服)
-## Notes: 智能施法插件(法师泰坦重铸服))
+## Title: 智能施法插件(法师)
+## Notes: 智能施法插件(法师)
 ## SavedVariables: Mage_SaveData,Mage_Settings,Mage_Icons
 Mage.xml
 MageSettings.xml

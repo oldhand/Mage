@@ -158,7 +158,11 @@ function Mage_SendCommand(flag)
 end;
 
 function Mage_Frame_OnUpdate()
-	if UnitClass("player") ~= "法师" then return; end;
+	if UnitClass("player") ~= "法师" then
+        HideUIPanel(MageMainFrame);
+        HideUIPanel(Mage_MSG_Frame);
+        return;
+    end;
 
 	if ChatEditBox ~= nil then
 		if (ChatEditBox:IsShown()) then

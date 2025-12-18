@@ -15,7 +15,6 @@
     <Script file="Mage.lua"/>
 	<Script file="MageOrganizeActionBar.lua"/>
 	<Script file="MageTargetBinder.lua"/>
-	<Script file="MageTargetBinder.lua"/>
 	<Script file="MageBossList.lua"/>
 	<Script file="MageRobot.lua"/>
 	<Script file="MageSettings.lua"/>

@@ -98,15 +98,14 @@ function Mage_GetCastRemainingTime(unit)
 end
 
 function Mage_GetSpellCooldown(spellname)
-	local start, duration, enable = GetSpellCooldown(spellname);
-	if enabled == 0 then
+	local start, duration, enabled = GetSpellCooldown(spellname);
+	if not start or enabled == 0 then
 		 return 0;
 	elseif ( start ~= nil and duration ~= nil and start > 0 and duration > 0) then
 		 return (start + duration - GetTime());
 	else
 		 return 0;
 	end
-	return duration;
 end
 
 function Mage_GetSpellCooldownNoGcd(spellname)

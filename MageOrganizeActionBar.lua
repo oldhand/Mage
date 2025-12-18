@@ -90,7 +90,7 @@ function Mage_OrganizeActionBar()
         PlaceAction(62);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("解除次级诅咒") then
+    if Mage_PickupSpellByBook("解除诅咒") then
         PlaceAction(63);
         ClearCursor();
     end;

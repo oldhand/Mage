@@ -28,7 +28,7 @@ function Mage_Dispel()
         if mainTankName ~= "" then
             local unit = Mage_GetTargetUnit(mainTankName);
             if  unit ~= nil and UnitExists(unit)  then
-                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除次级诅咒",unit) == 1 then
+                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
                     if Mage_DispelUnit(unit) then return true end;
                 end
             end
@@ -38,7 +38,7 @@ function Mage_Dispel()
     for index=1, 4 do
         local unit = "party"..index;
         if  UnitExists(unit)  then
-            if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除次级诅咒",unit) == 1 then
+            if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
                 if Mage_DispelUnit(unit) then return true end;
             end
         end
@@ -48,7 +48,7 @@ function Mage_Dispel()
         for id=1, 40  do
             local unit = "raid"..id;
             if  UnitExists(unit)  then
-                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除次级诅咒",unit) == 1 then
+                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
                     if Mage_DispelUnit(unit) then return true end;
                 end
             end
@@ -64,15 +64,15 @@ function Mage_DispelUnit(unit)
 
 	local counts = Mage_DecursiveScanUnit(unit);
 
-	if counts ~= nil and counts["Curse"] > 0 and Mage_HasSpell("解除次级诅咒") then
+	if counts ~= nil and counts["Curse"] > 0 and Mage_HasSpell("解除诅咒") then
         if Mage_playerSelectUnit(unit) then
-            if Mage_CastSpell("解除次级诅咒") then
+            if Mage_CastSpell("解除诅咒") then
                 if Mage_Get_CombatLogMode() then
-                    Mage_AddMessage("对>>" .. UnitName("target").."<<使用解除次级诅咒");
+                    Mage_AddMessage("对>>" .. UnitName("target").."<<使用解除诅咒");
                 end
                 return true;
             end;
-            Mage_SetText(">解除次级诅咒",0);
+            Mage_SetText(">解除诅咒",0);
             return true;
         else
             if Mage_SelectTarget(unit) then return true; end;

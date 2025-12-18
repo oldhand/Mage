@@ -248,16 +248,123 @@ function Mage_playerSafe()
 
    	local counts = Mage_DecursiveScanUnit("player");
    	if counts["Curse"] > 0 then
-        if Mage_HasSpell("解除次级诅咒") then
+        if Mage_HasSpell("解除诅咒") then
             if Mage_playerSelectSelf() then
-                if Mage_CastSpell("解除次级诅咒") then return true; end;
-                Mage_SetText(">解除次级诅咒",0);
+                if Mage_CastSpell("解除诅咒") then return true; end;
+                Mage_SetText(">解除诅咒",0);
                 return true;
             else
                 if Mage_TargetPlayer() then return true; end;
             end
         end
     end
+
+    if Mage_AutoCreateManaGem() then  return true; end;
+
+    if Mage_AutoUseManaGem() then  return true; end;
+
 	return false;
 end
 
+
+-- ==========================================
+-- 修复版：通过扫描鼠标提示获取法力宝石真实次数
+-- ==========================================
+function Mage_GetManaGemCharges(itemName)
+    local bag, slot = Mage_FindItemInBag(itemName)
+    if not bag or not slot then return 0 end
+
+    -- 使用插件里已有的 MageBufftip 或 MageTooltip 进行扫描
+    local scanner = MageBufftip or MageTooltip
+    scanner:SetOwner(UIParent, "ANCHOR_NONE")
+    scanner:ClearLines()
+    scanner:SetBagItem(bag, slot)
+
+    -- 遍历提示信息的每一行，寻找包含 "次数" 或 "次" 的文本
+    -- WLK 中通常显示为 "3 次使用机会" 或类似的格式
+    for i = 1, scanner:NumLines() do
+        local text = _G[scanner:GetName().."TextLeft"..i]:GetText()
+        if text then
+            -- 尝试匹配数字，例如 "3 次使用" 中的 3
+            local charges = string.match(text, "(%d+)%s*次")
+            if charges then
+                scanner:Hide()
+                return tonumber(charges)
+            end
+        end
+    end
+
+    scanner:Hide()
+    -- 如果没扫描到次数，但物品确实在包里，说明可能是满次数状态（某些客户端不显示满次数）
+    -- 或者该物品已经用完。为了保险，返回 1 诱发重造（如果是为了保持2次以上）
+    return 1
+end
+
+
+function Mage_AutoCreateManaGem()
+    -- 如果正在移动、正在施法、或在战斗中，则不制造
+    if Mage_Check_Movement() or Mage_GetPlayerCasting() or UnitAffectingCombat("player") then
+        return false
+    end
+
+    -- 检查法力宝石（WLK版本主要是法力红宝石，这里根据不同等级可以扩充）
+    local gemNames = {"法力青玉","法力红宝石", "法力黄水晶", "法力翡翠", "法力玛瑙"}
+    local hasGem = false
+    local gemName = ""
+
+    for _, name in ipairs(gemNames) do
+        if Mage_FindItemInBag(name) then
+            hasGem = true
+            gemName = name;
+            break
+        end
+    end
+    -- 如果包里没有宝石，则尝试制造当前最高等级的宝石
+    if not hasGem then
+        if Mage_HasSpell("制造法力宝石") then
+            if Mage_CastSpell("制造法力宝石") then
+                Mage_Combat_AddMessage("**包里没宝石，正在制造法力宝石...**")
+                return true
+            end
+        end
+    else
+        if gemName ~= "" then
+            local charges = Mage_GetManaGemCharges(gemName);
+            if charges < 2 then
+                if Mage_HasSpell("制造法力宝石") then
+                    if Mage_CastSpell("制造法力宝石") then
+                        Mage_Combat_AddMessage("**法力宝石次数不足("..charges..")，正在重新制造...**")
+                        return true
+                    end
+                end
+            end
+        end
+    end
+    return false
+end
+
+
+function Mage_AutoUseManaGem()
+    -- 仅在战斗中且蓝量低于 60% 时使用
+    if not UnitAffectingCombat("player") or Mage_GetUnitManaPercent("player") > 60 then
+        return false
+    end
+
+    -- 防抖：防止法术连续点击
+    if GetTimer("UseManaGemTimer") < 2 then return false end
+
+    local gemNames = {"法力青玉","法力红宝石", "法力黄水晶", "法力翡翠", "法力玛瑙"}
+
+    for _, name in ipairs(gemNames) do
+        -- 检查物品是否存在且冷却完毕
+        if Mage_FindItemInBag(name) and Mage_CheckItemIsReady(name) then
+            if Mage_CastSpell(name) then
+                StartTimer("UseManaGemTimer")
+                Mage_Combat_AddMessage("**蓝量过低，使用: " .. name .. "**")
+                Mage_Default_AddMessage("**蓝量过低，使用: " .. name .. "**")
+                return true
+            end
+        end
+    end
+    return false
+end

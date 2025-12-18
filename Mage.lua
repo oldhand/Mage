@@ -107,7 +107,7 @@ function Mage_SendCommand(flag)
             Mage_Combat_AddMessage("**没有敌对目标，无法变形术**");
 		end
 	elseif flag == 2 then
-		 if Mage_GetSpellCooldown("闪现术") == 0 then
+		 if Mage_GetSpellCooldownNoGcd("闪现术") == 0 then
 		 	 Mage_Combat_AddMessage("准备闪现术..");
 	 		 StartTimer("Mage_Teleport");
 			 Mage_Teleport = 1;
@@ -241,6 +241,17 @@ function Mage_Frame_OnUpdate()
 		    return ;
 		end
 	end;
+
+	if Mage_PlayerBU("隐形术") then
+        if UnitExists("pet") and not UnitIsDead("pet") then
+            if Mage_IsPetAttacking() then
+                 if Mage_StopPetAttack() then  return true; end
+            end
+        end
+        Mage_SetText("隐形中",0);
+        return ;
+    end
+
 	-- 检测晕迷类 (人类自利主要解这个)
     if  Mage_PlayerDeBU("制裁之锤")
         or Mage_PlayerDeBU("肾击")

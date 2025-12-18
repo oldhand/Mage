@@ -109,6 +109,19 @@ function Mage_GetSpellCooldown(spellname)
 	return duration;
 end
 
+function Mage_GetSpellCooldownNoGcd(spellname)
+	local start, duration, enabled = GetSpellCooldown(spellname)
+    if not start or enabled == 0 then
+        return 0
+    end
+    local _, gcdDuration = GetSpellCooldown(61304)
+    if start > 0 and duration > gcdDuration then
+        local cdLeft = start + duration - GetTime()
+        return math.max(0, cdLeft)
+    end
+    return 0
+end
+
 function Mage_IsPetAttacking()
 
     local petTarget = "pettarget"

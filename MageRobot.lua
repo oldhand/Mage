@@ -1,12 +1,69 @@
 ﻿Mage_Robot_Hit = "关闭机器人模式"
 
 local Mage_IsRobotMode = false; --是否为机器人模式
- 
+
+
+
+
+
+-- 插件会自动尝试这些名字，哪个有ID就用哪个
+local channelList = {
+    "大脚世界频道",
+    "大脚世界频道1",
+    "大脚世界频道2",
+    "大脚世界频道3",
+    "大脚世界频道4",
+    "大脚世界频道5",
+    "大脚世界频道6",
+    "大脚世界频道7",
+}
+
+-- ========================================================
+-- 自动世界频道喊话函数 (3分钟一次)
+-- ========================================================
+function Mage_AutoAnnounce()
+    -- 1. 在这里设置你的喊话内容
+    local message = "死骑<爆鸡兽>,MS<落魄山丶崔巉>,FS<黑狗子>,随机乱踢人,奶骑需了法伤板甲,也要踢人,大家注意避坑！"
+
+      -- 3. 检查定时器 (180秒 = 3分钟)
+      if GetTimer("AutoWorldShout") > 120 then
+          local targetId = 0
+          local targetName = ""
+          -- 遍历列表，寻找已加入的频道
+          for _, name in ipairs(channelList) do
+              local id, _ = GetChannelName(name)
+              if id and id > 0 then
+                  targetId = id
+                  targetName = name
+                  break -- 找到了就跳出循环
+              end
+          end
+
+          -- 发送消息
+          if targetId > 0 then
+              SendChatMessage(message, "CHANNEL", nil, targetId)
+              -- 提示信息 (调试用，告诉你最终发到了哪个频道)
+              Mage_Default_AddMessage("已向 [" .. targetId .. ". " .. targetName .. "] 发送喊话。")
+          else
+              -- 如果都没找到，尝试加入大脚世界频道 (可选)
+              -- JoinPermanentChannel("大脚世界频道")
+              Mage_Default_AddMessage("错误：未找到合适的世界频道，无法喊话。")
+          end
+          -- 重置定时器
+          StartTimer("AutoWorldShout")
+      end
+end
+
+
 function Mage_Robot_OnUpdate()
+
+--     Mage_AutoAnnounce();
+
     if UnitClass("player") ~= "法师" then
 		HideUIPanel(MageRobotBtn);
 		return 
 	end
+
     if Mage_IsRobotMode then
 		if not MageRobotBtn:GetChecked() then
 	        MageRobotBtn:SetChecked(true)
@@ -54,7 +111,6 @@ function Mage_Robot_fun()
 end
 
 
-
 -- 核心处理事件
 local function OnRobotEvent(self, event, ...)
     -- 1. 进出战斗
@@ -67,6 +123,7 @@ end
 
 -- 核心处理函数
 function Mage_RobotUpdate()
+
     if not Mage_Get_RobotMode() then return; end;
     if not UnitAffectingCombat("player") then
         if not Mage_Test_Battlefield() then

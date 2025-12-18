@@ -77,11 +77,10 @@ function Mage_OrganizeActionBar()
         PlaceAction(11);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("冰冷血脉") then
+    if Mage_PickupSpellByBook("法术吸取") then
         PlaceAction(12);
         ClearCursor();
     end;
-
 
     if Mage_PickupSpellByBook("寒冰屏障") then
         PlaceAction(61);
@@ -95,35 +94,35 @@ function Mage_OrganizeActionBar()
         PlaceAction(63);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("法力护盾") then
-        PlaceAction(64);
-        ClearCursor();
-    end;
-    if Mage_PickupSpellByBook("急速冷却") then
-        PlaceAction(65);
-        ClearCursor();
-    end
     if Mage_PickupSpellByBook("变形术") then
-        PlaceAction(66);
+        PlaceAction(64);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("霜甲术") then
-        PlaceAction(67);
+        PlaceAction(65);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("冰甲术") then
-        PlaceAction(67);
+        PlaceAction(65);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("法师护甲") then
-        PlaceAction(68);
+        PlaceAction(66);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("召唤水元素") then
+        PlaceAction(67);
+        ClearCursor();
+    end
+    if Mage_PickupSpellByBook("深度冻结") then
+        PlaceAction(68);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("急速冷却") then
         PlaceAction(69);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("法术吸取") then
+    if Mage_PickupSpellByBook("冰冷血脉") then
         PlaceAction(70);
         ClearCursor();
     end
@@ -152,48 +151,48 @@ function Mage_OrganizeActionBar()
         PlaceAction(28);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("侦测魔法") then
+    if Mage_PickupSpellByBook("魔法增效") then
         PlaceAction(29);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("魔法增效") then
+    if Mage_PickupSpellByBook("魔法抑制") then
         PlaceAction(30);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("魔法抑制") then
+    if Mage_PickupSpellByBook("防护冰霜结界") then
         PlaceAction(31);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("防护冰霜结界") then
+    if Mage_PickupSpellByBook("防护火焰结界") then
         PlaceAction(32);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("防护火焰结界") then
-        PlaceAction(33);
-        ClearCursor();
-    end
 
-    if Mage_PickupSpellByBook("奥术飞弹") then
+    if Mage_PickupSpellByBook("镜像") then
         PlaceAction(37);
         ClearCursor();
     end;
-
-    if Mage_PickupSpellByBook("制造法力宝石") then
+    if Mage_PickupSpellByBook("法力护盾") then
         PlaceAction(38);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("缓落术") then
+    if Mage_PickupSpellByBook("奥术飞弹") then
         PlaceAction(39);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("隐形术") then
+    if Mage_PickupSpellByBook("制造法力宝石") then
         PlaceAction(40);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("镜像") then
+    if Mage_PickupSpellByBook("缓落术") then
         PlaceAction(41);
         ClearCursor();
     end;
+    if Mage_PickupSpellByBook("隐形术") then
+        PlaceAction(42);
+        ClearCursor();
+    end;
+
 
 
     if Mage_PickupSpellByBook("射击") then

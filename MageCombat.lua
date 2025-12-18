@@ -168,6 +168,14 @@ function Mage_playerCombat()
 
 	if Mage_Interrupt_Casting() then return true; end;
 
+	if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
+        if Mage_CastSpell("深度冻结") then  return true; end
+    end
+
+    if Mage_TargetDeBU("深度冻结") then
+        if Mage_CastSpell("冰枪术") then  return true; end
+    end
+
     if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
         if Mage_CastSpell("冰枪术") then  return true; end
     end

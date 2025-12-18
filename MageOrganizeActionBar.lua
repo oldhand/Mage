@@ -143,13 +143,24 @@ function Mage_OrganizeActionBar()
         PlaceAction(26);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("造水术") then
+
+    if Mage_PickupSpellByBook("造餐术") then
         PlaceAction(27);
         ClearCursor();
+    else
+         if Mage_PickupSpellByBook("造水术") then
+            PlaceAction(27);
+            ClearCursor();
+        end
     end
-    if Mage_PickupSpellByBook("造食术") then
+    if Mage_PickupSpellByBook("召唤餐桌") then
         PlaceAction(28);
         ClearCursor();
+    else
+         if Mage_PickupSpellByBook("造食术") then
+            PlaceAction(28);
+            ClearCursor();
+        end
     end
     if Mage_PickupSpellByBook("魔法增效") then
         PlaceAction(29);

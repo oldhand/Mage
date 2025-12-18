@@ -350,8 +350,6 @@ function Mage_AutoUseManaGem()
         return false
     end
 
-    -- 防抖：防止法术连续点击
-    if GetTimer("UseManaGemTimer") < 2 then return false end
 
     local gemNames = {"法力青玉","法力红宝石", "法力黄水晶", "法力翡翠", "法力玛瑙"}
 
@@ -359,7 +357,6 @@ function Mage_AutoUseManaGem()
         -- 检查物品是否存在且冷却完毕
         if Mage_FindItemInBag(name) and Mage_CheckItemIsReady(name) then
             if Mage_CastSpell(name) then
-                StartTimer("UseManaGemTimer")
                 Mage_Combat_AddMessage("**蓝量过低，使用: " .. name .. "**")
                 Mage_Default_AddMessage("**蓝量过低，使用: " .. name .. "**")
                 return true

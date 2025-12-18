@@ -1,7 +1,7 @@
 
 local Mage_Data = nil;
 Mage_SaveData = nil;
-Mage_Settings = nil;
+if not Mage_Settings then Mage_Settings = {} end
 Mage_Icons = nil;
 
 local ChatEditBox = nil;

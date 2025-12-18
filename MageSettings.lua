@@ -1,6 +1,6 @@
 Mage_Settings_Hit = "设置参数"
 
-Mage_Settings = nil;
+if not Mage_Settings then Mage_Settings = {} end
 local Mage_PopMenu = nil
 
 local Mage_MainTank = false; --治疗主坦克

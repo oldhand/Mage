@@ -1,6 +1,6 @@
 ﻿
 Mage_Auto_Follow_Hit = "普通模式"
-Mage_Settings = nil
+if not Mage_Settings then Mage_Settings = {} end
 local Mage_Follow_PopMenu = nil
 local Mage_follow = nil -- 跟随对象名字
 local Mage_IsAuto_Follow = false

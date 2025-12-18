@@ -1,5 +1,5 @@
 Mage_SaveData = nil;
-Mage_Settings = nil;
+if not Mage_Settings then Mage_Settings = {} end
 Mage_Icons = nil;
 
 
@@ -171,7 +171,7 @@ end;
 
 
 function Mage_GetActionCooldown(i)
-	local start, duration, enable = GetActionCooldown(i);
+	local start, duration, enabled = GetActionCooldown(i);
 	if enabled == 0 then
 		 return 0;
 	elseif ( start > 0 and duration > 0) then

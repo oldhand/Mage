@@ -23,6 +23,8 @@ end
 
 
 function Mage_Dispel()
+    if  UnitExists("target") and UnitCanAttack("player","target") and UnitIsPlayer("target") then return false; end
+
     if Mage_GetSetting("MainTank") then
         local mainTankName = Mage_Get_MainTankName();
         if mainTankName ~= "" then

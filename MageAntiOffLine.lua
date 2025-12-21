@@ -26,16 +26,19 @@ function Mage_AntiOffLine()
 	if Mage_Get_AntiOffLineMode() and not UnitAffectingCombat("player") then
 		if GetTimer("AntiOffLine") < 0.5 then
             if Mage_CastSpell("造水术") then return true; end;
+            if Mage_CastSpell("造餐术") then return true; end;
 -- 			Mage_SetText("跳跃",200);
 			return true;
 		end;
 		if GetTimer("AntiOffLine") > 100 then
 -- 			Mage_SetText("跳跃",200);
             if Mage_CastSpell("造水术") then return true; end;
+            if Mage_CastSpell("造餐术") then return true; end;
 			StartTimer("AntiOffLine");
 			return true;
 		end
         if GetTimer("回蓝") < 0.5 then
+            if Mage_CastSpell("魔法酪饼") then return true; end;
             if Mage_CastSpell("魔法泉水") then return true; end;
             if Mage_CastSpell("魔法纯净水") then return true; end;
             if Mage_CastSpell("魔法晶水") then return true; end;
@@ -44,6 +47,7 @@ function Mage_AntiOffLine()
             return true;
         end;
         if GetTimer("回蓝") > 10 then
+            if Mage_CastSpell("魔法酪饼") then return true; end;
             if Mage_CastSpell("魔法泉水") then return true; end;
             if Mage_CastSpell("魔法纯净水") then return true; end;
             if Mage_CastSpell("魔法晶水") then return true; end;

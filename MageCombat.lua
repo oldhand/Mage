@@ -132,10 +132,17 @@ function Mage_playerCombat()
 		end
 	end
 
-	if IsSpellInRange("寒冰箭","target") == 0 then
-		Mage_SetText("距离过远",0);
-		return;
-	end;
+   if Mage_GetMageSpec() == 1 then
+          if IsSpellInRange("霜火之箭","target") == 0 then
+          		Mage_SetText("距离过远",0);
+          		return;
+          end;
+    elseif Mage_GetMageSpec() == 0 then
+          if IsSpellInRange("寒冰箭","target") == 0 then
+          		Mage_SetText("距离过远",0);
+          		return;
+          end;
+    end
 
 	if UnitExists("pet") and not UnitIsDead("pet") then
         if not Mage_IsPetAttacking() then
@@ -143,7 +150,7 @@ function Mage_playerCombat()
         end
     end
 
-    if UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
+    if Mage_GetMageSpec() == 0 and UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
         if Mage_CastSpell("召唤水元素") then return true; end;
     end
 
@@ -168,16 +175,37 @@ function Mage_playerCombat()
 
 	if Mage_Interrupt_Casting() then return true; end;
 
-	if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
-        if Mage_CastSpell("深度冻结") then  return true; end
-    end
 
-    if Mage_TargetDeBU("深度冻结") then
-        if Mage_CastSpell("冰枪术") then  return true; end
-    end
+    if Mage_GetMageSpec() == 1 then
+            if Mage_PlayerBU("一触即燃") then
+                Mage_SendCommand(5);
+            end
+            if Mage_PlayerBU("法术连击") and Mage_HasSpell("炎爆术") then
+               if Mage_CastSpell("炎爆术") then  return true; end
+            end
+            if not Mage_TargetDeBU("活动炸弹") then
+                 if Mage_CastSpell("活动炸弹") then  return true; end
+            end
+            if Mage_HasSpell("冰枪术") then
+                if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
+                   if Mage_CastSpell("冰枪术") then  return true; end
+                end
+             end
+            if not Mage_TargetDeBU("强化灼烧") then
+                 if Mage_CastSpell("灼烧") then  return true; end
+            end
+    elseif Mage_GetMageSpec() == 0 then
+		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
+               if Mage_CastSpell("深度冻结") then  return true; end
+           end
 
-    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
-        if Mage_CastSpell("冰枪术") then  return true; end
+           if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
+               if Mage_CastSpell("冰枪术") then  return true; end
+           end
+
+           if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
+               if Mage_CastSpell("冰枪术") then  return true; end
+           end
     end
 
     if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") then
@@ -194,6 +222,9 @@ function Mage_playerCombat()
 
     if UnitClassification("player") and UnitClassification("target") then
         if UnitIsPlayer("target") then
+            if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                if Mage_CastSpell("燃烧") then return true; end;
+            end
             if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
                 if Mage_CastSpell("狮心") then return true; end;
             end
@@ -203,6 +234,9 @@ function Mage_playerCombat()
         else
             if UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
                 if Mage_GetUnitHealthPercent("target") < 90 then
+                    if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                        if Mage_CastSpell("燃烧") then return true; end;
+                    end
                     if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
                         if Mage_CastSpell("狮心") then return true; end;
                     end
@@ -240,7 +274,7 @@ function Mage_playerCombat()
 		 if Mage_CastSpell("冰锥术") then  return true; end
 	end
 
-	if Mage_GetSpellCooldown("冰霜新星") > 5 and  Mage_GetSpellCooldown("寒冰屏障") > 10 then
+	if Mage_HasSpell("急速冷却") and Mage_GetSpellCooldown("冰霜新星") > 5 and  Mage_GetSpellCooldown("寒冰屏障") > 10 then
 		if Mage_CastSpell("急速冷却") then  return true; end;
 	end
 
@@ -293,24 +327,11 @@ function Mage_playerCombat()
 		end
 	end
 
-	if UnitHealthMax("target") == 100 then
-		if Mage_GetUnitHealthPercent("target") < 2 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2  then
-            if Mage_CastSpell("火焰冲击") then return true; end
-			if CheckInteractDistance("target",3) then
-				if Mage_CastSpell("魔爆术") then  return  true; end;
-			end
-		end
-	else
-		if UnitHealth("target") < 300 and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2  then
-            if Mage_CastSpell("火焰冲击") then return true; end
-			if CheckInteractDistance("target",3) then
-				if Mage_CastSpell("魔爆术") then  return  true; end;
-			end
-		end
-	end
-
-
 	if CheckInteractDistance("target",3) and GetTimer("变形术") > 2 then
+        if Mage_GetMageSpec() == 1  then
+             if Mage_CastSpell("龙息术") then  return  true; end;
+             if Mage_CastSpell("冲击波") then  return  true; end;
+        end
 		if UnitIsPlayer("target") then
  		   if not Mage_TargetDeBU("冰霜新星") then
  				 if Mage_CastSpell("冰霜新星") then return true; end;
@@ -325,10 +346,18 @@ function Mage_playerCombat()
      end
 
 	if not Mage_Check_Movement() then
-		if Mage_CastSpell("寒冰箭") then return true; end
+        if Mage_GetMageSpec() == 1 then
+            if Mage_CastSpell("霜火之箭") then return true; end
+        elseif Mage_GetMageSpec() == 0 then
+		    if Mage_CastSpell("寒冰箭") then return true; end
+		end
 		Mage_SetText("无动作",0);
 		return;
 	else
+        if Mage_GetMageSpec() == 1 and CheckInteractDistance("target", 3)  then
+             if Mage_CastSpell("龙息术") then  return  true; end;
+             if Mage_CastSpell("冲击波") then  return  true; end;
+        end
 	    if not Mage_TargetDeBU("冰霜新星") and GetTimer("变形术") > 2 then
 			if UnitAffectingCombat("player")  and  IsSpellInRange("火焰冲击","target") == 1 then
                 if Mage_CastSpell("火焰冲击") then return true; end

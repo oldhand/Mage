@@ -135,25 +135,50 @@ function Mage_SendCommand(flag)
 			 Mage_Combat_AddMessage("**没有进入战斗，不需要唤醒**");
 		end
     elseif flag == 4 then
-      if Mage_IsManaEnough("暴风雪") then
-          local castspell = Mage_GetPlayerCasting()
-          if castspell then
-              if string.find(castspell, "暴风雪") then
-                 local RemainingTime =  Mage_GetCastRemainingTime("player");
-                 if RemainingTime > 2 then
-                      Mage_Blizzard = 0;
-                      Mage_Combat_AddMessage("**正在施放暴风雪(" .. string.format("%.1f", RemainingTime) .. ")...**");
-                      return;
+        if Mage_GetMageSpec() == 1 then
+              if Mage_IsManaEnough("烈焰风暴") then
+                  local castspell = Mage_GetPlayerCasting()
+                  if castspell then
+                      if string.find(castspell, "烈焰风暴") then
+                         local RemainingTime =  Mage_GetCastRemainingTime("player");
+                         if RemainingTime > 2 then
+                              Mage_Blizzard = 0;
+                              Mage_Combat_AddMessage("**正在施放烈焰风暴(" .. string.format("%.1f", RemainingTime) .. ")...**");
+                              return;
+                          end
+                      end;
                   end
-              end;
-          end
+                 Mage_Blizzard = 1;
+                 Mage_Combat_AddMessage("**准备使用鼠标位置使用烈焰风暴...**");
+                 StartTimer("Mage_Blizzard");
+              else
+                 Mage_Combat_AddMessage("**烈焰风暴不可用，蓝量不够**");
+                 Mage_Blizzard = 0;
+              end
+        elseif Mage_GetMageSpec() == 0 then
+              if Mage_IsManaEnough("暴风雪") then
+                  local castspell = Mage_GetPlayerCasting()
+                  if castspell then
+                      if string.find(castspell, "暴风雪") then
+                         local RemainingTime =  Mage_GetCastRemainingTime("player");
+                         if RemainingTime > 2 then
+                              Mage_Blizzard = 0;
+                              Mage_Combat_AddMessage("**正在施放暴风雪(" .. string.format("%.1f", RemainingTime) .. ")...**");
+                              return;
+                          end
+                      end;
+                  end
+                 Mage_Blizzard = 1;
+                 Mage_Combat_AddMessage("**准备使用鼠标位置使用暴风雪...**");
+                 StartTimer("Mage_Blizzard");
+              else
+                 Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
+                 Mage_Blizzard = 0;
+              end
+        end
+    elseif flag == 5 then
          Mage_Blizzard = 1;
-         Mage_Combat_AddMessage("**准备使用鼠标位置使用暴风雪...**");
          StartTimer("Mage_Blizzard");
-      else
-         Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
-         Mage_Blizzard = 0;
-      end
     end
 end;
 
@@ -211,7 +236,11 @@ function Mage_Frame_OnUpdate()
                 Mage_SetText("正在施放"..castspell,0);
                return;
             end
-        else
+       elseif string.find(castspell, "烈焰风暴") then
+              Mage_Blizzard = 0;
+              Mage_SetText("正在施放"..castspell,0);
+              return;
+       else
             Mage_SetText("正在施放"..castspell,0);
             return;
         end;
@@ -337,18 +366,34 @@ function Mage_Frame_OnUpdate()
     end;
 
     if Mage_Blizzard == 1 then
-        if not Mage_movement then
-              if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
-              if Mage_IsManaEnough("暴风雪") then
-                   if Mage_CastBlizzard() then return true; end;
-              else
-                   Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
-                   Mage_Blizzard = 0;
-              end
-        else
-            if GetTimer("Mage_Blizzard") > 2 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
+        if Mage_GetMageSpec() == 1 then
+            if not Mage_movement then
+                  if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用烈焰风暴命令超时...**"); Mage_Blizzard = 0; end;
+                  if Mage_IsManaEnough("烈焰风暴") then
+                       if Mage_FlameStorm() then return true; end;
+                  else
+                       Mage_Combat_AddMessage("**烈焰风暴不可用，蓝量不够**");
+                       Mage_Blizzard = 0;
+                  end
+            else
+                if GetTimer("Mage_Blizzard") > 2 then  Mage_Default_AddMessage("**使用烈焰风暴命令超时...**"); Mage_Blizzard = 0; end;
+            end
+            Mage_SetText("准备烈焰风暴中",0);
+        elseif Mage_GetMageSpec() == 0 then
+            if not Mage_movement then
+                  if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
+                  if Mage_IsManaEnough("暴风雪") then
+                       if Mage_CastBlizzard() then return true; end;
+                  else
+                       Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
+                       Mage_Blizzard = 0;
+                  end
+            else
+                if GetTimer("Mage_Blizzard") > 2 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
+            end
+            Mage_SetText("准备暴风雪中",0);
         end
-        Mage_SetText("准备暴风雪中",0);
+
         return;
     end
 

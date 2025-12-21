@@ -22,21 +22,21 @@ function Mage_TalentMode_fun()
 		Mage_Default_AddMessage("**转换为火法模式**");
 		Mage_TalentMode_Hit = "火法模式";
 		MageTooltip:SetText(Mage_TalentMode_Hit);
-		MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Holy_DevotionAura");
+		MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Fire_FireBolt02");
      elseif Mage_TalentMode == 1 then
             Mage_TalentMode = 2;
             Blizzard_AddMessage("**转换为奥法模式**",1,0,0,"crit");
             Mage_Default_AddMessage("**转换为奥法模式**");
             Mage_TalentMode_Hit = "奥法模式";
             MageTooltip:SetText(Mage_TalentMode_Hit);
-            MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Holy_AuraOfLight");
+            MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Arcane_Blast");
 	 else
 		Mage_TalentMode = 0;
 		Blizzard_AddMessage("**转换为冰法模式**",1,0,0,"crit");
 	    Mage_Default_AddMessage("**转换为冰法模式**");
 	    Mage_TalentMode_Hit = "冰法模式";
 		MageTooltip:SetText(Mage_TalentMode_Hit);
-		MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Holy_LayOnHands");
+		MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Frost_FrostBolt02");
 	 end
 end
 
@@ -48,6 +48,30 @@ function Mage_AutoMode_OnUpdate()
 		HideUIPanel(MageAutoModeBtn);
 		return 
 	end
+    if Mage_GetMageSpec() == 1 and Mage_TalentMode ~= 1 then
+        Mage_TalentMode = 1;
+        Blizzard_AddMessage("**自动判定为火法模式**",1,0,0,"crit");
+        Mage_Default_AddMessage("**自动判定为火法模式**");
+        Mage_TalentMode_Hit = "火法模式";
+        MageTooltip:SetText(Mage_TalentMode_Hit);
+        MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Fire_FireBolt02");
+    end
+    if Mage_GetMageSpec() == 0 and Mage_TalentMode ~= 0 then
+        Mage_TalentMode = 0;
+        Blizzard_AddMessage("**自动判定为冰法模式**",1,0,0,"crit");
+        Mage_Default_AddMessage("**自动判定为冰法模式**");
+        Mage_TalentMode_Hit = "冰法模式";
+        MageTooltip:SetText(Mage_TalentMode_Hit);
+        MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Frost_FrostBolt02");
+    end
+    if Mage_GetMageSpec() == 2 and Mage_TalentMode ~= 2 then
+        Mage_TalentMode = 2;
+        Blizzard_AddMessage("**自动判定为奥法模式**",1,0,0,"crit");
+        Mage_Default_AddMessage("**自动判定为奥法模式**");
+        Mage_TalentMode_Hit = "奥法模式";
+        MageTooltip:SetText(Mage_TalentMode_Hit);
+        MageTalentModeBtn:SetNormalTexture("Interface\\Icons\\Spell_Arcane_Blast");
+    end
 end
 
 function Mage_GetAutoMode()
@@ -70,4 +94,26 @@ function Mage_AutoMode_fun()
 		MageTooltip:SetText(Mage_AutoMode_Hit);
 		MageAutoModeBtn:SetNormalTexture("Interface\\Icons\\Ability_Seal");
 	 end
+end
+
+function Mage_GetMageSpec()
+   local arcanePoints = select(5, GetTalentTabInfo(1));
+   local firePoints = select(5, GetTalentTabInfo(2));
+   local icePoints = select(5, GetTalentTabInfo(3));
+
+    -- 容错处理：如果没点天赋，GetTalentTabInfo 可能返回 nil
+    arcanePoints = arcanePoints or 0
+    firePoints = firePoints or 0
+    icePoints = icePoints or 0
+
+    -- 逻辑判断：哪一系点的最多
+    if icePoints > firePoints and icePoints > arcanePoints then
+        return 0, icePoints
+    elseif firePoints > arcanePoints and firePoints > icePoints then
+        return 1, firePoints
+    elseif arcanePoints > firePoints and arcanePoints > icePoints then
+        return 2, arcanePoints
+    else
+        return 99, 0
+    end
 end

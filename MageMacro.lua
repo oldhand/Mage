@@ -62,6 +62,11 @@
                key = "ALT-F11"
          },
          {
+               name = "ACM_FlameStorm",
+               body = "/cast [@cursor] 烈焰风暴",            -- 宏内容：使用暴风雪
+               key = "ALT-F12"
+         },
+         {
               name = "ACM_UserPolymorph",
               body = "/script Mage_SendCommand(1);",            -- 宏内容：使用变形术
               key = "F"
@@ -176,3 +181,10 @@ function Mage_TargetEnemy()
     Mage_SetText("选择最近的目标", 71);
     return true;
 end
+
+function Mage_FlameStorm()
+    Mage_SetText("烈焰风暴", 72);
+    return true;
+end
+
+

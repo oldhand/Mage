@@ -155,7 +155,7 @@
 		</Anchor>
 	</Anchors>
 	<Color r="0" g="0" b="0" a="0"/>
-	<NormalTexture file="Interface\Icons\Spell_Holy_LayOnHands"/>
+	<NormalTexture file="Interface\Icons\Spell_Frost_FrostBolt02"/>
 	<HighlightTexture alphaMode="ADD" file="Interface\QuestFrame\UI-QuestTitleHighlight"/>
 	<Scripts>
 		<onClick>

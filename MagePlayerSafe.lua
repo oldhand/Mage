@@ -192,22 +192,29 @@ function Mage_playerSafe()
    		end;
    	end
 
-
-   	if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not UnitAffectingCombat("player") then
-        if Mage_Test_Battlefield() or Mage_PlayerInArena() then
-             if Mage_HasSpell("冰甲术") then
-                if Mage_CastSpell("冰甲术") then  return true; end;
-             else
-                if Mage_CastSpell("霜甲术") then  return true; end;
-            end
-        else
-              if Mage_HasSpell("法师护甲") then
-                    if Mage_CastSpell("法师护甲") then  return true; end;
-              else
-                    if Mage_CastSpell("霜甲术") then  return true; end;
-              end
+    if Mage_GetMageSpec() == 1 then
+        if not Mage_PlayerBU("熔岩护甲") then 
+            if Mage_CastSpell("熔岩护甲") then  return true; end;
         end
-   	end;
+    elseif Mage_GetMageSpec() == 0 then
+        if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not UnitAffectingCombat("player") then
+            if Mage_Test_Battlefield() or Mage_PlayerInArena() then
+               if Mage_HasSpell("冰甲术") then
+                  if Mage_CastSpell("冰甲术") then  return true; end;
+               else
+                  if Mage_CastSpell("霜甲术") then  return true; end;
+              end
+            else
+                if Mage_HasSpell("法师护甲") then
+                      if Mage_CastSpell("法师护甲") then  return true; end;
+                else
+                      if Mage_CastSpell("霜甲术") then  return true; end;
+                end
+            end
+        end;
+    end
+
+
 
 --    	if not UnitExists("target") or UnitIsUnit("target", "player") or UnitCanAttack("player","target")  then
 --    		if not Mage_PlayerBU("魔法抑制") and not UnitAffectingCombat("player") and not Test_HasCurer() then

@@ -86,43 +86,44 @@ function Mage_OrganizeActionBar()
         PlaceAction(61);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("寒冰护体") then
+
+    if Mage_PickupSpellByBook("解除诅咒") then
         PlaceAction(62);
         ClearCursor();
     end;
-    if Mage_PickupSpellByBook("解除诅咒") then
-        PlaceAction(63);
-        ClearCursor();
-    end;
     if Mage_PickupSpellByBook("变形术") then
-        PlaceAction(64);
+        PlaceAction(63);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("霜甲术") then
-        PlaceAction(65);
+        PlaceAction(64);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("冰甲术") then
-        PlaceAction(65);
+        PlaceAction(64);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("法师护甲") then
+        PlaceAction(65);
+        ClearCursor();
+    end
+   if Mage_PickupSpellByBook("冰冷血脉") then
         PlaceAction(66);
         ClearCursor();
     end
-    if Mage_PickupSpellByBook("召唤水元素") then
+    if Mage_PickupSpellByBook("寒冰护体") then
         PlaceAction(67);
+        ClearCursor();
+    end;
+    if Mage_PickupSpellByBook("召唤水元素") then
+        PlaceAction(68);
         ClearCursor();
     end
     if Mage_PickupSpellByBook("深度冻结") then
-        PlaceAction(68);
+        PlaceAction(69);
         ClearCursor();
     end;
     if Mage_PickupSpellByBook("急速冷却") then
-        PlaceAction(69);
-        ClearCursor();
-    end
-    if Mage_PickupSpellByBook("冰冷血脉") then
         PlaceAction(70);
         ClearCursor();
     end
@@ -204,6 +205,45 @@ function Mage_OrganizeActionBar()
         ClearCursor();
     end;
 
+
+    if Mage_GetMageSpec() == 1 then
+        if Mage_PickupSpellByBook("霜火之箭") then
+            PlaceAction(1);
+            ClearCursor();
+        end;
+        if Mage_PickupSpellByBook("燃烧") then
+            PlaceAction(5);
+            ClearCursor();
+        end;
+        if Mage_PickupSpellByBook("炎爆术") then
+            PlaceAction(10);
+            ClearCursor();
+        end;
+        if Mage_PickupSpellByBook("熔岩护甲") then
+            PlaceAction(64);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("活动炸弹") then
+            PlaceAction(65);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("灼烧") then
+            PlaceAction(67);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("冲击波") then
+            PlaceAction(68);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("龙息术") then
+            PlaceAction(69);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("烈焰风暴") then
+            PlaceAction(70);
+            ClearCursor();
+        end
+    end;
 
 
     if Mage_PickupSpellByBook("射击") then

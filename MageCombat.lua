@@ -57,17 +57,11 @@ end
 
 
 function Mage_playerCombat()
-
-    -- ========================================================
-    -- [优化] 每一帧开始时，先获取目标的状态快照
-    -- 避免后续逻辑重复调用 UnitBuff 遍历
-    -- ========================================================
-    local targetIsReflect, targetIsImmuneControl = false, false
-    if UnitExists("target") then
-        targetIsReflect, targetIsImmuneControl = Mage_ScanTargetStatus("target")
-    end
-    -- ========================================================
-
+    -- 1. 基础快照（减少性能开销）
+    local targetIsPlayer = UnitIsPlayer("target")
+    local mageSpec = Mage_GetMageSpec()
+    local targetType = UnitClassification("target")
+    local targetHP = Mage_GetUnitHealthPercent("target")
 
     -- 1. 变羊术逻辑
     if Mage_Polymorph == 1 then
@@ -112,19 +106,19 @@ function Mage_playerCombat()
 			    Mage_SetText("野生宠物",0);
 			    return true;
 		end;
-		if  UnitClassification("target") == "rareelite"  then
+		if  targetType == "rareelite"  then
 			    Mage_SetText("稀有精英",0);
 			    return true;
 		end;
-		if  UnitClassification("target") == "worldboss" or  UnitClassification("target") == "elite" then
+		if  targetType == "worldboss" or  targetType == "elite" then
 				 Mage_SetText("精英目标",0);
 			    return true;
 		end
 	end;
 
 
-    if IsInInstance() and not UnitIsPlayer("target") and not Test_Target_IsMe()  then
-		if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
+    if IsInInstance() and not targetIsPlayer and not Test_Target_IsMe()  then
+		if  targetType == "worldboss" or targetType == "elite" then
 			if UnitHealth("target") == UnitHealthMax("target") then
 			    Mage_SetText("副本中绝不先手",0);
 			    return true;
@@ -132,12 +126,12 @@ function Mage_playerCombat()
 		end
 	end
 
-   if Mage_GetMageSpec() == 1 then
+   if mageSpec == 1 then
           if IsSpellInRange("霜火之箭","target") == 0 then
           		Mage_SetText("距离过远",0);
           		return;
           end;
-    elseif Mage_GetMageSpec() == 0 then
+    elseif mageSpec == 0 then
           if IsSpellInRange("寒冰箭","target") == 0 then
           		Mage_SetText("距离过远",0);
           		return;
@@ -150,7 +144,7 @@ function Mage_playerCombat()
         end
     end
 
-    if Mage_GetMageSpec() == 0 and UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
+    if mageSpec == 0 and UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
         if Mage_CastSpell("召唤水元素") then return true; end;
     end
 
@@ -158,6 +152,12 @@ function Mage_playerCombat()
     -- [优化] 战斗中的法术反射处理
     -- 使用之前获取的 targetIsReflect 状态
     -- ========================================================
+    local targetIsReflect, targetIsImmuneControl = false, false
+    if UnitExists("target") then
+        targetIsReflect, targetIsImmuneControl = Mage_ScanTargetStatus("target")
+    end
+    -- ========================================================
+
     if targetIsReflect then
         Mage_SetText("目标反射",0);
         -- 尝试使用冰枪术破盾 (瞬发, 伤害低, 适合破反射)
@@ -176,7 +176,7 @@ function Mage_playerCombat()
 	if Mage_Interrupt_Casting() then return true; end;
 
 
-    if Mage_GetMageSpec() == 1 then
+    if mageSpec == 1 then
             if Mage_PlayerBU("一触即燃") then
                  if Mage_IsManaEnough("烈焰风暴") then
                       if Mage_TargetDeBU("烈焰风暴") then
@@ -205,19 +205,23 @@ function Mage_playerCombat()
                    if Mage_CastSpell("冰枪术") then  return true; end
                 end
              end
-            if UnitIsPlayer("target") or
-                UnitClassification("target") == "worldboss" or
-                ( UnitClassification("target") == "elite" and Mage_GetUnitHealthPercent("target") > 50 ) then
-                if not Mage_TargetDeBU("活动炸弹") then
-                     if Mage_CastSpell("活动炸弹") then  return true; end
-                end
+            if targetIsPlayer or
+                targetType == "worldboss" or
+                ( targetType == "elite" and targetHP > 40 ) then
+                    if not Mage_TargetDeBU("活动炸弹") and IsSpellInRange("活动炸弹","target") == 1 then
+                         if Mage_CastSpell("活动炸弹") then  return true; end
+                    end
+                    if CheckInteractDistance("target", 3)  then
+                         if Mage_CastSpell("龙息术") then  return  true; end;
+                         if Mage_CastSpell("冲击波") then  return  true; end;
+                    end
+                    if IsSpellInRange("灼烧","target") == 1 then
+                        if not Mage_TargetDeBU("强化灼烧") and not Mage_TargetDeBU("强化暗影箭") then
+                            if Mage_CastSpell("灼烧") then  return true; end
+                        end
+                    end
             end
-
-            if not Mage_TargetDeBU("强化灼烧") and not CheckInteractDistance("target",3) and IsSpellInRange("灼烧","target") == 1 then
-                 if Mage_CastSpell("灼烧") then  return true; end
-            end
-
-    elseif Mage_GetMageSpec() == 0 then
+    elseif mageSpec == 0 then
 		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
                if Mage_CastSpell("深度冻结") then  return true; end
            end
@@ -243,8 +247,8 @@ function Mage_playerCombat()
     end
 
 
-    if UnitClassification("player") and UnitClassification("target") then
-        if UnitIsPlayer("target") then
+    if UnitClassification("player") and targetType then
+        if targetIsPlayer then
             if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                 if Mage_CastSpell("燃烧") then return true; end;
             end
@@ -255,8 +259,8 @@ function Mage_playerCombat()
                 if Mage_CastSpell("冰冷血脉") then return true; end;
             end
         else
-            if UnitClassification("target") == "worldboss" or ( UnitClassification("target") == "elite" and Mage_GetUnitHealthPercent("target") > 50 ) then
-                if Mage_GetUnitHealthPercent("target") < 95 then
+            if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
+                if targetHP < 95 then
                     if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                         if Mage_CastSpell("燃烧") then return true; end;
                     end
@@ -274,9 +278,9 @@ function Mage_playerCombat()
         -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
         -- ========================================================
         if Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
-            local targetType = UnitClassification("target");
+            local targetType = targetType;
             -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
-            if UnitIsPlayer("target") or targetType == "worldboss" or targetType == "elite" or targetType == "rareelite" then
+            if targetIsPlayer or targetType == "worldboss" or targetType == "elite" or targetType == "rareelite" then
                  if Mage_CastSpell("镜像") then
                      Mage_Combat_AddMessage("**遭遇强敌，开启镜像爆发...**");
                      return true;
@@ -301,7 +305,7 @@ function Mage_playerCombat()
 		if Mage_CastSpell("急速冷却") then  return true; end;
 	end
 
-	if UnitClass("target") == "法师" and Mage_GetUnitHealthPercent("target") > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
+	if UnitClass("target") == "法师" and targetHP > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
 		if IsSpellInRange("变形术","target") == 1 then
 			if not Mage_UnitTargetDeBU("target","变形术") then
                 if not targetIsReflect and not targetIsImmuneControl then
@@ -313,7 +317,7 @@ function Mage_playerCombat()
 
 	if UnitClass("target") == "潜行者" and GetTimer("变形术") > 2 then
 			if not UnitAffectingCombat("target")  then
-				if  Mage_GetUnitHealthPercent("target") > 70 and GetTimer("变形术_"..UnitName("target")) > 12 then
+				if  targetHP > 70 and GetTimer("变形术_"..UnitName("target")) > 12 then
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
                             if not targetIsReflect and not targetIsImmuneControl then
@@ -328,7 +332,7 @@ function Mage_playerCombat()
 		 			 end
 				end
 			else
-				if  Mage_GetUnitHealthPercent("target") > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
+				if  targetHP > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
                             if not targetIsReflect and not targetIsImmuneControl then
@@ -340,18 +344,18 @@ function Mage_playerCombat()
 			end
 	end;
 
-	if UnitIsPlayer("target") and not Mage_TargetDeBU("冰霜新星")  and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
+	if targetIsPlayer and not Mage_TargetDeBU("冰霜新星")  and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
 	    if Mage_CastSpell("火焰冲击") then return true; end
 	end
 
-	if not UnitIsPlayer("target") and Mage_GetUnitHealthPercent("target") < 95 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
-		if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
+	if not targetIsPlayer and targetHP < 95 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
+		if  targetType == "worldboss" or targetType == "elite" then
             if Mage_CastSpell("火焰冲击") then return true; end
 		end
 	end
 
 	if CheckInteractDistance("target",3) and GetTimer("变形术") > 2 then
-        if Mage_GetMageSpec() == 1  then
+        if mageSpec == 1  then
              if Mage_CastSpell("龙息术") then  return  true; end;
              if Mage_CastSpell("冲击波") then  return  true; end;
         end
@@ -369,15 +373,15 @@ function Mage_playerCombat()
      end
 
 	if not Mage_Check_Movement() then
-        if Mage_GetMageSpec() == 1 then
+        if mageSpec == 1 then
             if Mage_CastSpell("霜火之箭") then return true; end
-        elseif Mage_GetMageSpec() == 0 then
+        elseif mageSpec == 0 then
 		    if Mage_CastSpell("寒冰箭") then return true; end
 		end
 		Mage_SetText("无动作",0);
 		return;
 	else
-        if Mage_GetMageSpec() == 1 and CheckInteractDistance("target", 3)  then
+        if mageSpec == 1 and CheckInteractDistance("target", 3)  then
              if Mage_CastSpell("龙息术") then  return  true; end;
              if Mage_CastSpell("冲击波") then  return  true; end;
         end

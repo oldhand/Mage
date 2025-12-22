@@ -32,8 +32,8 @@
               key = "ALT-F5"
          },
          {
-             name = "ACM_Stand",
-             body = "/stand",            -- 宏内容：站立 (这会自动取消喝水/吃东西)
+             name = "ACM_FlameStormLevel8",
+             body = "/cast [@cursor] 烈焰风暴(等级8)",            -- 宏内容：站立 (这会自动取消喝水/吃东西)
              key = "ALT-F6"
          },
          {
@@ -152,8 +152,8 @@ function Mage_Mount()
     return true;
 end
 
-function Mage_CancelDrink()
-    Mage_SetText("取消喝水", 66);
+function Mage_FlameStormLevel8()
+    Mage_SetText("烈焰风暴(等级8)", 66);
     return true;
 end
 

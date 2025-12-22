@@ -179,7 +179,19 @@ function Mage_playerCombat()
     if Mage_GetMageSpec() == 1 then
             if Mage_PlayerBU("一触即燃") then
                  if Mage_IsManaEnough("烈焰风暴") then
-                       if Mage_FlameStorm() then return true; end;
+                      if Mage_TargetDeBU("烈焰风暴") then
+                             if Mage_FlameStormLevel8() then
+                                 Mage_Combat_AddMessage("**(一触即燃)烈焰风暴(等级8)**");
+                                 Mage_AddMessage("**(一触即燃)烈焰风暴(等级8)**")
+                                 return true;
+                             end;
+                       else
+                            if Mage_FlameStorm() then
+                                 Mage_Combat_AddMessage("**(一触即燃)烈焰风暴**");
+                                 Mage_AddMessage("**(一触即燃)烈焰风暴**")
+                                 return true;
+                            end;
+                       end
                   else
                        Mage_Combat_AddMessage("**(一触即燃)烈焰风暴不可用，蓝量不够**");
                        Mage_AddMessage("**(一触即燃)烈焰风暴不可用，蓝量不够**")
@@ -243,8 +255,8 @@ function Mage_playerCombat()
                 if Mage_CastSpell("冰冷血脉") then return true; end;
             end
         else
-            if UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
-                if Mage_GetUnitHealthPercent("target") < 90 then
+            if UnitClassification("target") == "worldboss" or ( UnitClassification("target") == "elite" and Mage_GetUnitHealthPercent("target") > 50 ) then
+                if Mage_GetUnitHealthPercent("target") < 95 then
                     if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                         if Mage_CastSpell("燃烧") then return true; end;
                     end
@@ -266,7 +278,7 @@ function Mage_playerCombat()
             -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
             if UnitIsPlayer("target") or targetType == "worldboss" or targetType == "elite" or targetType == "rareelite" then
                  if Mage_CastSpell("镜像") then
-                     Mage_Combat_AddMessage("**遭遇强敌，开启镜像爆发/降仇恨...**");
+                     Mage_Combat_AddMessage("**遭遇强敌，开启镜像爆发...**");
                      return true;
                  end
             end

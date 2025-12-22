@@ -193,7 +193,7 @@ function Mage_playerSafe()
    	end
 
     if Mage_GetMageSpec() == 1 then
-        if not Mage_PlayerBU("熔岩护甲") then 
+        if not Mage_PlayerBU("熔岩护甲") then
             if Mage_CastSpell("熔岩护甲") then  return true; end;
         end
     elseif Mage_GetMageSpec() == 0 then

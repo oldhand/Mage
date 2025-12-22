@@ -172,13 +172,10 @@ function Mage_SendCommand(flag)
                  Mage_Combat_AddMessage("**准备使用鼠标位置使用暴风雪...**");
                  StartTimer("Mage_Blizzard");
               else
-                 Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够**");
+                 Mage_Combat_AddMessage("**暴风雪不可用，蓝量不够****");
                  Mage_Blizzard = 0;
               end
         end
-    elseif flag == 5 then
-         Mage_Blizzard = 1;
-         StartTimer("Mage_Blizzard");
     end
 end;
 
@@ -368,7 +365,7 @@ function Mage_Frame_OnUpdate()
     if Mage_Blizzard == 1 then
         if Mage_GetMageSpec() == 1 then
             if not Mage_movement then
-                  if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用烈焰风暴命令超时...**"); Mage_Blizzard = 0; end;
+                  if GetTimer("Mage_Blizzard") > 3 then  Mage_Default_AddMessage("**使用烈焰风暴命令超时...**"); Mage_Blizzard = 0; end;
                   if Mage_IsManaEnough("烈焰风暴") then
                        if Mage_FlameStorm() then return true; end;
                   else
@@ -393,7 +390,6 @@ function Mage_Frame_OnUpdate()
             end
             Mage_SetText("准备暴风雪中",0);
         end
-
         return;
     end
 

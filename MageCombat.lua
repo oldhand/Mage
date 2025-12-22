@@ -178,22 +178,33 @@ function Mage_playerCombat()
 
     if Mage_GetMageSpec() == 1 then
             if Mage_PlayerBU("一触即燃") then
-                Mage_SendCommand(5);
+                 if Mage_IsManaEnough("烈焰风暴") then
+                       if Mage_FlameStorm() then return true; end;
+                  else
+                       Mage_Combat_AddMessage("**(一触即燃)烈焰风暴不可用，蓝量不够**");
+                       Mage_AddMessage("**(一触即燃)烈焰风暴不可用，蓝量不够**")
+                  end
             end
             if Mage_PlayerBU("法术连击") and Mage_HasSpell("炎爆术") then
                if Mage_CastSpell("炎爆术") then  return true; end
-            end
-            if not Mage_TargetDeBU("活动炸弹") then
-                 if Mage_CastSpell("活动炸弹") then  return true; end
             end
             if Mage_HasSpell("冰枪术") then
                 if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
                    if Mage_CastSpell("冰枪术") then  return true; end
                 end
              end
-            if not Mage_TargetDeBU("强化灼烧") then
+            if UnitIsPlayer("target") or
+                UnitClassification("target") == "worldboss" or
+                ( UnitClassification("target") == "elite" and Mage_GetUnitHealthPercent("target") > 50 ) then
+                if not Mage_TargetDeBU("活动炸弹") then
+                     if Mage_CastSpell("活动炸弹") then  return true; end
+                end
+            end
+
+            if not Mage_TargetDeBU("强化灼烧") and not CheckInteractDistance("target",3) and IsSpellInRange("灼烧","target") == 1 then
                  if Mage_CastSpell("灼烧") then  return true; end
             end
+
     elseif Mage_GetMageSpec() == 0 then
 		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
                if Mage_CastSpell("深度冻结") then  return true; end

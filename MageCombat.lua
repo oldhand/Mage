@@ -208,6 +208,7 @@ function Mage_playerCombat()
              end
             if targetIsPlayer or
                 targetType == "worldboss" or
+                ( targetType == "rareelite" and targetHP > 40 ）or
                 ( targetType == "elite" and targetHP > 40 ) then
                     if not Mage_TargetDeBU("活动炸弹") and IsSpellInRange("活动炸弹","target") == 1 then
                          if Mage_CastSpell("活动炸弹") then  return true; end
@@ -217,7 +218,7 @@ function Mage_playerCombat()
                          if Mage_CastSpell("冲击波") then  return  true; end;
                     end
                     if IsSpellInRange("灼烧","target") == 1 then
-                        if not Mage_TargetDeBU("强化灼烧") and not Mage_TargetDeBU("强化暗影箭") then
+                        if not Mage_TargetDeBU("强化灼烧") and not Mage_TargetDeBU("强化暗影箭")  and not Mage_TargetDeBU("深冬之寒") then
                             if Mage_CastSpell("灼烧") then  return true; end
                         end
                     end
@@ -281,7 +282,10 @@ function Mage_playerCombat()
         if Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
             local targetType = targetType;
             -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
-            if targetIsPlayer or targetType == "worldboss" or targetType == "elite" or targetType == "rareelite" then
+            if targetIsPlayer
+               or targetType == "worldboss"
+               or ( targetType == "elite" and targetHP > 40 )
+               or ( targetType == "rareelite" and targetHP > 40 ) then
                  if Mage_CastSpell("镜像") then
                      Mage_Combat_AddMessage("**遭遇强敌，开启镜像爆发...**");
                      return true;

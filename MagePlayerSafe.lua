@@ -246,6 +246,58 @@ function Mage_playerSafe()
 
     if Mage_AutoUseManaGem() then  return true; end;
 
+    if Mage_AutoCheckPartyBuff() then  return true; end;
+
+	return false;
+end
+
+
+function  Mage_AutoCheckPartyBuff()
+	if not UnitAffectingCombat("player") and Mage_HasSpell("奥术光辉") then
+        local needArcaneWisdom = 0;
+        for index=1, 4 do
+            local unit = "party"..index;
+            if  UnitExists(unit)  then
+                if UnitIsVisible(unit) and
+                    not UnitIsDeadOrGhost(unit) and
+                    not Mage_UnitTargetBU(unit,"奥术智慧") and
+                    not Mage_UnitTargetBU(unit,"奥术光辉") and
+                    not Mage_UnitTargetBU(unit,"邪能智力") and
+                    IsSpellInRange("奥术光辉",unit) == 1 then
+                       needArcaneWisdom = needArcaneWisdom + 1;
+                end
+            end
+        end
+        if needArcaneWisdom > 1 then
+             if Mage_playerSelectSelf() then
+                    if Mage_CastSpell("奥术光辉") then  return true; end;
+                    Mage_SetText(">奥术光辉",0);
+                    return true;
+             else
+                 if Mage_TargetPlayer() then return true; end;
+             end
+        elseif needArcaneWisdom == 1 then
+            for index=1, 4 do
+                local unit = "party"..index;
+                if  UnitExists(unit)  then
+                    if UnitIsVisible(unit) and
+                        not UnitIsDeadOrGhost(unit) and
+                        not Mage_UnitTargetBU(unit,"奥术智慧") and
+                        not Mage_UnitTargetBU(unit,"奥术光辉") and
+                        not Mage_UnitTargetBU(unit,"邪能智力") and
+                        IsSpellInRange("奥术光辉",unit) == 1 then
+                           if Mage_playerSelectUnit(unit) then
+                                if Mage_CastSpell("奥术智慧") then  return true; end;
+                                Mage_SetText(">奥术智慧",0);
+                                return true;
+                           else
+                               if Mage_TargetUnit(unit) then return true; end;
+                           end
+                    end
+                end
+            end
+        end
+    end
 	return false;
 end
 

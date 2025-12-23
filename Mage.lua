@@ -62,7 +62,10 @@ function Mage_OnEvent(event)
 		DEFAULT_CHAT_FRAME:AddMessage("智能施法插件 2.0 (法师泰坦重铸) oldhand 版权所有");
 		Mage_SetText("插件加载中...",0)
 		ChatFrame_RemoveMessageGroup(ChatFrame1, "CHANNEL")
-		Mage_OrganizeActionBar();
+		C_Timer.After(1, function()
+            Mage_OrganizeActionBar()
+            Mage_AddMessage("技能栏自动整理已完成")
+        end)
 		SetCVar("cameraDistanceMax", 30)
 		SaveBindings(GetCurrentBindingSet())
 		

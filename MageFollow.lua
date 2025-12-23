@@ -1,39 +1,48 @@
 ﻿
 Mage_Auto_Follow_Hit = "普通模式"
-if not Mage_Settings then Mage_Settings = {} end
+Mage_Settings = nil
 local Mage_Follow_PopMenu = nil
 local Mage_follow = nil -- 跟随对象名字
 local Mage_IsAuto_Follow = false
 local Mage_follow_movement = false
 
--- 缓存的魔法水名称，按优先级排序
-local Mage_Drinks = {"魔法晶水", "魔法苏打水", "魔法矿泉水", "魔法橘子"}
 
 -- 计时器缓存，防止每一帧都创建新表
 local updateTimer = 0
 local drinkCheckTimer = 0
 
 
-local lastPositions = {}
+-- 存储每个队友上一次的距离档位
+local lastDistanceTiers = {}
 
-local function Mage_IsUnitMoving_Coords(unit)
-    if not UnitExists(unit) then return false end
-    local x, y = UnitPosition(unit)
-    if not x or not y then return false end
+function Mage_IsUnitMoving_NoCoords(unit)
+    if not UnitExists(unit) or UnitIsUnit(unit, "player") then return false end
 
     local guid = UnitGUID(unit)
-    local isMoving = false
+    -- 定义距离档位：4=约28码, 3=约10码, 2=约11码, 1=约10码
+    -- 结合圣光术(40码)作为最外层档位
+    local currentTier = 0
 
-    if lastPositions[guid] then
-        local lastX = lastPositions[guid].x
-        local lastY = lastPositions[guid].y
-        local dx = math.abs(x - lastX)
-        local dy = math.abs(y - lastY)
-        if dx > 0.001 or dy > 0.001 then
+    if CheckInteractDistance(unit, 3) then
+        currentTier = 1 -- 极近 (10码内)
+    elseif CheckInteractDistance(unit, 4) then
+        currentTier = 2 -- 中距 (约28码内)
+    elseif IsSpellInRange("圣光术", unit) == 1 then
+        currentTier = 3 -- 远距 (40码内)
+    else
+        currentTier = 4 -- 超出范围
+    end
+
+    local isMoving = false
+    if lastDistanceTiers[guid] then
+        -- 如果档位发生变化，说明目标一定在移动
+        if lastDistanceTiers[guid] ~= currentTier then
             isMoving = true
         end
     end
-    lastPositions[guid] = { x = x, y = y }
+
+    -- 更新缓存
+    lastDistanceTiers[guid] = currentTier
     return isMoving
 end
 
@@ -102,7 +111,7 @@ function Mage_AutoFollowUnit()
     -- 移动检查
     if not Mage_Check_Movement() then
         local unit = Mage_GetFollowUnit()
-        if unit and UnitExists(unit) and Mage_IsUnitMoving_Coords(unit) then
+        if unit and UnitExists(unit) and Mage_IsUnitMoving_NoCoords(unit) then
             if Mage_IsAuto_Follow then
                 Mage_IsAuto_Follow = false
             end
@@ -129,66 +138,51 @@ function Mage_AutoFollowUnit()
         end
     end
 
-    -- 非喝水/进食状态下的逻辑
-    if not Mage_PlayerBU("喝水") and not Mage_PlayerBU("进食") then
-        local unit = Mage_GetFollowUnit()
-        if unit and UnitExists(unit) then
-            -- 上马逻辑
---             if Mage_UnitIsMounted(unit) then
---                 if IsMounted() and not Mage_IsAuto_Follow then
---                     -- 确保没有施法且不需要立刻施法
---                     if GetTimer("SPELLCASTSTOP") > 0.5 and GetTimer("SPELLCAST_START") > 3.5 and GetTimer("NeedMount") > 3.5 then
---                         FollowUnit(unit)
---                         return true
---                     end
---                 end
---                 return false
---             end
+    -- 2. 状态检查：喝水、进食或正在读条时，严禁发起跟随
+    if Mage_PlayerBU("喝水") or Mage_PlayerBU("进食") or UnitCastingInfo("player") or UnitChannelInfo("player") then
+        return false
+    end
 
-            -- 需要治疗时的打断逻辑
-            if GetTimer("NeedCastHealSpell") < 2 and Mage_IsAuto_Follow then
-                if Mage_StopFollowUnit() then return true end
+    -- 3. 需要治疗时的打断逻辑：如果治疗模块需要施法，停止跟随以防转身失败
+    if GetTimer("NeedCastHealSpell") < 1.5 and Mage_IsAuto_Follow then
+        return Mage_StopFollowUnit()
+    end
+
+    local unit = Mage_GetFollowUnit();
+    if not unit or not UnitExists(unit) then
+        return false
+    end
+    -- 4. 距离与跟随控制逻辑
+    if CheckInteractDistance(unit, 4) then -- 目标在 28 码有效跟随范围内
+        -- 情况 A：非战斗状态，且目标正在移动，发起跟随
+        if not UnitAffectingCombat(unit) and not UnitAffectingCombat("player") then
+            if Mage_IsUnitMoving_NoCoords(unit) and not Mage_IsAuto_Follow then
+                FollowUnit(unit)
+                return true
             end
 
-            -- 跟随距离与战斗逻辑
-            if CheckInteractDistance(unit, 4) then
-                if GetTimer("FAILED_LINE_OF_SIGHT") < 2 then
-                    if not Mage_IsAuto_Follow then
-                        FollowUnit(unit)
-                        return false
-                    end
-                else
-                    if UnitAffectingCombat(unit) or UnitAffectingCombat("player") then
-                        -- 战斗中逻辑：距离过近则停止跟随
-                        if not CheckInteractDistance(unit, 2) then -- 2 = Trade (11.11 yards)
-                            if Mage_GetPlayerCasting == nil and not Mage_IsAuto_Follow and GetTimer("NeedCastHealSpell") > 0.2 and GetTimer("SPELLCASTSTOP") > 0.2 then
-                                FollowUnit(unit)
-                                return false
-                            end
-                        else
-                            -- 距离过近 (Duel range approx 9.9 yds)
-                            if CheckInteractDistance(unit, 3) then
-                                if Mage_StopFollowUnit() then return true end
-                            end
-                        end
-                    else
-                        -- 非战斗逻辑
-                        if Mage_IsUnitMoving_Coords(unit) then
-                            if Mage_GetPlayerCasting == nil and not Mage_IsAuto_Follow and GetTimer("NeedCastHealSpell") > 0.2 and GetTimer("SPELLCASTSTOP") > 0.2 then
-                                FollowUnit(unit)
-                                return false
-                            end
-                        end
-                    end
+        -- 情况 B：战斗状态逻辑
+        else
+            -- 距离保护：如果离目标太近（约10码内），停止跟随以便于战斗转向
+            if CheckInteractDistance(unit, 3) then
+                if Mage_IsAuto_Follow then
+                    return Mage_StopFollowUnit()
                 end
             else
-                -- 距离太远提示
-                if GetTimer("AutoFollowUnit") > 5 then
-                    StartTimer("AutoFollowUnit")
-                    Blizzard_AddMessage("**距离太远，无法跟随**", 1, 0, 0, "crit")
-                    Mage_SendFollowNotifyMessage("距离太远，无法跟随")
+                -- 距离适中（11-28码）：如果未处于跟随状态，且没有卡视野，尝试跟随
+                if not Mage_IsAuto_Follow and GetTimer("FAILED_LINE_OF_SIGHT") > 2 then
+                    if GetTimer("NeedCastHealSpell") > 0.5 and GetTimer("SPELLCASTSTOP") > 0.5 then
+                        FollowUnit(unit)
+                        return true
+                    end
                 end
             end
+        end
+    else
+        -- 5. 距离太远提示：超出 28 码无法开启跟随
+        if GetTimer("AutoFollowUnit") > 5 then
+            StartTimer("AutoFollowUnit")
+            Blizzard_AddMessage("**距离太远，无法跟随 >>" .. Mage_follow .. "<<**", 1, 0, 0, "crit")
         end
     end
     return false
@@ -210,16 +204,17 @@ function Mage_SendFollowNotifyMessage(message)
         -- 硬编码的白名单检测? 建议保留原逻辑
         -- if name == "老手" ... 这里原来的代码变量 name 未定义，可能是 bug
         -- 假设我们只发给跟随目标
---         if GetTimer("SendFollowChatMessage") > 3 then
---             StartTimer("SendFollowChatMessage")
---             SendChatMessage(message, "WHISPER", nil, Mage_follow)
---         end
+        if GetTimer("SendFollowChatMessage") > 3 then
+            StartTimer("SendFollowChatMessage")
+            SendChatMessage(message, "WHISPER", nil, Mage_follow)
+        end
     end
 end
 
 function Mage_Auto_Follow_OnUpdate()
     if UnitClass("player") ~= "法师" then return end
-
+    if GetTimer("Follow_OnUpdate") < 0.5 then return false; end
+    StartTimer("Follow_OnUpdate");
     -- 状态同步
     if Mage_follow == nil then
         if MageFollowBtn and MageFollowBtn:GetChecked() then
@@ -343,73 +338,6 @@ function Mage_Follow_breakLink(link)
     return tonumber(itemID or 0), tonumber(randomProp or 0), tonumber(enchant or 0), tonumber(uniqID or 0), name
 end
 
--- 优化版：寻找魔法水
--- 增加缓存机制，避免每一帧都遍历背包
-local drinkCount = 0
-
-function Mage_FindDrink()
-    -- 节流：每2秒检查一次背包，或者当背包事件触发时检查（需要额外注册BAG_UPDATE）
-    -- 这里为了保持代码结构，使用简单的 Timer 节流
-    if GetTime() - drinkCheckTimer < 2 then
-        -- 如果没到时间，返回空或者上一次的结果（这里简化返回空字符串避免频繁喝水操作）
-        return ""
-    end
-    drinkCheckTimer = GetTime()
-
-    local bestDrink = ""
-    local currentCount = 0
-    local drinkBag, drinkSlot = -1, -1
-
-    -- 优化遍历：找到最高优先级的饮料即可停止？或者统计所有数量
-    for bag = 0, 4 do
-        local numSlots = GetContainerNumSlots(bag)
-        if numSlots > 0 then
-            for slot = 1, numSlots do
-                local link = GetContainerItemLink(bag, slot)
-                if link then
-                    local _, itemCount = GetContainerItemInfo(bag, slot)
-                    local _, _, _, _, _, name = Mage_Follow_breakLink(link)
-
-                    if name then
-                        for _, dName in ipairs(Mage_Drinks) do
-                            if name == dName then
-                                currentCount = currentCount + itemCount
-                                -- 简单的逻辑：只要找到一种水就记录位置
-                                bestDrink = name
-                                drinkBag = bag
-                                drinkSlot = slot
-                            end
-                        end
-                    end
-                end
-            end
-        end
-    end
-
-    -- 逻辑保持原版：如果数量增加（可能刚造水），或者数量不变（可能没喝成），重置计时器
-    -- 如果在转CD，则不喝
-    if drinkBag ~= -1 then
-         local startTime, duration, _ = GetContainerItemCooldown(drinkBag, drinkSlot)
-         if startTime == 0 and duration == 0 then
-            if currentCount >= drinkCount then
-                 drinkCount = currentCount
-                 StartTimer("Drink")
-                 return bestDrink
-            elseif drinkCount > currentCount then
-                -- 数量减少了，说明可能喝掉了
-                if GetTimer("Drink") > 3 then
-                    StartTimer("Drink")
-                    drinkCount = currentCount
-                    return bestDrink
-                else
-                    return ""
-                end
-            end
-         end
-    end
-
-    return ""
-end
 
 function Mage_GetUnitDistance(unit)
     if CheckInteractDistance(unit, 4) then

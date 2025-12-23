@@ -199,7 +199,7 @@ function Mage_playerSafe()
 --    	end
 
    	if UnitExists("target")  and UnitIsPlayer("target") then
-   		 if UnitClass("target") == "法师" and IsSpellInRange("侦测魔法","target") == 1 then
+   		 if UnitClass("target") == "法师" and IsSpellInRange("寒冰箭","target") == 1 and Mage_HasSpell("防护冰霜结界") then
    			  if Test_Target_IsMe() and UnitCanAttack("player","target") then
    				   if Mage_CastSpell("防护冰霜结界") then  return true; end;
    			  end
@@ -212,12 +212,12 @@ function Mage_playerSafe()
    		 end;
    	else
    		if UnitExists("target") then
-   			 if not UnitAffectingCombat("player") and UnitCanAttack("player","target")  then
+   			 if not UnitAffectingCombat("player") and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") then
    				if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then
    					if Mage_CastSpell("寒冰护体") then  return true; end;
    				end;
    			 end;
-   			 if Test_Target_IsMe() and UnitCanAttack("player","target") then
+   			 if Test_Target_IsMe() and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") then
    				if not Mage_PlayerBU("寒冰护体") then
    					if Mage_CastSpell("寒冰护体") then return true; end;
    					if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") then
@@ -253,7 +253,7 @@ end
 
 
 function  Mage_AutoCheckPartyBuff()
-	if not UnitAffectingCombat("player") and Mage_HasSpell("奥术光辉") then
+	if not UnitAffectingCombat("player") and Mage_HasSpell("奥术光辉") and Mage_UnitInParty() then
         local needArcaneWisdom = 0;
         for index=1, 4 do
             local unit = "party"..index;

@@ -33,7 +33,7 @@
          },
          {
              name = "ACM_FlameStormLevel8",
-             body = "/cast [@cursor] 烈焰风暴(等级8)",            -- 宏内容：站立 (这会自动取消喝水/吃东西)
+             body = "/cast [@cursor] 烈焰风暴(等级8)",            -- 宏内容：烈焰风暴(等级8)
              key = "ALT-F6"
          },
          {
@@ -43,7 +43,7 @@
          },
          {
               name = "ACM_CastBlizzard",
-              body = "/cast [@cursor] 暴风雪",            -- 宏内容：使用暴风雪
+              body = "/cast [@cursor] 暴风雪",            -- 宏内容：施放暴风雪
               key = "ALT-F8"
           },
          {
@@ -63,7 +63,7 @@
          },
          {
                name = "ACM_FlameStorm",
-               body = "/cast [@cursor] 烈焰风暴",            -- 宏内容：使用暴风雪
+               body = "/cast [@cursor] 烈焰风暴",            -- 宏内容：施放烈焰风暴
                key = "ALT-F12"
          },
          {

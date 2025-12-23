@@ -129,7 +129,7 @@ function Mage_RobotUpdate()
         if not Mage_Test_Battlefield() then
 
 --             /run for i=1,10 do if GetBattlefieldStatus(i)=="confirm" then AcceptBattlefieldPort(i,1) StaticPopup1:Hide() return end end
---             /run if GossipFrame:IsShown() then SelectGossipOption(1) endw
+--             /run if GossipFrame:IsShown() then SelectGossipOption(1) end
 --             /run if BattlefieldFrame:IsShown() then JoinBattlefield(0) end
 
 --             if not IsPlayerInQueue() then

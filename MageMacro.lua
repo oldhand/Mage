@@ -96,7 +96,7 @@
     frame:SetScript("OnEvent", function(self, event, ...)
         if event == "PLAYER_LOGIN" then
             -- 战斗中绝对禁止创建安全按钮或绑定按键
-            if InCombatLockdown() then
+            if UnitAffectingCombat("player") then
                 print("|cffff0000[AutoCombat]|r 错误：战斗中无法初始化按键！请脱战后 /reload")
                 return
             end

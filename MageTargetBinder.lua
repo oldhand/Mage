@@ -39,7 +39,7 @@ if UnitClass("player") == "法师" then
     -- ========================================================
     f:RegisterEvent("PLAYER_LOGIN")
     f:SetScript("OnEvent", function()
-        if InCombatLockdown() then
+        if UnitAffectingCombat("player") then
             print("|cffff0000[TargetBinder] 战斗中无法绑定，请脱战后 /reload|r")
             return
         end

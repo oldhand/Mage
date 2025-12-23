@@ -56,26 +56,7 @@ function Mage_playerSafe()
     end
 
 
---    if UnitAffectingCombat("player") and Mage_GetUnitManaPercent("player") < 10 then
---    		if Mage_CheckBagHasItem("法力红宝石") then
---    			 if Mage_CastSpell("法力红宝石") then  return true; end;
---    		end
---    		if Mage_CheckBagHasItem("法力黄水晶") then
---    			 if Mage_CastSpell("法力黄水晶") then  return true; end;
---    		end
---    	end
---    	if not UnitExists("target") or not UnitCanAttack("player","target")  then
---    		if not UnitAffectingCombat("player") and not Mage_CheckBagHasItem("法力红宝石") and not Mage_movement then
---    			if Mage_CastSpell("制造魔法红宝石") then return true; end;
---    		end
---    		if not UnitAffectingCombat("player") and not Mage_CheckBagHasItem("法力黄水晶") and not Mage_movement then
---    			if Mage_CastSpell("制造魔法黄水晶") then return true; end;
---    		end
---    	end
-
-
-
-   	if Mage_HasSpell("寒冰屏障") and Mage_GetActiveMeleeCount() > 2 and not Mage_PlayerDeBU("低温") then
+   	if Mage_HasSpell("寒冰屏障") and Mage_GetActiveMeleeCount() > 2 and not Mage_PlayerDeBU("低温") and not Mage_PlayerBU("保护之手") then
    		if Mage_GetUnitHealthPercent("player") < 30 and UnitAffectingCombat("player") then
    			if Mage_GetSpellCooldown("寒冰屏障") == 0 then
    				if Mage_CastSpell("寒冰屏障") then return true; end;
@@ -96,14 +77,9 @@ function Mage_playerSafe()
 
    	if UnitAffectingCombat("player") then
    		if  IsInInstance() then
-   			if  UnitClassification("target") == "worldboss" and Mage_GetUnitManaPercent("player") < 60 then
-   				if Mage_CheckBagHasItem("法力红宝石") then
-   					 if Mage_CastSpell("法力红宝石") then  return true; end;
-   				end
-   			end;
    			if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
    					if Test_Target_IsMe() and UnitLevel("target") > UnitLevel("player")  then
-   						if  not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   						if  not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_PlayerBU("保护之手") then
    							if Mage_CastSpell("寒冰屏障") then
    								Mage_Default_AddMessage("**OT了,使用冰箱...**");
    								Mage_Combat_AddMessage("**OT了,使用冰箱...**");
@@ -113,7 +89,7 @@ function Mage_playerSafe()
    					end;
    			end;
    			if Test_Raid_Target_IsMe() then
-   				if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then
+   				if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_PlayerBU("保护之手") then
    					if Mage_CastSpell("寒冰屏障") then
    						Mage_Default_AddMessage("**OT了,使用冰箱...**");
    						Mage_Combat_AddMessage("**OT了,使用冰箱...**");
@@ -130,7 +106,7 @@ function Mage_playerSafe()
     if UnitAffectingCombat("player") and Mage_HasSpell("隐形术") and Mage_GetSpellCooldown("隐形术") == 0 then
         -- 1. OT 清仇恨逻辑
         -- 如果在副本中，目标是强力怪，且目标正在看我
-        if  Mage_PlayerDeBU("低温") and IsInInstance() and Test_Target_IsMe() then
+        if  Mage_PlayerDeBU("低温") and IsInInstance() and Test_Target_IsMe() and not Mage_PlayerBU("保护之手") then
              local targetType = UnitClassification("target");
              if targetType == "worldboss" or targetType == "elite" then
                  if Mage_CastSpell("隐形术") then
@@ -144,7 +120,7 @@ function Mage_playerSafe()
         -- 2. 残血保命逻辑 (优先级低于冰箱，但作为备选)
         -- 如果血量低于 20% 且 冰箱在冷却(或者有低温BUFF)
         if Mage_GetUnitHealthPercent("player") < 20 then
-            if Mage_PlayerDeBU("低温") or Mage_GetSpellCooldown("寒冰屏障") > 0 then
+            if Mage_PlayerDeBU("低温") or Mage_GetSpellCooldown("寒冰屏障") > 0 and not Mage_PlayerBU("保护之手") then
                  if Mage_CastSpell("隐形术") then
                      Mage_Default_AddMessage("**血量危急且无法冰箱，使用隐形术跑路...**");
                      Mage_Combat_AddMessage("**血量危急且无法冰箱，使用隐形术跑路...**");

@@ -179,7 +179,7 @@ function Mage_playerCombat()
     if mageSpec == 1 then
             if Mage_PlayerBU("一触即燃") then
                  if Mage_IsManaEnough("烈焰风暴") then
-                      if Mage_TargetDeBU("烈焰风暴") then
+                      if GetTimer("烈焰风暴") > 1 and GetTimer("烈焰风暴") < 5 then
                              if Mage_FlameStormLevel8() then
                                  Mage_Combat_AddMessage("**(一触即燃)烈焰风暴(等级8)**");
                                  Mage_AddMessage("**(一触即燃)烈焰风暴(等级8)**")
@@ -189,6 +189,7 @@ function Mage_playerCombat()
                             if Mage_FlameStorm() then
                                  Mage_Combat_AddMessage("**(一触即燃)烈焰风暴**");
                                  Mage_AddMessage("**(一触即燃)烈焰风暴**")
+                                 StartTimer("烈焰风暴");
                                  return true;
                             end;
                        end

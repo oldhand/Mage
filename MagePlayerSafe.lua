@@ -64,6 +64,12 @@ function Mage_playerSafe()
    		end
    	end
 
+   if Mage_HasSpell("寒冰屏障") and Mage_PlayerDeBU("活体炸弹") and not Mage_PlayerDeBU("低温") then
+       if Mage_GetSpellCooldown("寒冰屏障") == 0 then
+            if Mage_CastSpell("寒冰屏障") then return true; end;
+       end
+   end
+
 --        local AttackMeNpcName = GetActiveMeleeCount();
 --        if AttackMeNpcName and  AttackMeNpcName >= 6 and UnitIsPlayer("target")  and not Mage_HasBattleFlag() then
 --    		if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 then

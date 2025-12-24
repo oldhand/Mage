@@ -57,6 +57,17 @@ end
 
 
 function Mage_playerCombat()
+
+    -- ========================================================
+    -- [优化] 战斗中的法术反射处理
+    -- 使用之前获取的 targetIsReflect 状态
+    -- ========================================================
+    local targetIsReflect, targetIsImmuneControl = false, false
+    if UnitExists("target") then
+        targetIsReflect, targetIsImmuneControl = Mage_ScanTargetStatus("target")
+    end
+    -- ========================================================
+
     -- 1. 基础快照（减少性能开销）
     local targetIsPlayer = UnitIsPlayer("target")
     local mageSpec = Mage_GetMageSpec()
@@ -80,12 +91,16 @@ function Mage_playerCombat()
                     Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
                 else
                     -- 既无反射也无免疫，执行变羊
-                    if UnitExists("pet") and not UnitIsDead("pet") then
-                        if Mage_IsPetAttacking() then
-                             if Mage_StopPetAttack() then  return true; end
+                    if Mage_Check_Dot_Debuff("target") then
+                        if UnitExists("pet") and not UnitIsDead("pet") then
+                            if Mage_IsPetAttacking() and UnitIsUnit("pettarget","target") then
+                                 if Mage_StopPetAttack() then  return true; end
+                            end
                         end
+                        if Mage_CastSpell("变形术") then return true; end;
+                    else
+                         Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<目标有持续伤害效果，无法施放变形术...**");
                     end
-                    if Mage_CastSpell("变形术") then return true; end;
                 end
             else
                 if GetTimer("变形术目标距离太远") > 0.5 then
@@ -148,15 +163,7 @@ function Mage_playerCombat()
         if Mage_CastSpell("召唤水元素") then return true; end;
     end
 
-    -- ========================================================
-    -- [优化] 战斗中的法术反射处理
-    -- 使用之前获取的 targetIsReflect 状态
-    -- ========================================================
-    local targetIsReflect, targetIsImmuneControl = false, false
-    if UnitExists("target") then
-        targetIsReflect, targetIsImmuneControl = Mage_ScanTargetStatus("target")
-    end
-    -- ========================================================
+
 
     if targetIsReflect then
         Mage_SetText("目标反射",0);
@@ -209,15 +216,19 @@ function Mage_playerCombat()
             if targetIsPlayer or
                 targetType == "worldboss" or
                 ( targetType == "rareelite" and targetHP > 40 ) or
-                ( targetType == "elite" and targetHP > 40 ) then
-                    if not Mage_TargetDeBU("活动炸弹") and IsSpellInRange("活动炸弹","target") == 1 then
-                         if Mage_CastSpell("活动炸弹") then  return true; end
+                ( targetType == "elite" and targetHP > 30 ) then
+                    if not Mage_UnitTargetDeBU_ByPlayer("target", "活动炸弹") and IsSpellInRange("活动炸弹","target") == 1 then
+                         if Mage_CastSpell("活动炸弹") then
+                             Mage_Default_AddMessage("**施放活动炸弹 -> " .. UnitName("target") .. "**");
+                             Mage_Combat_AddMessage("**施放活动炸弹 -> " .. UnitName("target") .. "**");
+                             return true;
+                             end
                     end
                     if CheckInteractDistance("target", 3)  then
                          if Mage_CastSpell("龙息术") then  return  true; end;
                          if Mage_CastSpell("冲击波") then  return  true; end;
                     end
-                    if IsSpellInRange("灼烧","target") == 1 then
+                    if IsSpellInRange("灼烧","target") == 1 and not UnitInRaid("player") then
                         if not Mage_TargetDeBU("强化灼烧") and not Mage_TargetDeBU("强化暗影箭")  and not Mage_TargetDeBU("深冬之寒") then
                             if Mage_CastSpell("灼烧") then  return true; end
                         end
@@ -477,4 +488,100 @@ function Mage_AutoSelectTarget()
         if Mage_TargetEnemy() then return true; end;
     end
     return false;
+end
+
+
+-- ========================================================
+-- 函数：Mage_FocusControl
+-- 逻辑：
+-- 1. 检查焦点目标是否可变羊（根据剩余时间补羊）
+-- 2. 如果无法变羊（免疫/反射/非生物），则尝试法术反制打断
+-- ========================================================
+function Mage_FocusControl()
+    if not UnitExists("focus") or UnitIsDead("focus") or not UnitCanAttack("player", "focus") then
+        return false
+    end
+
+    if UnitExists("target") and UnitIsUnit("target", "focus") then  return false; end
+
+    if Mage_Test_Target_Debuff("focus") then
+        if UnitExists("pet") and not UnitIsDead("pet") then
+            if Mage_IsPetAttacking() and UnitIsUnit("pettarget","focus") then
+                 if Mage_StopPetAttack() then  return true; end
+            end
+        end
+        -- 获取焦点身上自己施放的变形术剩余时间
+        local polyTime = Mage_GetDeBuffTimeByName("focus", "变形术")
+        if polyTime == 0 then
+            if GetTimer("焦点已经被控制") > 1 then
+               StartTimer("焦点已经被控制");
+               Mage_Default_AddMessage(UnitName("focus").."焦点已经被控制...");
+               Mage_Combat_AddMessage(UnitName("focus").."焦点已经被控制...");
+           end;
+           return false;
+        else
+             -- 判定补羊时间：玩家1秒，非玩家5秒
+            local threshold = isPlayer and 1 or 5
+            if polyTime >= threshold then
+                if GetTimer("焦点已经被控制") > 1 then
+                    StartTimer("焦点已经被控制");
+                    Mage_Combat_AddMessage(UnitName("focus").."焦点已经被控制(" .. string.format("%.1f", polyTime) .. ")");
+                end;
+                return false;
+            end
+        end
+    end
+
+    -- ========================================================
+    -- [优化] 战斗中的法术反射处理
+    -- 使用之前获取的 targetIsReflect 状态
+    -- ========================================================
+    local targetIsReflect, targetIsImmuneControl  = Mage_ScanTargetStatus("focus")
+
+    if not Mage_Check_Movement() then
+        if IsSpellInRange("变形术","focus") == 1  then
+            if targetIsReflect then
+                Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
+                Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
+            else
+                -- 既无反射也无免疫，执行变羊
+                if Mage_Check_Dot_Debuff("focus") then
+                    if UnitExists("pet") and not UnitIsDead("pet") then
+                        if Mage_IsPetAttacking() and UnitIsUnit("pettarget","focus") then
+                             if Mage_StopPetAttack() then  return true; end
+                        end
+                    end
+                    if Mage_CastFocusPolymorph() then
+                        Mage_Combat_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
+                        Mage_Default_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
+                        return true;
+                    end;
+                else
+                     Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
+                     Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
+                end
+            end
+        else
+            if GetTimer("焦点距离太远") > 0.5 then
+                  StartTimer("焦点距离太远");
+                   Mage_Combat_AddMessage("**焦点距离太远,变形术无法施放**");
+                   Mage_Default_AddMessage("**焦点距离太远,变形术无法施放**");
+                  Blizzard_AddMessage("**焦点距离太远,变形术无法施放**",1,0,0,"crit");
+            end;
+        end
+    end
+
+    -- 焦点打断逻辑 (当无法变羊或不需要变羊时)
+    if Mage_GetSpellCooldown("法术反制") == 0 and IsSpellInRange("法术反制", "focus") == 1 then
+        local spellName = UnitCastingInfo("focus") or UnitChannelInfo("focus")
+        if spellName then
+            if Mage_CastFocusInterruptCasting() then
+                Mage_Combat_AddMessage("**焦点>>" .. focusName .. "<<正在施放" .. spellName .. ",使用法术反制...**")
+                Mage_Default_AddMessage("**焦点>>" .. focusName .. "<<正在施放" .. spellName .. ",使用法术反制...**")
+                return true
+            end
+        end
+    end
+
+    return false
 end

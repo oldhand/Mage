@@ -22,14 +22,14 @@
              key = "ALT-F3"
          },
          {
-             name = "ACM_Dismount",
-             body = "/dismount",         -- 宏内容：下马
-             key = "ALT-]"
+              name = "ACM_CastFocusPolymorph",
+              body = "/cast [target=focus, harm, nodead] 变形术",            -- 宏内容：对焦点施放变形术
+              key = "ALT-]"
          },
          {
-              name = "ACM_Mount",
-              body = "/mount",         -- 宏内容：上马
-              key = "ALT-F5"
+               name = "ACM_CastFocusInterruptCasting",
+               body = "/cast [target=focus, harm, nodead] 法术反制",            -- 宏内容：对焦点施放法术反制
+               key = "ALT-]"
          },
          {
              name = "ACM_FlameStormLevel8",
@@ -142,13 +142,13 @@ function Mage_StopCasting()
     return true;
 end
 
-function Mage_Dismount()
-    Mage_SetText("下马", 64);
+function Mage_CastFocusPolymorph()
+    Mage_SetText("焦点变形术", 64);
     return true;
 end
 
-function Mage_Mount()
-    Mage_SetText("上马", 65);
+function Mage_CastFocusInterruptCasting()
+    Mage_SetText("焦点法术反制", 65);
     return true;
 end
 

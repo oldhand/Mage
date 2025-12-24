@@ -282,65 +282,42 @@ function Mage_Frame_OnUpdate()
     end
 
 	-- 检测晕迷类 (人类自利主要解这个)
-    if  Mage_PlayerDeBU("制裁之锤")
-        or Mage_PlayerDeBU("肾击")
-        or Mage_PlayerDeBU("偷袭")
-        or Mage_PlayerDeBU("猛击")
-        or Mage_PlayerDeBU("震荡猛击")
-        or Mage_PlayerDeBU("暗影狂怒")
-        or Mage_PlayerDeBU("拦截")
-        or Mage_PlayerDeBU("致盲")
-        or Mage_PlayerDeBU("变形术")
-        or Mage_PlayerDeBU("深结")
-        or Mage_PlayerDeBU("晕迷")
-        or Mage_PlayerDeBU("昏迷")
-        -- 检测原有的恐惧/魅惑类 (保留)
-        or Mage_PlayerDeBU("心灵尖啸")
-        or Mage_PlayerDeBU("精神控制")
-        or Mage_PlayerDeBU("恐惧")
-        or Mage_PlayerDeBU("惊骇")
-        or Mage_PlayerDeBU("恐惧嚎叫")
-        or Mage_PlayerDeBU("恐吓尖啸")
-        or Mage_PlayerDeBU("恐吓")
-        or Mage_PlayerDeBU("女妖媚惑")
-        or Mage_PlayerDeBU("破胆怒吼")
-        or Mage_PlayerDeBU("震耳尖啸")
-        or Mage_PlayerDeBU("媚惑")
-        or Mage_PlayerDeBU("魅惑")
-    then
-        if Mage_CastSpell("生存意志") then
-           StartTimer("生存意志");
-           if Mage_Get_CombatLogMode() then
-              Mage_AddMessage("检测到硬控/恐惧 -> 使用生存意志解控");
-           end
-           return true;
-        end
-    end;
-
-	if  Mage_PlayerDeBU("心灵尖啸")
-			   or  Mage_PlayerDeBU("精神控制")
-			   or  Mage_PlayerDeBU("恐惧")
-			   or  Mage_PlayerDeBU("恐惧嚎叫")
-			   or  Mage_PlayerDeBU("恐吓尖啸")
-			   or  Mage_PlayerDeBU("恐吓")
-			   or  Mage_PlayerDeBU("女妖媚惑")
-			   or  Mage_PlayerDeBU("破胆怒吼")
-			   or  Mage_PlayerDeBU("震耳尖啸")
-			   or  Mage_PlayerDeBU("媚惑")
-			   or  Mage_PlayerDeBU("魅惑")
-			   then	
-		if Mage_CastSpell("亡灵意志") then
-			StartTimer("亡灵意志"); 
-			if Mage_Get_CombatLogMode() then
-				Mage_AddMessage("使用亡灵意志");
-			end 
-			return true; 
-		end
-	end; 
-
-	if GetTimer("亡灵意志") > 1 and not Mage_PlayerBU("亡灵意志") then
-		if Mage_Use_INV_Jewelry_TrinketPVP() then return true end;
-	end;
+	if Mage_HasSpell("生存意志") then
+        if  Mage_PlayerDeBU("制裁之锤")
+            or Mage_PlayerDeBU("肾击")
+            or Mage_PlayerDeBU("偷袭")
+            or Mage_PlayerDeBU("猛击")
+            or Mage_PlayerDeBU("震荡猛击")
+            or Mage_PlayerDeBU("暗影狂怒")
+            or Mage_PlayerDeBU("拦截")
+            or Mage_PlayerDeBU("致盲")
+            or Mage_PlayerDeBU("变形术")
+            or Mage_PlayerDeBU("深结")
+            or Mage_PlayerDeBU("晕迷")
+            or Mage_PlayerDeBU("昏迷")
+            -- 检测原有的恐惧/魅惑类 (保留)
+            or Mage_PlayerDeBU("心灵尖啸")
+            or Mage_PlayerDeBU("精神控制")
+            or Mage_PlayerDeBU("恐惧")
+            or Mage_PlayerDeBU("惊骇")
+            or Mage_PlayerDeBU("恐惧嚎叫")
+            or Mage_PlayerDeBU("恐吓尖啸")
+            or Mage_PlayerDeBU("恐吓")
+            or Mage_PlayerDeBU("女妖媚惑")
+            or Mage_PlayerDeBU("破胆怒吼")
+            or Mage_PlayerDeBU("震耳尖啸")
+            or Mage_PlayerDeBU("媚惑")
+            or Mage_PlayerDeBU("魅惑")
+        then
+            if Mage_CastSpell("生存意志") then
+               StartTimer("生存意志");
+               if Mage_Get_CombatLogMode() then
+                  Mage_AddMessage("检测到硬控/恐惧 -> 使用生存意志解控");
+               end
+               return true;
+            end
+        end;
+    end
 
 	if Mage_Teleport == 1 then
             if GetTimer("Mage_Teleport") > 2 then  Mage_Default_AddMessage("**闪现术命令超时...**"); Mage_Teleport = 0; end;
@@ -396,6 +373,8 @@ function Mage_Frame_OnUpdate()
         return;
     end
 
+	if Mage_FocusControl() then return; end;
+
 	if Mage_Dispel() then return; end;
 
 	if Mage_AutoSelectTarget() then return; end;
@@ -449,7 +428,7 @@ function Mage_Frame_OnUpdate()
 	  
 	Mage_SetText("无动作",0);
 	
-	if Mage_Test_Target_Debuff() then
+	if Mage_Test_Target_Debuff("target") then
 		if Mage_IsAttack() then
 			if Mage_CastMacro("停止攻击") then return true; end;
 		end;

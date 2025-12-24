@@ -11,7 +11,20 @@ function Mage_UnitTargetBU(unit,s) local P,i=unit,1  while UnitBuff(P,i) do if s
 function Mage_UnitTargetDeBU(unit,s) local P,i=unit,1  while UnitDebuff(P,i) do if string.find(UnitDebuff(P,i),s) then return true; end i=i+1 end return false end
 
 
-
+-- 检查目标是否有玩家自己施放的特定 Debuff
+function Mage_UnitTargetDeBU_ByPlayer(unit, spellName)
+    local i = 1
+    while true do
+        -- 现代 API 第 7 个参数是 source
+        local name, _, _, _, _, _, source = UnitDebuff(unit, i)
+        if not name then break end
+        if string.find(name, spellName) and source == "player" then
+            return true
+        end
+        i = i + 1
+    end
+    return false
+end
 
 function Mage_GetPlayerCasting()
     -- 1. 检查普通读条 (圣光术、炉石等)
@@ -42,6 +55,32 @@ function Mage_GetBeaconTimeByName(unit,spellName)
         -- 获取 Buff 信息
         -- 参数7 (source) 非常重要，必须是 "player"
         local name, icon, count, debuffType, duration, expirationTime, source = UnitBuff(unit, i)
+        -- 如果没有 buff 了，提前结束循环
+        if not name then break end
+
+        -- 核心判断：名字匹配 + 来源是我自己
+        if string.find(name,spellName) then
+            -- expirationTime 是 buff 结束的时刻 (GetTime格式)
+            -- 剩余时间 = 结束时刻 - 当前时刻
+            local timeLeft = expirationTime - GetTime()
+            -- 稍微修正一下，防止返回负数
+            if timeLeft < 0 then timeLeft = 0 end
+            return timeLeft
+        end
+    end
+    return 0 -- 没找到
+end
+
+-- ==========================================================
+-- 函数: Mage_GetDeBuffTimeByName
+-- 参数: unit (string) - 例如 "party1", "target", "focus"
+-- 返回: number - 剩余秒数。如果没有道标，返回 0
+-- ==========================================================
+function Mage_GetDeBuffTimeByName(unit,spellName)
+    -- 遍历单位身上的 DeBuff (通常检查前40个足够了)
+    for i = 1, 40 do
+        -- 获取 Buff 信息
+        local name, _, _, _, duration, expirationTime, source = UnitDebuff(unit, i)
         -- 如果没有 buff 了，提前结束循环
         if not name then break end
 
@@ -545,155 +584,97 @@ function Mage_Get_Target_Unit(name)
 end
 
 
-function Mage_Use_INV_Jewelry_TrinketPVP()
-		local Trinketpvp_01 = Mage_GetActionID("荣誉勋章");
-		if Trinketpvp_01 ~= 0  then
-			if  Mage_PlayerDeBU("心灵尖啸")
-			   or  Mage_PlayerDeBU("精神控制")
-			   or  Mage_PlayerDeBU("恐惧")
-			   or  Mage_PlayerDeBU("击倒")
-			   or  Mage_PlayerDeBU("撂倒")
-			   or  Mage_PlayerDeBU("肾击")
-			   or  Mage_PlayerDeBU("冻结")
-			   or  Mage_PlayerDeBU("深结")
-			   or  Mage_PlayerDeBU("偷袭")
-			   or  Mage_PlayerDeBU("突袭")
-			   or  Mage_PlayerDeBU("猛击")
-			   or  Mage_PlayerDeBU("割碎")
-			   or  Mage_PlayerDeBU("恐惧嚎叫")
-			   or  Mage_PlayerDeBU("女妖媚惑")
-			   or  Mage_PlayerDeBU("破胆怒吼")
-			   or  Mage_PlayerDeBU("震荡猛击")
-			   or  Mage_PlayerDeBU("震荡波")
-			   or  Mage_PlayerDeBU("休眠")
-			   or  Mage_PlayerDeBU("飓风术")
-			   or  Mage_PlayerDeBU("逃跑")
-			   or  Mage_PlayerDeBU("媚惑")
-			   or  Mage_PlayerDeBU("魅惑")
-			   or  Mage_PlayerDeBU("妖术")
-			   or  Mage_PlayerDeBU("休眠")
-			   or  Mage_PlayerDeBU("致盲")
-			   or  Mage_PlayerDeBU("冰冻陷阱")
-			   or  Mage_PlayerDeBU("翼龙钉刺")
-			   or  Mage_PlayerDeBU("深度冻结")
-			   or  Mage_PlayerDeBU("忏悔")
-			   or  Mage_PlayerDeBU("霜寒刺骨")
-			   or  Mage_PlayerDeBU("制裁之锤")
-			   or  Mage_PlayerDeBU("制裁之拳")
-			   or  Mage_PlayerDeBU("风暴之锤")
-			   or  Mage_PlayerDeBU("震荡波")
-			   or  Mage_PlayerDeBU("饥饿之寒")
-			   or  Mage_PlayerDeBU("诱惑")
-			   or  Mage_PlayerDeBU("冲击")
-			   or  Mage_PlayerDeBU("混乱新星")
-			   then
-				if Mage_CastSpell("荣誉勋章") then
-					StartTimer("TrinketPVP");
-					Mage_Default_AddMessage("**使用勋章...**");
-					return true;
-				end
-			end
-		end
-	return false;
-end
-
 function Mage_Check_Dot_Debuff()
-	if  Mage_TargetDeBU("月火术")
-	or  Mage_TargetDeBU("撕裂")
-	or  Mage_TargetDeBU("腐蚀术")
-	or  Mage_TargetDeBU("痛苦诅咒")
-	or  Mage_TargetDeBU("吸取生命")
-	or  Mage_TargetDeBU("献祭")
-	or  Mage_TargetDeBU("火球术")
-	or  Mage_TargetDeBU("点燃")
-	or  Mage_TargetDeBU("燃烧")
-	or  Mage_TargetDeBU("流血")
-	or  Mage_TargetDeBU("活体炸弹")
-	or  Mage_TargetDeBU("寒冰炸弹")
-	or  Mage_TargetDeBU("虚空风暴")
-	or  Mage_TargetDeBU("暗言术：痛")
-	or  Mage_TargetDeBU("噬灵瘟疫")
-	or  Mage_TargetDeBU("毒蛇钉刺")
-	or  Mage_TargetDeBU("割裂")
-	or  Mage_TargetDeBU("重伤")
-	then
-		return true;
+    if  UnitExists(unit) then
+        if UnitCanAttack("player",unit) then
+            if Mage_UnitTargetDeBU(unit,"月火术")
+            or Mage_UnitTargetDeBU(unit,"撕裂")
+            or Mage_UnitTargetDeBU(unit,"腐蚀术")
+            or Mage_UnitTargetDeBU(unit,"痛苦诅咒")
+            or Mage_UnitTargetDeBU(unit,"吸取生命")
+            or Mage_UnitTargetDeBU(unit,"献祭")
+            or Mage_UnitTargetDeBU(unit,"火球术")
+            or Mage_UnitTargetDeBU(unit,"点燃")
+            or Mage_UnitTargetDeBU(unit,"燃烧")
+            or Mage_UnitTargetDeBU(unit,"流血")
+            or Mage_UnitTargetDeBU(unit,"活动炸弹")
+            or Mage_UnitTargetDeBU(unit,"寒冰炸弹")
+            or Mage_UnitTargetDeBU(unit,"虚空风暴")
+            or Mage_UnitTargetDeBU(unit,"暗言术：痛")
+            or Mage_UnitTargetDeBU(unit,"噬灵瘟疫")
+            or Mage_UnitTargetDeBU(unit,"毒蛇钉刺")
+            or Mage_UnitTargetDeBU(unit,"割裂")
+            or Mage_UnitTargetDeBU(unit,"重伤")
+            then
+                return true;
+            end
+        end
 	end
 	return false;
 end
 
-function Mage_Test_Targert_Control()
-	if  UnitExists("playertarget") then
-			if UnitCanAttack("player","target") then
-				if  Mage_TargetDeBU("媚惑")
-				or  Mage_TargetDeBU("变形术")
-				or  Mage_TargetDeBU("妖术")
-				or  Mage_TargetDeBU("休眠")
-				or  Mage_TargetDeBU("致盲")
-				or  Mage_TargetDeBU("冰冻陷阱")
-				or  Mage_TargetDeBU("忏悔")
-				or  Mage_TargetDeBU("闷棍")
-				or  Mage_TargetDeBU("恐吓野兽")
-				or  Mage_TargetDeBU("驱散射击")
-				or  Mage_TargetDeBU("心灵尖啸")
-				or  Mage_TargetDeBU("精神控制")
-				or  Mage_TargetDeBU("恐惧嚎叫")
-				or  Mage_TargetDeBU("女妖媚惑")
-				or  Mage_TargetDeBU("翼龙钉刺")
-				or  Mage_TargetDeBU("忏悔")
-				or  Mage_TargetDeBU("凿击")
- 			    or  Mage_TargetDeBU("肾击")
- 			    or  Mage_TargetDeBU("冻结")
- 			    or  Mage_TargetDeBU("深结")
- 			    or  Mage_TargetDeBU("偷袭")
- 			    or  Mage_TargetDeBU("突袭")
- 			    or  Mage_TargetDeBU("猛击")
-				then
-					return true;
-				end
-			end
+function Mage_Test_Targert_Control(unit)
+	if  UnitExists(unit) then
+        if UnitCanAttack("player",unit) then
+            if Mage_UnitTargetDeBU(unit,"媚惑")
+            or Mage_UnitTargetDeBU(unit,"变形术")
+            or Mage_UnitTargetDeBU(unit,"妖术")
+            or Mage_UnitTargetDeBU(unit,"休眠")
+            or Mage_UnitTargetDeBU(unit,"致盲")
+            or Mage_UnitTargetDeBU(unit,"冰冻陷阱")
+            or Mage_UnitTargetDeBU(unit,"忏悔")
+            or Mage_UnitTargetDeBU(unit,"闷棍")
+            or Mage_UnitTargetDeBU(unit,"恐吓野兽")
+            or Mage_UnitTargetDeBU(unit,"驱散射击")
+            or Mage_UnitTargetDeBU(unit,"心灵尖啸")
+            or Mage_UnitTargetDeBU(unit,"精神控制")
+            or Mage_UnitTargetDeBU(unit,"恐惧嚎叫")
+            or Mage_UnitTargetDeBU(unit,"女妖媚惑")
+            or Mage_UnitTargetDeBU(unit,"翼龙钉刺")
+            or Mage_UnitTargetDeBU(unit,"凿击")
+            or Mage_UnitTargetDeBU(unit,"肾击")
+            or Mage_UnitTargetDeBU(unit,"冻结")
+            or Mage_UnitTargetDeBU(unit,"深结")
+            or Mage_UnitTargetDeBU(unit,"偷袭")
+            or Mage_UnitTargetDeBU(unit,"突袭")
+            or Mage_UnitTargetDeBU(unit,"猛击")
+            then
+                return true;
+            end
+        end
 	end
 	return false;
 end
 
 
-function Mage_Test_Target_Debuff()
-	if  UnitExists("playertarget") then
-			if UnitCanAttack("player","target") then
-				if  Mage_TargetDeBU("媚惑")
-				or  Mage_TargetDeBU("变形术")
-				or  Mage_TargetDeBU("妖术")
-				or  Mage_TargetDeBU("休眠")
-				or  Mage_TargetDeBU("致盲")
-				or  Mage_TargetDeBU("冰冻陷阱")
-				or  Mage_TargetDeBU("忏悔")
-				or  Mage_TargetDeBU("闷棍")
-				or  Mage_TargetDeBU("恐吓野兽")
-				or  Mage_TargetDeBU("驱散射击")
-				or  Mage_TargetDeBU("心灵尖啸")
-				or  Mage_TargetDeBU("精神控制")
-				or  Mage_TargetDeBU("恐惧嚎叫")
-				or  Mage_TargetDeBU("女妖媚惑")
-				or  Mage_TargetDeBU("翼龙钉刺")
-				or  Mage_TargetDeBU("忏悔")
-				or  Mage_TargetDeBU("凿击")
-				then
-					return true;
-				end
-			end
+function Mage_Test_Target_Debuff(unit)
+	if  UnitExists(unit) then
+        if UnitCanAttack("player",unit) then
+            if Mage_UnitTargetDeBU(unit,"媚惑")
+            or Mage_UnitTargetDeBU(unit,"变形术")
+            or Mage_UnitTargetDeBU(unit,"妖术")
+            or Mage_UnitTargetDeBU(unit,"休眠")
+            or Mage_UnitTargetDeBU(unit,"致盲")
+            or Mage_UnitTargetDeBU(unit,"冰冻陷阱")
+            or Mage_UnitTargetDeBU(unit,"忏悔")
+            or Mage_UnitTargetDeBU(unit,"闷棍")
+            or Mage_UnitTargetDeBU(unit,"恐吓野兽")
+            or Mage_UnitTargetDeBU(unit,"驱散射击")
+            or Mage_UnitTargetDeBU(unit,"心灵尖啸")
+            or Mage_UnitTargetDeBU(unit,"精神控制")
+            or Mage_UnitTargetDeBU(unit,"恐惧嚎叫")
+            or Mage_UnitTargetDeBU(unit,"女妖媚惑")
+            or Mage_UnitTargetDeBU(unit,"翼龙钉刺")
+            or Mage_UnitTargetDeBU(unit,"忏悔")
+            or Mage_UnitTargetDeBU(unit,"凿击")
+            then
+                return true;
+            end
+        end
 	end
 	return false;
 end
 
-function Mage_Passive()
-	  if  UnitExists("playerpet") then
-		  for i = 1, 10 do
-			 local name,_,_,_,active,_,_,exists = GetPetActionInfo(i);
-			 if name == "PET_MODE_PASSIVE" and active == 1  then  return true; end;
-		  end;
-	  end;
-	  return false;
-end
 
 
 local TimerDatas = {};

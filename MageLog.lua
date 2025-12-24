@@ -114,11 +114,6 @@ if UnitClass("player") == "法师" then
               if arg2 == "目标不在视野中" then
                  StartTimer("FAILED_LINE_OF_SIGHT")
                  Blizzard_AddMessage("**视野遮档，无法施法**", 1, 0, 0, "crit")
-                 Mage_SendFollowNotifyMessage("视野遮档，无法施法")
-                 if UnitExists("target") and not UnitCanAttack("player","target") then
-                     StartTimer(UnitName("target").."_FAILED_LINE_OF_SIGHT");
-                     Mage_SendChatMessage("视野遮档，无法给" .. UnitName("target").. "施放治疗法术", UnitName("target"));
-                 end
              elseif arg2 == "你必须面对目标" then
                  StartTimer("YOU_MUST_FACE_THE_GOAL")
                  Blizzard_AddMessage("**你必须面对目标，无法施法**", 1, 0, 0, "crit")

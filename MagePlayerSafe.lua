@@ -44,6 +44,22 @@ function Mage_playerSafe()
     end
 
 
+    -- 暗月卡片：幻象 使用逻辑
+    if UnitAffectingCombat("player") and GetTimer("PlayerDamageEvent") < 2  then
+        -- 13 是上层饰品栏，14 是下层饰品栏
+        for slot = 13, 14 do
+            local itemName = Mage_GetItemInfo(slot)
+            if itemName and string.find(itemName, "暗月卡片：幻象") then
+                -- 检查饰品冷却 (使用 C_Container 接口或通用的物品Ready检测)
+                local start, duration, enable = GetInventoryItemCooldown("player", slot)
+                if start == 0 and duration == 0 then
+                    Mage_Combat_AddMessage("**开启 [暗月卡片：幻象] 吸收伤害...**")
+                    if Mage_CastSpell("暗月卡片：幻象") then  return true; end;
+                end
+            end
+        end
+    end
+
 
     if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") then
          if Mage_playerSelectSelf() then

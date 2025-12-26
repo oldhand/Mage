@@ -173,7 +173,6 @@ if UnitClass("player") == "法师" then
             -- 逻辑 B & D: 玩家自己的动作 (伤害 + 治疗分析)
             -- --------------------------------------------------
             if sourceGUID == playerGUID then
-
                 -- [DPS统计]
                 if subevent == "SWING_DAMAGE" then totalDamage = totalDamage + arg12
                 elseif subevent == "SPELL_DAMAGE" or subevent == "RANGE_DAMAGE" then totalDamage = totalDamage + arg15 end
@@ -194,6 +193,16 @@ if UnitClass("player") == "法师" then
             -- 逻辑 C: 承伤监控 + n秒近战单位计数
             -- --------------------------------------------------
             if destGUID == playerGUID then
+                if subevent == "SWING_DAMAGE" then
+                    StartTimer("PlayerDamageEvent");
+                elseif subevent == "SPELL_DAMAGE" then
+                    StartTimer("PlayerDamageEvent");
+                elseif subevent == "RANGE_DAMAGE" then
+                    StartTimer("PlayerDamageEvent");
+                elseif subevent == "ENVIRONMENTAL_DAMAGE" then
+                    StartTimer("PlayerDamageEvent");
+                end
+
                 local inAmount = 0
                 local enemyName = sourceName or "未知"
 

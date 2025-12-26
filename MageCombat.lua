@@ -229,7 +229,10 @@ function Mage_playerCombat()
                          if Mage_CastSpell("冲击波") then  return  true; end;
                     end
                     if IsSpellInRange("灼烧","target") == 1 and not UnitInRaid("player") then
-                        if not Mage_TargetDeBU("强化灼烧") and not Mage_TargetDeBU("强化暗影箭")  and not Mage_TargetDeBU("深冬之寒") then
+                        if not Mage_TargetDeBU("强化灼烧") and
+                        not Mage_TargetDeBU("强化暗影箭")  and
+                        not Mage_TargetDeBU("暗影掌握")  and 
+                        not Mage_TargetDeBU("深冬之寒") then
                             if Mage_CastSpell("灼烧") then  return true; end
                         end
                     end

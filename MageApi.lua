@@ -584,7 +584,7 @@ function Mage_Get_Target_Unit(name)
 end
 
 
-function Mage_Check_Dot_Debuff()
+function Mage_Check_Dot_Debuff(unit)
     if  UnitExists(unit) then
         if UnitCanAttack("player",unit) then
             if Mage_UnitTargetDeBU(unit,"月火术")

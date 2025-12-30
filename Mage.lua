@@ -18,6 +18,15 @@ function Mage_Check_Movement()
 	return Mage_movement;
 end
 
+function Mage_Get_Polymorph()
+	return Mage_Polymorph;
+end
+
+function Mage_Set_Polymorph(value)
+    Mage_Polymorph = value;
+end
+
+
 function Mage_RegisterEvents(self)
 	if UnitClass("player") ~= "法师" then
 		HideUIPanel(Mage_MSG_Frame);
@@ -102,39 +111,35 @@ end;
 
 function Mage_SendCommand(flag)
 	if flag == 1 then
-        if  UnitExists("target") and UnitCanAttack("player", "target") then
-            Mage_Polymorph = 1;
-            Mage_Combat_AddMessage("**准备使用变形术...**");
-            StartTimer("Mage_Polymorph");
-        else
-            Mage_Combat_AddMessage("**没有敌对目标，无法变形术**");
-		end
+        Mage_Polymorph = 1;
+        Blizzard_AddMessage("**准备使用变形术...****",1,0,0,"crit");
+        StartTimer("Mage_Polymorph");
 	elseif flag == 2 then
 		 if Mage_GetSpellCooldownNoGcd("闪现术") == 0 then
-		 	 Mage_Combat_AddMessage("准备闪现术..");
+		 	 Blizzard_AddMessage("**准备闪现术..****",1,0,0,"crit");
 	 		 StartTimer("Mage_Teleport");
 			 Mage_Teleport = 1;
 		 else
 			 Mage_AddMessage("**闪现术CD中**");
-			 Mage_Combat_AddMessage("**闪现术CD中**");
+			 Blizzard_AddMessage("**准备闪现术..****",1,0,0,"crit");
 		 end;
   	elseif flag == 3 then
 		if UnitAffectingCombat("player") then
 			if Mage_GetUnitManaPercent("player") < 50 then
 				if Mage_GetSpellCooldown("唤醒") == 0 then
-		   		 	 Mage_Combat_AddMessage("准备唤醒..");
+		   		 	 Blizzard_AddMessage("**准备唤醒..****",1,0,0,"crit");
 		   	 		 StartTimer("Mage_Purge");
 		   			  Mage_Purge = 1;
 		   		 else
-		   			 Mage_AddMessage("**唤醒CD中**");
+		   			 Blizzard_AddMessage("**唤醒CD中****",1,0,0,"crit");
 		   			 Mage_Combat_AddMessage("**唤醒CD中**");
 		   		 end;
 			else
-   			 Mage_AddMessage("**蓝还比较多，不需要唤醒**");
+   			 Blizzard_AddMessage("**蓝还比较多，不需要唤醒****",1,0,0,"crit");
    			 Mage_Combat_AddMessage("**蓝还比较多，不需要唤醒**");
 			end
 		else
-			 Mage_AddMessage("**没有进入战斗，不需要唤醒**");
+			 Blizzard_AddMessage("**没有进入战斗，不需要唤醒****",1,0,0,"crit");
 			 Mage_Combat_AddMessage("**没有进入战斗，不需要唤醒**");
 		end
     elseif flag == 4 then
@@ -241,6 +246,10 @@ function Mage_Frame_OnUpdate()
             end
        elseif string.find(castspell, "烈焰风暴") then
               Mage_Blizzard = 0;
+              Mage_SetText("正在施放"..castspell,0);
+              return;
+       elseif string.find(castspell, "变形术") then
+              Mage_Polymorph = 0;
               Mage_SetText("正在施放"..castspell,0);
               return;
        else
@@ -435,6 +444,11 @@ function Mage_Frame_OnUpdate()
 		if Mage_IsAttack() then
 			if Mage_CastMacro("停止攻击") then return true; end;
 		end;
+	    if UnitExists("pet") and not UnitIsDead("pet") then
+            if Mage_IsPetAttacking() and UnitIsUnit("pettarget","target") then
+                 if Mage_StopPetAttack() then  return true; end
+            end
+        end
 		if GetTimer("目标已经被控制") > 1 then				
 			StartTimer("目标已经被控制");				
 			Mage_Default_AddMessage(UnitName("target").."目标已经被控制...");

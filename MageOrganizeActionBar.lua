@@ -273,12 +273,7 @@ function Mage_OrganizeActionBar()
 	SetBinding("SHIFT-MOUSEWHEELDOWN");
 	SetBinding("SHIFT-SPACE");
 	SetBinding("SHIFT-M");
-	SetBinding("SHIFT-1");
-	SetBinding("SHIFT-2");
-	SetBinding("SHIFT-3");
-	SetBinding("SHIFT-4");
-	SetBinding("SHIFT-5");
-	SetBinding("SHIFT-6");
+
 
 	SetBinding("CTRL-=");
 	SetBinding("CTRL--");

@@ -75,11 +75,11 @@ function Mage_playerCombat()
     local targetHP = Mage_GetUnitHealthPercent("target")
 
     -- 1. 变羊术逻辑
-    if Mage_Polymorph == 1 then
+    if Mage_Get_Polymorph() == 1 then
         if UnitAffectingCombat("player") then
-            if GetTimer("Mage_Polymorph") > 2 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
+            if GetTimer("Mage_Polymorph") > 2 then  Mage_Combat_AddMessage("**变形术命令超时...**"); Mage_Set_Polymorph(0); end;
         else
-            if GetTimer("Mage_Polymorph") > 15 then  Mage_Default_AddMessage("**变形术命令超时...**"); Mage_Polymorph = 0; end;
+            if GetTimer("Mage_Polymorph") > 6 then  Mage_Combat_AddMessage("**变形术命令超时...**"); Mage_Set_Polymorph(0); end;
         end
 
         if not Mage_Check_Movement() then
@@ -91,7 +91,7 @@ function Mage_playerCombat()
                     Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
                 else
                     -- 既无反射也无免疫，执行变羊
-                    if Mage_Check_Dot_Debuff("target") then
+                    if not Mage_Check_Dot_Debuff("target") then
                         if UnitExists("pet") and not UnitIsDead("pet") then
                             if Mage_IsPetAttacking() and UnitIsUnit("pettarget","target") then
                                  if Mage_StopPetAttack() then  return true; end
@@ -251,8 +251,8 @@ function Mage_playerCombat()
            end
     end
 
-    if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") then
-        local hasMagicBuff, buffName = Mage_ScanUnitMagicBuff("target");
+    if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") and IsSpellInRange("法术吸取","target") == 1 then
+        local hasMagicBuff, buffName = Mage_ScanTargetBuffs("target");
         if hasMagicBuff then
             if Mage_CastSpell("法术吸取") then
                 Mage_Combat_AddMessage("**发现目标增益 [".. buffName .."] -> 使用法术吸取**");
@@ -495,6 +495,40 @@ end
 
 
 -- ========================================================
+-- [新增] PVP 高价值法术名单 (只针对能显著改变战局的魔法)
+-- ========================================================
+local Mage_PVP_HighValue_Magic = {
+    -- 圣骑士
+    ["自由之手"] = true, ["牺牲之手"] = true,  ["复仇之怒"] = true, ["神圣启示"] = true,
+    -- 牧师
+    ["能量灌注"] = true, ["真言术：盾"] = true, ["防护恐惧结界"] = true, ["真言术：韧"] = true, ["坚韧祷言"] = true,
+    -- 法师
+    ["寒冰护体"] = true, ["法术连击"] = true, ["奥术强化"] = true, ["气定神闲"] = true,
+    -- 德鲁伊/萨满
+    ["激活"] = true, ["自然迅捷"] = true, ["嗜血"] = true, ["英勇"] = true,
+    ["嗜血"] = true, ["英勇"] = true, ["自然迅捷"] = true, ["激活"] = true, ["潮汐之力"] = true,
+}
+
+function Mage_ScanTargetBuffs(Unit)
+    if not UnitIsPlayer(Unit) then return Mage_ScanUnitMagicBuff(Unit) end
+    local i = 1;
+    while (true) do
+        -- 使用系统 UnitBuff 接口获取信息
+        local name, icon, count, debuffType = UnitBuff(Unit, i);
+        if not name then break end
+
+        -- 判定逻辑：必须是可驱散的魔法类型，且在我们的高价值白名单内
+        if (debuffType == Mage_MAGIC) then
+            if (Mage_PVP_HighValue_Magic[name]) then
+                return true, name; -- 命中关键 Buff，返回 true
+            end
+        end
+        i = i + 1
+    end
+    return false, nil;
+end
+
+-- ========================================================
 -- 函数：Mage_FocusControl
 -- 逻辑：
 -- 1. 检查焦点目标是否可变羊（根据剩余时间补羊）
@@ -548,7 +582,7 @@ function Mage_FocusControl()
                 Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
             else
                 -- 既无反射也无免疫，执行变羊
-                if Mage_Check_Dot_Debuff("focus") then
+                if not Mage_Check_Dot_Debuff("focus") then
                     if UnitExists("pet") and not UnitIsDead("pet") then
                         if Mage_IsPetAttacking() and UnitIsUnit("pettarget","focus") then
                              if Mage_StopPetAttack() then  return true; end
@@ -565,11 +599,10 @@ function Mage_FocusControl()
                 end
             end
         else
-            if GetTimer("焦点距离太远") > 0.5 then
+            if GetTimer("焦点距离太远") > 1 then
                   StartTimer("焦点距离太远");
-                   Mage_Combat_AddMessage("**焦点距离太远,变形术无法施放**");
                    Mage_Default_AddMessage("**焦点距离太远,变形术无法施放**");
-                  Blizzard_AddMessage("**焦点距离太远,变形术无法施放**",1,0,0,"crit");
+                   Blizzard_AddMessage("**焦点距离太远,变形术无法施放**",1,0,0,"crit");
             end;
         end
     end

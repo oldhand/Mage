@@ -367,10 +367,8 @@ function Mage_playerCombat()
 	    if Mage_CastSpell("火焰冲击") then return true; end
 	end
 
-	if not targetIsPlayer and targetHP < 95 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
-		if  targetType == "worldboss" or targetType == "elite" then
-            if Mage_CastSpell("火焰冲击") then return true; end
-		end
+	if not targetIsPlayer and targetHP < 5 and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
+        if Mage_CastSpell("火焰冲击") then return true; end
 	end
 
 	if CheckInteractDistance("target",3) and GetTimer("变形术") > 2 then

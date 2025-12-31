@@ -333,7 +333,7 @@ function Mage_Frame_OnUpdate()
 
 	if Mage_Teleport == 1 then
             if GetTimer("Mage_Teleport") > 2 then  Mage_Default_AddMessage("**闪现术命令超时...**"); Mage_Teleport = 0; end;
-            if Mage_GetSpellCooldown("闪现术") ~= 0 then
+            if Mage_GetSpellCooldownNoGcd("闪现术") ~= 0 then
                  Mage_Teleport = 0;
             end;
             if Mage_CastSpell("闪现术") then return true; end;

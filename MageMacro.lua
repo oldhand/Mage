@@ -29,11 +29,11 @@
          {
                name = "ACM_CastFocusInterruptCasting",
                body = "/cast [target=focus, harm, nodead] 法术反制",            -- 宏内容：对焦点施放法术反制
-               key = "ALT-]"
+               key = "ALT-F5"
          },
          {
              name = "ACM_FlameStormLevel8",
-             body = "/cast [@cursor] 烈焰风暴(等级8)",            -- 宏内容：烈焰风暴(等级8)
+             body = "#showtooltip 烈焰风暴(等级 8)\n/cast [@cursor] 烈焰风暴(等级 8)",            -- 宏内容：烈焰风暴(等级8)
              key = "ALT-F6"
          },
          {

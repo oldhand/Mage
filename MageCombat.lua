@@ -73,6 +73,7 @@ function Mage_playerCombat()
     local mageSpec = Mage_GetMageSpec()
     local targetType = UnitClassification("target")
     local targetHP = Mage_GetUnitHealthPercent("target")
+    local creatureType = UnitCreatureType("target")
 
     -- 1. 变羊术逻辑
     if Mage_Get_Polymorph() == 1 then
@@ -82,8 +83,7 @@ function Mage_playerCombat()
             if GetTimer("Mage_Polymorph") > 6 then  Mage_Combat_AddMessage("**变形术命令超时...**"); Mage_Set_Polymorph(0); end;
         end
         if not Mage_Check_Movement() then
-            local creatureType = UnitCreatureType("target")
-            if creatureType == "人型生物" or creatureType == "野兽" then
+            if targetIsPlayer or creatureType == "人型生物" or creatureType == "野兽" then
                 if IsSpellInRange("变形术","target") == 1  then
                     -- 使用缓存的状态进行判断
                     if targetIsReflect then
@@ -123,7 +123,7 @@ function Mage_playerCombat()
 
     -- 2. 非战斗/特殊目标检查
 	if not UnitAffectingCombat("player") and not UnitAffectingCombat("target")  then
-		if  UnitCreatureType("target") == "野生宠物" then
+		if creatureType == "野生宠物" then
 			    Mage_SetText("野生宠物",0);
 			    return true;
 		end;

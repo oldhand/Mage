@@ -37,20 +37,16 @@ function Mage_Dispel()
         end
     end
 
-    for index=1, 4 do
-        local unit = "party"..index;
-        if  UnitExists(unit)  then
-            if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
-                if Mage_DispelUnit(unit) then return true end;
-            end
-        end
-    end
-
-    if Mage_GetSetting("AllDispel") and UnitInRaid("player") then
-        for id=1, 40  do
-            local unit = "raid"..id;
-            if  UnitExists(unit)  then
-                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
+    if Mage_GetSetting("AllDispel") then
+        local prefix = UnitInRaid("player") and "raid" or "party"
+        local count = UnitInRaid("player") and 40 or 4
+        for id = 1, count do
+            local unit = prefix .. id
+            if  unit ~= "" and UnitExists(unit)  then
+                if UnitIsVisible(unit) and
+                not UnitIsDeadOrGhost(unit) and
+                IsSpellInRange("解除诅咒",unit) == 1 and
+                Paladin_HasSpell("解除诅咒") then
                     if Mage_DispelUnit(unit) then return true end;
                 end
             end

@@ -5,7 +5,7 @@ local Mage_PopMenu = nil
 
 local Mage_MainTank = false; --治疗主坦克
 local Mage_MainTankName = nil; --治疗主坦克名字
-local Mage_AllDispel = false; --全团驱散
+local Mage_AllDispel = false; --自动驱散
 
 
 
@@ -81,11 +81,11 @@ function Mage_Setting_onClick(key)
 			if Mage_AllDispel then
 				Mage_AllDispel = false;
 				Mage_Settings["AllDispel"] = Mage_AllDispel;
-				Mage_Default_AddMessage("**全团驱散关闭**");
+				Mage_Default_AddMessage("**自动驱散关闭**");
 			else
 				Mage_AllDispel = true;
 				Mage_Settings["AllDispel"] = Mage_AllDispel;
-				Mage_Default_AddMessage("**全团驱散开启**");
+				Mage_Default_AddMessage("**自动驱散开启**");
 			end
 	end 
 end

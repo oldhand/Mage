@@ -122,7 +122,7 @@
 				</Layers>
 				<Scripts>
 					<OnShow>
-						getglobal(self:GetName().."LbL"):SetText("全团驱散");
+						getglobal(self:GetName().."LbL"):SetText("自动驱散");
 					</OnShow>
 					<OnClick>
 						  Mage_Setting_onClick("AllDispel");

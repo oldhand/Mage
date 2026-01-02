@@ -25,19 +25,19 @@ end
 function Mage_Dispel()
     if  UnitExists("target") and UnitCanAttack("player","target") and UnitIsPlayer("target") then return false; end
 
-    if Mage_GetSetting("MainTank") then
-        local mainTankName = Mage_Get_MainTankName();
-        if mainTankName ~= "" then
-            local unit = Mage_GetTargetUnit(mainTankName);
-            if  unit ~= nil and UnitExists(unit)  then
-                if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
-                    if Mage_DispelUnit(unit) then return true end;
+    if Mage_GetSetting("AllDispel") then
+        if Mage_GetSetting("MainTank") then
+            local mainTankName = Mage_Get_MainTankName();
+            if mainTankName ~= "" then
+                local unit = Mage_GetTargetUnit(mainTankName);
+                if  unit ~= nil and UnitExists(unit)  then
+                    if UnitIsVisible(unit) and not UnitIsDeadOrGhost(unit) and IsSpellInRange("解除诅咒",unit) == 1 then
+                        if Mage_DispelUnit(unit) then return true end;
+                    end
                 end
             end
         end
-    end
 
-    if Mage_GetSetting("AllDispel") then
         local prefix = UnitInRaid("player") and "raid" or "party"
         local count = UnitInRaid("player") and 40 or 4
         for id = 1, count do

@@ -81,38 +81,44 @@ function Mage_playerCombat()
         else
             if GetTimer("Mage_Polymorph") > 6 then  Mage_Combat_AddMessage("**变形术命令超时...**"); Mage_Set_Polymorph(0); end;
         end
-
         if not Mage_Check_Movement() then
-            if IsSpellInRange("变形术","target") == 1  then
-                -- 使用缓存的状态进行判断
-                if targetIsReflect then
-                    Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在反射效果，无法施放变形术...**");
-                elseif targetIsImmuneControl then
-                    Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
-                else
-                    -- 既无反射也无免疫，执行变羊
-                    if not Mage_Check_Dot_Debuff("target") then
-                        if UnitExists("pet") and not UnitIsDead("pet") then
-                            if Mage_IsPetAttacking() and UnitIsUnit("pettarget","target") then
-                                 if Mage_StopPetAttack() then  return true; end
-                            end
-                        end
-                        if Mage_CastSpell("变形术") then return true; end;
+            local creatureType = UnitCreatureType("target")
+            if creatureType == "人型生物" or creatureType == "野兽" then
+                if IsSpellInRange("变形术","target") == 1  then
+                    -- 使用缓存的状态进行判断
+                    if targetIsReflect then
+                        Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在反射效果，无法施放变形术...**");
+                    elseif targetIsImmuneControl then
+                        Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<存在免疫效果，无法施放变形术...**");
                     else
-                         Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<目标有持续伤害效果，无法施放变形术...**");
+                        -- 既无反射也无免疫，执行变羊
+                        if not Mage_Check_Dot_Debuff("target") then
+                            if UnitExists("pet") and not UnitIsDead("pet") then
+                                if Mage_IsPetAttacking() and UnitIsUnit("pettarget","target") then
+                                     if Mage_StopPetAttack() then  return true; end
+                                end
+                            end
+                            if Mage_CastSpell("变形术") then return true; end;
+                        else
+                             Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<目标有持续伤害效果，无法施放变形术...**");
+                        end
                     end
+                else
+                    if GetTimer("变形术目标距离太远") > 0.5 then
+                          StartTimer("变形术目标距离太远");
+                          Blizzard_AddMessage("**目标距离太远，无法施放变形术**",1,0,0,"crit");
+                    end;
+                    Mage_SetText("变形术距离太远",0);
+                    return true;
                 end
             else
-                if GetTimer("变形术目标距离太远") > 0.5 then
-                      StartTimer("变形术目标距离太远");
-                      Blizzard_AddMessage("**目标距离太远，无法施放变形术**",1,0,0,"crit");
-                end;
-                Mage_SetText("变形术距离太远",0);
-                return;
+                Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<非人型生物和野兽，无法施放变形术...**");
+                Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<非人型生物和野兽，无法施放变形术...**");
+                Mage_Set_Polymorph(0);
             end
         end
         Mage_SetText("等待变形术",0);
-        return;
+        return true;
     end
 
     -- 2. 非战斗/特殊目标检查
@@ -556,7 +562,7 @@ function Mage_FocusControl()
            return false;
         else
              -- 判定补羊时间：玩家1秒，非玩家5秒
-            local threshold = isPlayer and 1 or 5
+            local threshold = isPlayer and 2 or 10
             if polyTime >= threshold then
                 if GetTimer("焦点已经被控制") > 1 then
                     StartTimer("焦点已经被控制");
@@ -574,33 +580,42 @@ function Mage_FocusControl()
     local targetIsReflect, targetIsImmuneControl  = Mage_ScanTargetStatus("focus")
 
     if not Mage_Check_Movement() then
-        if IsSpellInRange("变形术","focus") == 1  then
-            if targetIsReflect then
-                Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
-                Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
-            else
-                -- 既无反射也无免疫，执行变羊
-                if not Mage_Check_Dot_Debuff("focus") then
-                    if UnitExists("pet") and not UnitIsDead("pet") then
-                        if Mage_IsPetAttacking() and UnitIsUnit("pettarget","focus") then
-                             if Mage_StopPetAttack() then  return true; end
-                        end
-                    end
-                    if Mage_CastFocusPolymorph() then
-                        Mage_Combat_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
-                        Mage_Default_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
-                        return true;
-                    end;
+        local creatureType = UnitCreatureType("focus")
+        if creatureType == "人型生物" or creatureType == "野兽" then
+            if IsSpellInRange("变形术","focus") == 1  then
+                if targetIsReflect then
+                    Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
+                    Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<存在反射效果，无法施放变形术...**");
                 else
-                     Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
-                     Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
+                    -- 既无反射也无免疫，执行变羊
+                    if not Mage_Check_Dot_Debuff("focus") then
+                        if UnitExists("pet") and not UnitIsDead("pet") then
+                            if Mage_IsPetAttacking() and UnitIsUnit("pettarget","focus") then
+                                 if Mage_StopPetAttack() then  return true; end
+                            end
+                        end
+                        if Mage_CastFocusPolymorph() then
+                            Mage_Combat_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
+                            Mage_Default_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
+                            return true;
+                        end;
+                    else
+                         Mage_Combat_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
+                         Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<目标有持续伤害效果，无法施放变形术...**");
+                    end
                 end
+            else
+                if GetTimer("焦点距离太远") > 1 then
+                       StartTimer("焦点距离太远");
+                       Mage_Default_AddMessage("**焦点距离太远,变形术无法施放**");
+                       Blizzard_AddMessage("**焦点距离太远,变形术无法施放**",1,0,0,"crit");
+                end;
             end
         else
-            if GetTimer("焦点距离太远") > 1 then
-                  StartTimer("焦点距离太远");
-                   Mage_Default_AddMessage("**焦点距离太远,变形术无法施放**");
-                   Blizzard_AddMessage("**焦点距离太远,变形术无法施放**",1,0,0,"crit");
+            if GetTimer("非人型生物和野兽") > 1 then
+                   StartTimer("非人型生物和野兽");
+                   Mage_Default_AddMessage("**焦点>>"..UnitName("focus").."<<非人型生物和野兽，无法施放变形术...**");
+                   Blizzard_AddMessage("**焦点>>"..UnitName("focus").."<<非人型生物和野兽，无法施放变形术...**",1,0,0,"crit");
             end;
         end
     end

@@ -27,8 +27,8 @@ if UnitClass("player") == "法师" then
             [6]="CTRL-6", [7]="CTRL-7", [8]="CTRL-8", [9]="CTRL-9", [10]="CTRL-0",
             [11]="SHIFT-1", [12]="SHIFT-2", [13]="SHIFT-3", [14]="SHIFT-4", [15]="SHIFT-5",
             [16]="SHIFT-6", [17]="SHIFT-7", [18]="SHIFT-8", [19]="SHIFT-9", [20]="SHIFT-0",
-            [21]="CTRL-ALT-1", [22]="CTRL-ALT-2", [23]="CTRL-ALT-3", [24]="CTRL-ALT-4", [25]="CTRL-ALT-5",
-            [26]="CTRL-ALT-6", [27]="CTRL-ALT-7", [28]="CTRL-ALT-8", [29]="CTRL-ALT-9", [30]="CTRL-ALT-0",
+            [21]="ALT-CTRL-1", [22]="ALT-CTRL-2", [23]="ALT-CTRL-3", [24]="ALT-CTRL-4", [25]="ALT-CTRL-5",
+            [26]="ALT-CTRL-6", [27]="ALT-CTRL-7", [28]="ALT-CTRL-8", [29]="ALT-CTRL-9", [30]="ALT-CTRL-0",
             [31]="CTRL-SHIFT-1", [32]="CTRL-SHIFT-2", [33]="CTRL-SHIFT-3", [34]="CTRL-SHIFT-4", [35]="CTRL-SHIFT-5",
             [36]="CTRL-SHIFT-6", [37]="CTRL-SHIFT-7", [38]="CTRL-SHIFT-8", [39]="CTRL-SHIFT-9", [40]="CTRL-SHIFT-0"
         }

@@ -554,7 +554,7 @@ function Mage_FocusControl()
         -- 获取焦点身上自己施放的变形术剩余时间
         local polyTime = Mage_GetDeBuffTimeByName("focus", "变形术")
         if polyTime == 0 then
-            if GetTimer("焦点已经被控制") > 1 then
+            if GetTimer("焦点已经被控制") > 2 then
                StartTimer("焦点已经被控制");
                Mage_Default_AddMessage(UnitName("focus").."焦点已经被控制...");
                Mage_Combat_AddMessage(UnitName("focus").."焦点已经被控制...");
@@ -564,7 +564,7 @@ function Mage_FocusControl()
              -- 判定补羊时间：玩家1秒，非玩家5秒
             local threshold = isPlayer and 2 or 10
             if polyTime >= threshold then
-                if GetTimer("焦点已经被控制") > 1 then
+                if GetTimer("焦点已经被控制") > 3 then
                     StartTimer("焦点已经被控制");
                     Mage_Combat_AddMessage(UnitName("focus").."焦点已经被控制(" .. string.format("%.1f", polyTime) .. ")");
                 end;

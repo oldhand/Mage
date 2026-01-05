@@ -61,7 +61,7 @@ function Mage_playerSafe()
     end
 
 
-    if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") then
+    if Mage_HasSpell("奥术智慧") and not Mage_PlayerBU("奥术智慧") and not Mage_PlayerBU("奥术光辉") and not Mage_PlayerBU("邪能智力") and not UnitAffectingCombat("player") then
          if Mage_playerSelectSelf() then
                 if Mage_CastSpell("奥术智慧") then  return true; end;
                 Mage_SetText(">奥术智慧",0);
@@ -80,7 +80,7 @@ function Mage_playerSafe()
    		end
    	end
 
-   if Mage_HasSpell("寒冰屏障") and Mage_PlayerDeBU("活体炸弹") and not Mage_PlayerDeBU("低温") then
+   if Mage_HasSpell("寒冰屏障") and Mage_HasBaronGeddonBomb() and not Mage_PlayerDeBU("低温") then
        if Mage_GetSpellCooldown("寒冰屏障") == 0 then
             if Mage_CastSpell("寒冰屏障") then return true; end;
        end
@@ -228,7 +228,7 @@ function Mage_playerSafe()
    		 end
    		 if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then
    			if Mage_CastSpell("寒冰护体") then  return true; end;
-   			if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") then
+   			if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") and Mage_GetUnitHealthPercent("player") < 50 then
    				if Mage_CastSpell("法力护盾") then  return true; end;
    			end
    		 end;
@@ -242,7 +242,7 @@ function Mage_playerSafe()
    			 if Test_Target_IsMe() and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") then
    				if not Mage_PlayerBU("寒冰护体") then
    					if Mage_CastSpell("寒冰护体") then return true; end;
-   					if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") then
+   					if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") and Mage_GetUnitHealthPercent("player") < 30 then
    						if Mage_CastSpell("法力护盾") then  return true; end;
    					end
    				end;
@@ -420,5 +420,27 @@ function Mage_AutoUseManaGem()
             end
         end
     end
+    return false
+end
+
+
+-- ==========================================================
+-- 函数: Mage_HasBaronGeddonBomb
+-- 描述: 判断玩家自己是否中了 迦顿男爵 的“活动炸弹”
+-- 返回: true (中了BOSS的炸弹) / false (没中或仅是玩家技能)
+-- ==========================================================
+function Mage_HasBaronGeddonBomb()
+    local BARON_BOMB_SPELL_ID = 20475
+    for i = 1, 40 do
+        local name, _, _, _, _, _, source, _, _, spellId = UnitDebuff("player", i)
+        -- 如果没有更多的 Debuff 则退出循环
+        if not name then break end
+        -- 判定逻辑：
+        -- 1. 优先通过 SpellID 匹配，这是最准确的
+        if spellId == BARON_BOMB_SPELL_ID then
+            return true
+        end
+    end
+
     return false
 end

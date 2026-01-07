@@ -197,6 +197,11 @@ if UnitClass("player") == "法师" then
                     StartTimer("PlayerDamageEvent");
                 elseif subevent == "SPELL_DAMAGE" then
                     StartTimer("PlayerDamageEvent");
+                    if spellSchool == 16 then
+                        StartTimer("FrostDamageEvent"); -- 记录为冰霜伤害
+                    elseif spellSchool == 4 then
+                        StartTimer("FireDamageEvent"); -- 记录为火焰伤害
+                    end
                 elseif subevent == "RANGE_DAMAGE" then
                     StartTimer("PlayerDamageEvent");
                 elseif subevent == "ENVIRONMENTAL_DAMAGE" then

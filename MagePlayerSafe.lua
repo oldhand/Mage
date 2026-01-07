@@ -250,6 +250,31 @@ function Mage_playerSafe()
    		end;
    	end;
 
+   	if UnitAffectingCombat("player") then
+        if Mage_HasSpell("防护冰霜结界") and Mage_GetSpellCooldown("防护冰霜结界") == 0 then
+            if not Mage_PlayerBU("防护冰霜结界") then
+                -- 如果 2 秒内受到过冰霜伤害
+                if GetTimer("FrostDamageEvent") < 2 then
+                    if Mage_CastSpell("防护冰霜结界") then
+                        Mage_Combat_AddMessage("**检测到冰霜伤害，开启防护冰霜结界**")
+                        return true
+                    end
+                end
+            end
+        end
+        if Mage_HasSpell("防护火焰结界") and Mage_GetSpellCooldown("防护火焰结界") == 0 then
+            if not Mage_PlayerBU("防护火焰结界") then
+                -- 如果 2 秒内受到过火焰伤害
+                if GetTimer("FireDamageEvent") < 2 then
+                    if Mage_CastSpell("防护火焰结界") then
+                        Mage_Combat_AddMessage("**检测到火焰伤害，开启防护火焰结界**")
+                        return true
+                    end
+                end
+            end
+        end
+    end
+
 
    	local counts = Mage_DecursiveScanUnit("player");
    	if counts["Curse"] > 0 then

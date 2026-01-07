@@ -244,7 +244,7 @@ function Mage_playerCombat()
                     end
             end
     elseif mageSpec == 0 then
-		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 then
+		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
                if Mage_CastSpell("深度冻结") then  return true; end
            end
 

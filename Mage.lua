@@ -120,8 +120,27 @@ function Mage_SendCommand(flag)
 	 		 StartTimer("Mage_Teleport");
 			 Mage_Teleport = 1;
 		 else
-			 Mage_AddMessage("**闪现术CD中**");
-			 Blizzard_AddMessage("**准备闪现术..****",1,0,0,"crit");
+			 local itemLink = GetInventoryItemLink("player", 8)
+             local hasRocketBootsEnchant = false
+             if itemLink then
+                 local _, _, enchantID = string.find(itemLink, "item:%d+:(%d+):")
+                 if enchantID and (enchantID == "8640") then
+                     hasRocketBootsEnchant = true
+                 end
+             end
+             if hasRocketBootsEnchant then
+                 local startTime, duration, enable = GetInventoryItemCooldown("player", 8)
+                 if startTime == 0 then
+                     Blizzard_AddMessage("**准备启动火箭靴..****",1,0,0,"crit");
+                     StartTimer("Mage_Teleport");
+                     Mage_Teleport = 1;
+                 else
+                     Blizzard_AddMessage("**闪现与火箭靴都在CD中**",1,0,0,"crit");
+                 end
+             else
+                 Mage_AddMessage("**闪现术CD中**");
+                 Blizzard_AddMessage("**准备闪现术..****",1,0,0,"crit");
+             end
 		 end;
   	elseif flag == 3 then
 		if UnitAffectingCombat("player") then
@@ -334,9 +353,26 @@ function Mage_Frame_OnUpdate()
 	if Mage_Teleport == 1 then
             if GetTimer("Mage_Teleport") > 2 then  Mage_Default_AddMessage("**闪现术命令超时...**"); Mage_Teleport = 0; end;
             if Mage_GetSpellCooldownNoGcd("闪现术") ~= 0 then
-                 Mage_Teleport = 0;
+                  local itemLink = GetInventoryItemLink("player", 8)
+                  local hasRocketBootsEnchant = false
+                  if itemLink then
+                      local _, _, enchantID = string.find(itemLink, "item:%d+:(%d+):")
+                      if enchantID and (enchantID == "8640") then
+                          hasRocketBootsEnchant = true
+                      end
+                  end
+                  if hasRocketBootsEnchant and GetTimer("闪现术") > 2 then
+                      local startTime, duration, enable = GetInventoryItemCooldown("player", 8)
+                      if startTime == 0 then
+                         if Mage_UseRocketBoot() then return true; end;
+                      else
+                         Mage_Teleport = 0;
+                      end
+                  else
+                      Mage_Teleport = 0;
+                  end
             end;
-            if Mage_CastSpell("闪现术") then return true; end;
+            if Mage_CastSpell("闪现术") then  StartTimer("闪现术"); return true; end;
     end
 
 

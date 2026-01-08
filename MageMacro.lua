@@ -66,6 +66,11 @@
                body = "/cast [@cursor] 烈焰风暴",            -- 宏内容：施放烈焰风暴
                key = "ALT-F12"
          },
+          {
+                name = "ACM_UseRocketBoot",
+                body = "/use 8",                        -- 宏内容：使用火箭靴
+                key = "ALT-CTRL-F1"
+          },
          {
               name = "ACM_UserPolymorph",
               body = "/script Mage_SendCommand(1);",            -- 宏内容：使用变形术
@@ -187,4 +192,8 @@ function Mage_FlameStorm()
     return true;
 end
 
+function Mage_UseRocketBoot()
+    Mage_SetText("火箭靴", 73);
+    return true;
+end
 

@@ -182,9 +182,9 @@ function Mage_playerCombat()
     if targetIsReflect then
         Mage_SetText("目标反射",0);
         -- 尝试使用冰枪术破盾 (瞬发, 伤害低, 适合破反射)
-        if Mage_HasSpell("冰枪术") and Mage_GetSpellCooldown("冰枪术") == 0 then
+        if Mage_HasSpell("冰枪术") and Mage_GetSpellCooldown("冰枪术") == 0 and UnitClass("target") == "战士" and Mage_TargetBU("法术反射") then
              if Mage_CastSpell("冰枪术") then
-                 Mage_Combat_AddMessage("**目标存在反射，使用冰枪术破盾...**");
+                 Mage_Combat_AddMessage("**目标战士使用法术反射，使用冰枪术破盾...**");
                  return true;
              end
         end

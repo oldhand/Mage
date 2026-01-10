@@ -68,6 +68,14 @@ function Mage_playerCombat()
     end
     -- ========================================================
 
+    if Mage_TargetBU("反魔法盾") or
+        Mage_TargetBU("暗影斗蓬") or
+        Mage_TargetBU("圣盾术") or
+        Mage_TargetBU("寒冰屏障")  then
+            Mage_SetText("目录免疫魔法-停手", 0)
+        return true;
+    end
+
     -- 1. 基础快照（减少性能开销）
     local targetIsPlayer = UnitIsPlayer("target")
     local mageSpec = Mage_GetMageSpec()
@@ -189,6 +197,17 @@ function Mage_playerCombat()
 	if Mage_Interrupt_Casting() then return true; end;
 
 
+    if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") and IsSpellInRange("法术吸取","target") == 1 then
+        local hasMagicBuff, buffName = Mage_ScanTargetBuffs("target");
+        if hasMagicBuff then
+            if Mage_CastSpell("法术吸取") then
+                Mage_Combat_AddMessage("**发现目标增益 [".. buffName .."] -> 使用法术吸取**");
+                Mage_Default_AddMessage("**偷取目标Buff: [".. buffName .."]**");
+                return true;
+            end
+        end
+    end
+
     if mageSpec == 1 then
             if Mage_PlayerBU("一触即燃") then
                  if Mage_IsManaEnough("烈焰风暴") then
@@ -255,17 +274,6 @@ function Mage_playerCombat()
            if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
                if Mage_CastSpell("冰枪术") then  return true; end
            end
-    end
-
-    if Mage_HasSpell("法术吸取") and Mage_IsManaEnough("法术吸取") and IsSpellInRange("法术吸取","target") == 1 then
-        local hasMagicBuff, buffName = Mage_ScanTargetBuffs("target");
-        if hasMagicBuff then
-            if Mage_CastSpell("法术吸取") then
-                Mage_Combat_AddMessage("**发现目标增益 [".. buffName .."] -> 使用法术吸取**");
-                Mage_Default_AddMessage("**偷取目标Buff: [".. buffName .."]**");
-                return true;
-            end
-        end
     end
 
 

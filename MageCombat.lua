@@ -212,7 +212,7 @@ function Mage_playerCombat()
                   end
             end
             if Mage_PlayerBU("法术连击") and Mage_HasSpell("炎爆术") then
-               if Mage_CastSpell("炎爆术") then  return true; end
+                if Mage_CastSpell("炎爆术") then  return true; end
             end
             if Mage_HasSpell("冰枪术") then
                 if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
@@ -270,36 +270,20 @@ function Mage_playerCombat()
 
 
     if UnitAffectingCombat("player") then
-        if targetIsPlayer then
-            if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
-                if Mage_CastSpell("燃烧") then return true; end;
-            end
-            if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
-                if Mage_CastSpell("狮心") then return true; end;
-            end
-            if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
-                if Mage_CastSpell("冰冷血脉") then return true; end;
-            end
+        local burst_switch = false;
+        if Mage_PlayerBU("就是现在！") or Mage_PlayerBU("闪电之纹") then
+            burst_switch = true;
         else
-            if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
-                if targetHP < 95 then
-                    if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
-                        if Mage_CastSpell("燃烧") then return true; end;
-                    end
-                    if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
-                        if Mage_CastSpell("狮心") then return true; end;
-                    end
-                    if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
-                        if Mage_CastSpell("冰冷血脉") then return true; end;
-                    end
-                end
+            if not Mage_TestTrinket("流放者的日晷") then
+                burst_switch = true;
             end
         end
+
         -- ========================================================
         -- 镜像使用逻辑
         -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
         -- ========================================================
-        if Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
+        if burst_switch and Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
             local targetType = targetType;
             -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
             if targetIsPlayer or
@@ -312,6 +296,33 @@ function Mage_playerCombat()
                  end
             end
         end
+
+        if targetIsPlayer then
+            if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                if Mage_CastSpell("燃烧") then return true; end;
+            end
+            if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                if Mage_CastSpell("狮心") then return true; end;
+            end
+            if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                if Mage_CastSpell("冰冷血脉") then return true; end;
+            end
+        else
+            if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
+                if targetHP < 95 and burst_switch then
+                    if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                        if Mage_CastSpell("燃烧") then return true; end;
+                    end
+                    if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                        if Mage_CastSpell("狮心") then return true; end;
+                    end
+                    if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                        if Mage_CastSpell("冰冷血脉") then return true; end;
+                    end
+                end
+            end
+        end
+
     end
 
     if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then

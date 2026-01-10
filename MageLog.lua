@@ -58,7 +58,11 @@ function Mage_GetActiveMeleeCount()
 end
 -- ======================================================
 
+local Mage_Ignite_Is_Mine = false
 
+function Mage_IgniteIsMine()
+    return Mage_Ignite_Is_Mine;
+end
 
 if UnitClass("player") == "法师" then
     -- 创建插件的主框架
@@ -74,7 +78,9 @@ if UnitClass("player") == "法师" then
     frame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
     frame:RegisterEvent("PLAYER_REGEN_DISABLED")
     frame:RegisterEvent("PLAYER_REGEN_ENABLED")
+    frame:RegisterEvent("PLAYER_TARGET_CHANGED")
     frame:RegisterEvent("UI_ERROR_MESSAGE")
+
 
 
     -- 辅助函数：是否敌对
@@ -95,6 +101,10 @@ if UnitClass("player") == "法师" then
             totalDamage = 0
             combatStartTime = GetTime()
             isInCombat = true
+            Mage_Ignite_Is_Mine = false
+            return
+        elseif event == "PLAYER_TARGET_CHANGED" then
+            Mage_Ignite_Is_Mine = false
             return
         elseif event == "PLAYER_REGEN_ENABLED" then
             if isInCombat then
@@ -125,6 +135,19 @@ if UnitClass("player") == "法师" then
         -- 2. 战斗日志分析
         if event == "COMBAT_LOG_EVENT_UNFILTERED" then
             local timestamp, subevent, _, sourceGUID, sourceName, sourceFlags, _, destGUID, destName, _, _, arg12, arg13, arg14, arg15, arg16, arg17, arg18 = CombatLogGetCurrentEventInfo()
+            -- --------------------------------------------------
+            -- 逻辑 监控点燃归属权
+            -- --------------------------------------------------
+            if spellName == "点燃" then
+               if destGUID == UnitGUID("target") then
+                   if sourceGUID == UnitGUID("player") then
+                       Mage_Ignite_Is_Mine = true
+                   else
+                       Mage_Ignite_Is_Mine = false
+                   end
+               end
+            end
+
             -- --------------------------------------------------
             -- 逻辑 A: 监控附近【所有敌对单位】的施法
             -- --------------------------------------------------

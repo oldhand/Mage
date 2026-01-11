@@ -408,6 +408,11 @@ function Mage_AutoCreateManaGem()
         return false
     end
 
+    if UnitExists("target") and UnitCanAttack("player","target") then
+		 return false
+	end;
+
+
     -- 检查法力宝石（WLK版本主要是法力红宝石，这里根据不同等级可以扩充）
     local gemNames = {"法力青玉","法力红宝石", "法力黄水晶", "法力翡翠", "法力玛瑙"}
     local hasGem = false

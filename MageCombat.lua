@@ -168,16 +168,14 @@ function Mage_playerCombat()
     end
 
 	if UnitExists("pet") and not UnitIsDead("pet") then
-        if not Mage_IsPetAttacking() then
-             if Mage_PetAttack() then  return true; end
+        if not Mage_IsPetAttacking() and GetTimer("PetAttack") > 5 and GetTimer("PetAttack") < 0.3 then
+             if Mage_PetAttack() then StartTimer("PetAttack"); return true; end
         end
     end
 
     if mageSpec == 0 and UnitAffectingCombat("player") and not UnitExists("pet") and Mage_HasSpell("召唤水元素") and Mage_GetSpellCooldown("召唤水元素") == 0 then
         if Mage_CastSpell("召唤水元素") then return true; end;
     end
-
-
 
     if targetIsReflect then
         Mage_SetText("目标反射",0);

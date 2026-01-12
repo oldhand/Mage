@@ -72,7 +72,7 @@ function Mage_playerCombat()
         Mage_TargetBU("暗影斗蓬") or
         Mage_TargetBU("圣盾术") or
         Mage_TargetBU("寒冰屏障")  then
-            Mage_SetText("目录免疫魔法-停手", 0)
+            Mage_SetText("目标免疫魔法-停手", 0)
         return true;
     end
 
@@ -127,6 +127,27 @@ function Mage_playerCombat()
         end
         Mage_SetText("等待变形术",0);
         return true;
+    end
+
+    -- [新增] 自动专注魔法逻辑
+    if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
+        if not Mage_PlayerBU("专注魔法") then
+            local fmTarget = Mage_GetFocusMagicTarget()
+            if fmTarget then
+                if Mage_playerSelectUnit(fmTarget) then
+                    if Mage_CastSpell("专注魔法") then
+                        if Mage_Get_CombatLogMode() then
+                            Mage_AddMessage("对>>" .. UnitName("target").."<<使用专注魔法");
+                        end
+                        return true;
+                    end;
+                    Mage_SetText(">专注魔法",0);
+                    return true;
+                else
+                    if Mage_SelectTarget(fmTarget) then return true; end;
+                end
+            end
+        end
     end
 
     -- 2. 非战斗/特殊目标检查
@@ -453,6 +474,9 @@ function Mage_playerCombat()
             if Mage_PlayerBU("飞弹速射") then
                 if Mage_CastSpell("奥术飞弹") then return true; end
             end
+            if Mage_GetBuffStacks("player", "奥术冲击") > 0 then
+                if Mage_CastSpell("奥术飞弹") then return true; end
+            end
             if Mage_CastSpell("奥术冲击") then return true; end
 		end
 		Mage_SetText("无动作",0);
@@ -679,12 +703,47 @@ function Mage_FocusControl()
         local spellName = UnitCastingInfo("focus") or UnitChannelInfo("focus")
         if spellName then
             if Mage_CastFocusInterruptCasting() then
-                Mage_Combat_AddMessage("**焦点>>" .. focusName .. "<<正在施放" .. spellName .. ",使用法术反制...**")
-                Mage_Default_AddMessage("**焦点>>" .. focusName .. "<<正在施放" .. spellName .. ",使用法术反制...**")
+                Mage_Combat_AddMessage("**焦点>>" .. UnitName("focus") .. "<<正在施放" .. spellName .. ",使用法术反制...**")
+                Mage_Default_AddMessage("**焦点>>" .. UnitName("focus") .. "<<正在施放" .. spellName .. ",使用法术反制...**")
                 return true
             end
         end
     end
 
     return false
+end
+
+
+-- 寻找最适合专注魔法的目标
+function Mage_GetFocusMagicTarget()
+    if not Mage_HasSpell("专注魔法") then return nil end
+
+    -- 优先级职业列表
+    local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5 }
+    local bestTarget = nil
+    local bestPriority = 99
+
+    -- 扫描小队或团队
+    local numMembers =  UnitInRaid("player") and 40 or 4
+    local prefix = UnitInRaid("player") and "raid" or "party"
+
+    -- 如果不在队伍中，没法给专注魔法
+    if numMembers == 0 then return nil end
+
+    for i = 1, numMembers do
+        local unit = prefix .. i
+        if UnitExists(unit) and not UnitIsUnit(unit, "player") and not UnitIsDeadOrGhost(unit) and IsSpellInRange("专注魔法", unit) == 1 then
+            -- 检查目标是否已经有了专注魔法（避免重复施放）
+            if not Mage_UnitTargetBU(unit, "专注魔法") then
+                local _, classFileName = UnitClass(unit)
+                local currentPriority = priorityClasses[classFileName] or 10
+
+                if currentPriority < bestPriority then
+                    bestPriority = currentPriority
+                    bestTarget = unit
+                end
+            end
+        end
+    end
+    return bestTarget
 end

@@ -138,7 +138,7 @@ if UnitClass("player") == "法师" then
             -- --------------------------------------------------
             -- 逻辑 监控点燃归属权
             -- --------------------------------------------------
-            if spellName == "点燃" then
+            if subevent == "SPELL_PERIODIC_DAMAGE" and arg13 == "点燃" then
                if destGUID == UnitGUID("target") then
                    if sourceGUID == UnitGUID("player") then
                        Mage_Ignite_Is_Mine = true

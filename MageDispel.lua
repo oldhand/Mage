@@ -46,7 +46,7 @@ function Mage_Dispel()
                 if UnitIsVisible(unit) and
                 not UnitIsDeadOrGhost(unit) and
                 IsSpellInRange("解除诅咒",unit) == 1 and
-                Paladin_HasSpell("解除诅咒") then
+                Mage_HasSpell("解除诅咒") then
                     if Mage_DispelUnit(unit) then return true end;
                 end
             end

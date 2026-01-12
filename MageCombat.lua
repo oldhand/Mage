@@ -131,21 +131,19 @@ function Mage_playerCombat()
 
     -- [新增] 自动专注魔法逻辑
     if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
-        if not Mage_PlayerBU("专注魔法") then
-            local fmTarget = Mage_GetFocusMagicTarget()
-            if fmTarget then
-                if Mage_playerSelectUnit(fmTarget) then
-                    if Mage_CastSpell("专注魔法") then
-                        if Mage_Get_CombatLogMode() then
-                            Mage_AddMessage("对>>" .. UnitName("target").."<<使用专注魔法");
-                        end
-                        return true;
-                    end;
-                    Mage_SetText(">专注魔法",0);
+        local fmTarget = Mage_GetFocusMagicTarget()
+        if fmTarget then
+            if Mage_playerSelectUnit(fmTarget) then
+                if Mage_CastSpell("专注魔法") then
+                    if Mage_Get_CombatLogMode() then
+                        Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
+                    end
                     return true;
-                else
-                    if Mage_SelectTarget(fmTarget) then return true; end;
-                end
+                end;
+                Mage_SetText(">专注魔法",0);
+                return true;
+            else
+                if Mage_SelectTarget(fmTarget) then return true; end;
             end
         end
     end
@@ -733,50 +731,51 @@ function Mage_FocusControl()
     return false
 end
 
-
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
 
-    -- 优先级职业列表
     local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5 }
     local bestTarget = nil
     local bestPriority = 99
 
-    -- 【新增】提前获取是谁给了我“专注魔法”
-    local myGiver = nil
-    for i = 1, 40 do
-        local name, _, _, _, _, _, source = UnitBuff("player", i)
-        if not name then break end
-        if name == "专注魔法" then
-            myGiver = source -- 记录施法者的 UnitID (如 "raid5" 或 "party2")
-            break
-        end
-    end
-
-    -- 扫描范围
     if not Mage_UnitInParty() then return nil end
     local prefix = UnitInRaid("player") and "raid" or "party"
     local count = UnitInRaid("player") and 40 or 4
 
+    -- 【第一步】先扫描全团，看我的专注魔法到底在谁身上
     for i = 1, count do
         local unit = prefix .. i
-        -- 基础检查：存在、不是自己、活着、在射程内
-        if UnitExists(unit) and not UnitIsUnit(unit, "player") and not UnitIsDeadOrGhost(unit) and IsSpellInRange("专注魔法", unit) == 1 then
-
-            -- 1. 自动交换逻辑：如果这个队友就是给我 Buff 的人
-            if myGiver and UnitIsUnit(unit, myGiver) then
-                -- 如果我还没给他（或他的没了），他就是最高优先级交换目标
-                if not Mage_UnitTargetBU(unit, "专注魔法") then
-                    return unit -- 立即返回，互换优先级最高
-                end
+        if UnitExists(unit) and
+            not UnitIsUnit(unit, "player") and
+            not UnitIsDeadOrGhost(unit) and
+            UnitIsVisible(unit) then
+            if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
+                return nil; -- 找到了，说明我已经施放过了
             end
+        end
+    end
 
-            -- 2. 常规优先级逻辑
+    for i = 1, 40 do
+        local name, _, _, _, _, _, source = UnitBuff("player", i)
+        if not name then break end
+        if name == "专注魔法" and source then
+            return source; -- 找到了，当前队友给我施放了专注魔法
+        end
+    end
+
+    -- 【第二步】如果没有人带着我的专注魔法，或者带 Buff 的人离得太远/死了，才去找新目标
+    for i = 1, count do
+        local unit = prefix .. i
+        if UnitExists(unit) and
+            not UnitIsUnit(unit, "player") and
+            not UnitIsDeadOrGhost(unit) and
+            UnitIsVisible(unit) and
+            IsSpellInRange("专注魔法", unit) == 1 then
+            -- 寻找优先级最高且没被别人挂专注的目标
             if not Mage_UnitTargetBU(unit, "专注魔法") then
                 local _, classFileName = UnitClass(unit)
                 local currentPriority = priorityClasses[classFileName] or 10
-
                 if currentPriority < bestPriority then
                     bestPriority = currentPriority
                     bestTarget = unit

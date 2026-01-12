@@ -26,6 +26,22 @@ function Mage_UnitTargetDeBU_ByPlayer(unit, spellName)
     return false
 end
 
+
+-- 检查目标是否有玩家自己施放的特定 buff
+function Mage_UnitTargetBU_ByPlayer(unit, spellName)
+    local i = 1
+    while true do
+        -- 现代 API 第 7 个参数是 source
+        local name, _, _, _, _, _, source = UnitBuff(unit, i)
+        if not name then break end
+        if string.find(name, spellName) and source == "player" then
+            return true
+        end
+        i = i + 1
+    end
+    return false
+end
+
 function Mage_GetPlayerCasting()
     -- 1. 检查普通读条 (圣光术、炉石等)
     local spellName = UnitCastingInfo("player")

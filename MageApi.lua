@@ -136,6 +136,39 @@ function Mage_GetCastRemainingTime(unit)
     return 0, nil, nil
 end
 
+
+-- 常见的减速 Buff 名单，如果目标已有这些，则不补减速术
+local Mage_Common_Slow_Buffs = {
+    ["减速"] = true,       -- 奥法自身
+    ["断筋"] = true,         -- 战士
+    ["强化断筋"] = true,      -- 战士
+    ["减速药膏"] = true,     -- 盗贼
+    ["冰冷触摸"] = true,     -- DK
+    ["寒冰箭"] = true,       -- 法师通用
+    ["冰霜新星"] = true,     -- 法师通用
+    ["霜寒刺骨"] = true,
+    ["深度冻结"] = true,
+    ["冰锥术"] = true,       -- 法师通用
+    ["地震术"] = true,       -- 萨满
+    ["地缚图腾"] = true,     -- 萨满
+    ["疲劳诅咒"] = true,     -- 术士
+}
+-- 检查目标是否已经处于某种减速状态
+function Mage_TargetHasSlowEffect()
+    if not UnitExists("target") then return false end
+
+    local i = 1
+    while true do
+        local name = UnitDebuff("target", i)
+        if not name then break end
+        if Mage_Common_Slow_Buffs[name] then
+            return true
+        end
+        i = i + 1
+    end
+    return false
+end
+
 function Mage_GetSpellCooldown(spellname)
 	local start, duration, enabled = GetSpellCooldown(spellname);
 	if not start or enabled == 0 then

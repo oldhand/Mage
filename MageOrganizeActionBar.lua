@@ -245,6 +245,38 @@ function Mage_OrganizeActionBar()
         end
     end;
 
+    if Mage_GetMageSpec() == 2 then
+        if Mage_PickupSpellByBook("奥术弹幕") then
+            PlaceAction(1);
+            ClearCursor();
+        end;
+        if Mage_PickupSpellByBook("奥术飞弹") then
+            PlaceAction(10);
+            ClearCursor();
+        end;
+        if Mage_PickupSpellByBook("奥术冲击") then
+            PlaceAction(66);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("减速") then
+            PlaceAction(67);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("奥术强化") then
+            PlaceAction(68);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("气定神闲") then
+            PlaceAction(69);
+            ClearCursor();
+        end
+        if Mage_PickupSpellByBook("专注魔法") then
+            PlaceAction(70);
+            ClearCursor();
+        end
+    end;
+
+
 
     if Mage_PickupSpellByBook("射击") then
         PlaceAction(49);

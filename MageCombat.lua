@@ -165,6 +165,11 @@ function Mage_playerCombat()
           		Mage_SetText("距离过远",0);
           		return;
           end;
+   elseif mageSpec == 2 then
+          if IsSpellInRange("奥术飞弹","target") == 0 then
+          		Mage_SetText("距离过远",0);
+          		return;
+          end;
     end
 
 	if UnitExists("pet") and not UnitIsDead("pet") then
@@ -272,6 +277,16 @@ function Mage_playerCombat()
            if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
                if Mage_CastSpell("冰枪术") then  return true; end
            end
+    elseif mageSpec == 2 then
+          if not Mage_TargetHasSlowEffect() and IsSpellInRange("减速", "target") == 1 then
+              if Mage_CastSpell("减速") then
+                  Mage_Combat_AddMessage("**补减速: 目标无减速状态**")
+                  return true
+              end
+          end
+          if Mage_GetSpellCooldown("奥术弹幕") == 0 then
+              if Mage_CastSpell("奥术弹幕") then return true; end
+          end
     end
 
 
@@ -304,6 +319,9 @@ function Mage_playerCombat()
         end
 
         if targetIsPlayer then
+            if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
+               if Mage_CastSpell("气定神闲") then return true; end
+            end
             if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                 if Mage_CastSpell("燃烧") then return true; end;
             end
@@ -313,9 +331,15 @@ function Mage_playerCombat()
             if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                 if Mage_CastSpell("冰冷血脉") then return true; end;
             end
+            if Mage_HasSpell("奥术强化") and Mage_GetSpellCooldown("奥术强化") == 0 then
+                if Mage_CastSpell("奥术强化") then return true; end;
+            end
         else
             if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
                 if targetHP < 95 and burst_switch then
+                    if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
+                       if Mage_CastSpell("气定神闲") then return true; end
+                    end
                     if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                         if Mage_CastSpell("燃烧") then return true; end;
                     end
@@ -325,10 +349,18 @@ function Mage_playerCombat()
                     if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                         if Mage_CastSpell("冰冷血脉") then return true; end;
                     end
+                    if Mage_HasSpell("奥术强化") and Mage_GetSpellCooldown("奥术强化") == 0 then
+                        if Mage_CastSpell("奥术强化") then return true; end;
+                    end
                 end
             end
         end
 
+    end
+
+
+    if Mage_HasSpell("奥术冲击") and Mage_PlayerBU("气定神闲") and IsSpellInRange("奥术冲击","target") == 1 then
+        if Mage_CastSpell("奥术冲击") then return true; end
     end
 
     if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then
@@ -417,6 +449,11 @@ function Mage_playerCombat()
             if Mage_CastSpell("霜火之箭") then return true; end
         elseif mageSpec == 0 then
 		    if Mage_CastSpell("寒冰箭") then return true; end
+        elseif mageSpec == 2 then
+            if Mage_PlayerBU("飞弹速射") then
+                if Mage_CastSpell("奥术飞弹") then return true; end
+            end
+            if Mage_CastSpell("奥术冲击") then return true; end
 		end
 		Mage_SetText("无动作",0);
 		return;

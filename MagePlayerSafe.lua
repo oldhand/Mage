@@ -210,11 +210,11 @@ function Mage_playerSafe()
    	end
 
     if Mage_GetMageSpec() == 1 then
-        if not Mage_PlayerBU("熔岩护甲") then
+       if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not Mage_PlayerBU("熔岩护甲") and not UnitAffectingCombat("player") then
             if Mage_CastSpell("熔岩护甲") then  return true; end;
         end
     elseif Mage_GetMageSpec() == 0 then
-        if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not UnitAffectingCombat("player") then
+        if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not Mage_PlayerBU("熔岩护甲") and not UnitAffectingCombat("player") then
             if Mage_Test_Battlefield() or Mage_PlayerInArena() then
                if Mage_HasSpell("冰甲术") then
                   if Mage_CastSpell("冰甲术") then  return true; end;
@@ -229,6 +229,13 @@ function Mage_playerSafe()
                 end
             end
         end;
+    elseif Mage_GetMageSpec() == 2 then
+            if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not Mage_PlayerBU("熔岩护甲") and not UnitAffectingCombat("player") then
+                if Mage_CastSpell("法师护甲") then  return true; end;
+            end
+            if IsInInstance() and not Mage_PlayerBU("法力护盾") then
+                if Mage_CastSpell("法力护盾") then return true; end;
+            end;
     end
 
 

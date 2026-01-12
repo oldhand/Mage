@@ -149,43 +149,45 @@ if UnitClass("player") == "法师" then
             end
 
             -- 监控变形术成功施加 (SPELL_AURA_APPLIED 表示 Buff/Debuff 挂上了)
-            if subevent == "SPELL_AURA_APPLIED" and arg13 == "变形术" then
-                -- 检查目标是否为敌对目标 (通过 destFlags 判断)
-                local destIsHostile = bit.band(destFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) ~= 0
+           if subevent == "SPELL_AURA_APPLIED" and (spellName == "变形术" or spellId == 118) then
 
-                if destIsHostile then
-                    local colorPrefix = "|cff00ff00" -- 默认绿色
-                    local announcePrefix = ""
+               -- 如果 flags 为 nil，将其设为 0，防止 bit.band 报错
+               local dFlags = destFlags or 0
+               local sFlags = sourceFlags or 0
 
-                    -- 判定是谁施放的
-                    if sourceGUID == UnitGUID("player") then
-                        announcePrefix = "**我已成功变形 -> " .. destName .. "**"
-                        colorPrefix = "|cff00ff00" -- 玩家自己用绿色
-                    else
-                        -- 检查是否为队友（小队或团队成员）
-                        local isFriend = bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_GROUP) ~= 0 or
-                                         bit.band(sourceFlags, COMBATLOG_OBJECT_AFFILIATION_RAID) ~= 0
+               -- 检查目标是否为敌对目标 (使用安全的 dFlags)
+               local destIsHostile = bit.band(dFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) ~= 0
 
-                        if isFriend then
-                            announcePrefix = "**队友[" .. (sourceName or "未知") .. "] 成功变形 -> " .. destName .. "**"
-                            colorPrefix = "|cff00ffff" -- 队友用青蓝色
-                        end
-                    end
+               if destIsHostile then
+                   local announcePrefix = ""
+                   local colorPrefix = "|cff00ff00"
 
-                    -- 如果有消息前缀，说明是我们要监控的对象
-                    if announcePrefix ~= "" then
-                        -- 1. 屏幕中间显示大字提示 (利用已有的 Blizzard_AddMessage)
-                        Blizzard_AddMessage(announcePrefix, 0, 1, 1, "crit")
+                   -- 判定是谁施放的
+                   if sourceGUID == UnitGUID("player") then
+                       announcePrefix = "**我已成功变形 -> " .. (destName or "未知目标") .. "**"
+                   else
+                       -- 检查是否为队友 (使用安全的 sFlags)
+                       local isFriend = bit.band(sFlags, COMBATLOG_OBJECT_AFFILIATION_GROUP) ~= 0 or
+                                        bit.band(sFlags, COMBATLOG_OBJECT_AFFILIATION_RAID) ~= 0
 
-                        -- 2. 聊天框显示详细信息 (利用已有的 Mage_AddMessage)
-                        if Mage_Get_CombatLogMode() then
-                            Mage_AddMessage(colorPrefix .. "[控制]|r " .. announcePrefix)
-                        end
+                       if isFriend then
+                           announcePrefix = "**队友[" .. (sourceName or "未知") .. "] 成功变形 -> " .. (destName or "未知目标") .. "**"
+                           colorPrefix = "|cff00ffff"
+                       end
+                   end
 
-                        StartTimer("变形术_"..destName);
-                    end
-                end
-            end
+                   -- 触发提示
+                   if announcePrefix ~= "" then
+                       Blizzard_AddMessage(announcePrefix, 0, 1, 1, "crit")
+                       if Mage_Get_CombatLogMode() then
+                           Mage_AddMessage(colorPrefix .. "[控制]|r " .. announcePrefix)
+                       end
+                       if destName then
+                           StartTimer("变形术_"..destName)
+                       end
+                   end
+               end
+           end
 
             -- --------------------------------------------------
             -- 逻辑 A: 监控附近【所有敌对单位】的施法

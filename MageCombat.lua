@@ -742,22 +742,31 @@ function Mage_GetFocusMagicTarget()
     local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5 }
     local bestTarget = nil
     local bestPriority = 99
-    local swapTarget = nil -- 专门存储互换目标
+
+    -- 【新增】提前获取是谁给了我“专注魔法”
+    local myGiver = nil
+    for i = 1, 40 do
+        local name, _, _, _, _, _, source = UnitBuff("player", i)
+        if not name then break end
+        if name == "专注魔法" then
+            myGiver = source -- 记录施法者的 UnitID (如 "raid5" 或 "party2")
+            break
+        end
+    end
 
     -- 扫描范围
+    if not Mage_UnitInParty() then return nil end
     local prefix = UnitInRaid("player") and "raid" or "party"
     local count = UnitInRaid("player") and 40 or 4
-    if not Mage_UnitInParty() then return nil end
 
     for i = 1, count do
         local unit = prefix .. i
+        -- 基础检查：存在、不是自己、活着、在射程内
         if UnitExists(unit) and not UnitIsUnit(unit, "player") and not UnitIsDeadOrGhost(unit) and IsSpellInRange("专注魔法", unit) == 1 then
 
-            -- 1. 自动交换逻辑：检查该队友是否给我加了“专注魔法”
-            -- 检查玩家自己身上的专注魔法 Buff，看来源(source)是不是这个队友
-            local _, _, _, _, _, _, sourceUnit = UnitBuff("player", "专注魔法")
-            if sourceUnit and UnitIsUnit(unit, sourceUnit) then
-                -- 如果他给了我，且我还没给他（或他的没了），他就是最高优先级交换目标
+            -- 1. 自动交换逻辑：如果这个队友就是给我 Buff 的人
+            if myGiver and UnitIsUnit(unit, myGiver) then
+                -- 如果我还没给他（或他的没了），他就是最高优先级交换目标
                 if not Mage_UnitTargetBU(unit, "专注魔法") then
                     return unit -- 立即返回，互换优先级最高
                 end

@@ -353,7 +353,9 @@ function Mage_playerCombat()
                 if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                     if Mage_CastSpell("燃烧") then return true; end;
                 end
-
+                if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                    if Mage_CastSpell("狮心") then return true; end;
+                end
                 if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                     if Mage_CastSpell("冰冷血脉") then return true; end;
                 end
@@ -377,7 +379,9 @@ function Mage_playerCombat()
                        if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
                            if Mage_CastSpell("燃烧") then return true; end;
                        end
-
+                       if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                          if Mage_CastSpell("狮心") then return true; end;
+                       end
                        if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                            if Mage_CastSpell("冰冷血脉") then return true; end;
                        end
@@ -491,20 +495,23 @@ function Mage_playerCombat()
 		Mage_SetText("无动作",0);
 		return;
 	else
-        if mageSpec == 1 and CheckInteractDistance("target", 3)  then
-             if Mage_CastSpell("龙息术") then  return  true; end;
-             if Mage_CastSpell("冲击波") then  return  true; end;
-        end
-        if mageSpec == 2 and Mage_GetSpellCooldown("奥术弹幕") == 0 then
-            if Mage_CastSpell("奥术弹幕") then return true; end
-        end
 	    if not Mage_TargetDeBU("冰霜新星") and GetTimer("变形术") > 2 then
+            if mageSpec == 1 and CheckInteractDistance("target", 3)  then
+                 if Mage_CastSpell("龙息术") then  return  true; end;
+                 if Mage_CastSpell("冲击波") then  return  true; end;
+            end
+            if mageSpec == 2 and Mage_GetSpellCooldown("奥术弹幕") == 0 then
+                if Mage_CastSpell("奥术弹幕") then return true; end
+            end
 			if UnitAffectingCombat("player")  and  IsSpellInRange("火焰冲击","target") == 1 then
                 if Mage_CastSpell("火焰冲击") then return true; end
 			end
-			if CheckInteractDistance("target", 3)  then
-				if Mage_CastSpell("魔爆术") then  return  true; end;
-			end
+            if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
+               if Mage_CastSpell("气定神闲") then return true; end
+            end
+            if CheckInteractDistance("target", 3)  then
+                if Mage_CastSpell("魔爆术") then  return  true; end;
+            end
 	    end;
 		Mage_SetText("移动中",0);
 		return;
@@ -727,7 +734,7 @@ function Mage_FocusControl()
 end
 
 
--- 寻找最适合专注魔法的目标
+-- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
 
@@ -735,18 +742,28 @@ function Mage_GetFocusMagicTarget()
     local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5 }
     local bestTarget = nil
     local bestPriority = 99
+    local swapTarget = nil -- 专门存储互换目标
 
-    -- 扫描小队或团队
-    local numMembers =  UnitInRaid("player") and 40 or 4
+    -- 扫描范围
     local prefix = UnitInRaid("player") and "raid" or "party"
+    local count = UnitInRaid("player") and 40 or 4
+    if not Mage_UnitInParty() then return nil end
 
-    -- 如果不在队伍中，没法给专注魔法
-    if numMembers == 0 then return nil end
-
-    for i = 1, numMembers do
+    for i = 1, count do
         local unit = prefix .. i
         if UnitExists(unit) and not UnitIsUnit(unit, "player") and not UnitIsDeadOrGhost(unit) and IsSpellInRange("专注魔法", unit) == 1 then
-            -- 检查目标是否已经有了专注魔法（避免重复施放）
+
+            -- 1. 自动交换逻辑：检查该队友是否给我加了“专注魔法”
+            -- 检查玩家自己身上的专注魔法 Buff，看来源(source)是不是这个队友
+            local _, _, _, _, _, _, sourceUnit = UnitBuff("player", "专注魔法")
+            if sourceUnit and UnitIsUnit(unit, sourceUnit) then
+                -- 如果他给了我，且我还没给他（或他的没了），他就是最高优先级交换目标
+                if not Mage_UnitTargetBU(unit, "专注魔法") then
+                    return unit -- 立即返回，互换优先级最高
+                end
+            end
+
+            -- 2. 常规优先级逻辑
             if not Mage_UnitTargetBU(unit, "专注魔法") then
                 local _, classFileName = UnitClass(unit)
                 local currentPriority = priorityClasses[classFileName] or 10
@@ -758,5 +775,6 @@ function Mage_GetFocusMagicTarget()
             end
         end
     end
+
     return bestTarget
 end

@@ -149,7 +149,7 @@ if UnitClass("player") == "法师" then
             end
 
             -- 监控变形术成功施加 (SPELL_AURA_APPLIED 表示 Buff/Debuff 挂上了)
-            if subevent == "SPELL_AURA_APPLIED" and spellName == "变形术" then
+            if subevent == "SPELL_AURA_APPLIED" and arg13 == "变形术" then
                 -- 检查目标是否为敌对目标 (通过 destFlags 判断)
                 local destIsHostile = bit.band(destFlags, COMBATLOG_OBJECT_REACTION_HOSTILE) ~= 0
 

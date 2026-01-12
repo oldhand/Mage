@@ -43,11 +43,11 @@ function Mage_playerSafe()
        end
     end
 
+    local enemyCount = Mage_GetActiveMeleeCount() -- 获取近战围攻人数
+
     -- [奥法天赋，隐形术实时生效，才有价值] PVP 紧急保命：被多人围攻且冰箱不可用
     if Mage_GetMageSpec() == 2 and UnitAffectingCombat("player") and (Mage_Test_Battlefield() or Mage_PlayerInArena()) then
-        local enemyCount = Mage_GetActiveMeleeCount() -- 获取近战围攻人数
         local hpPercent = Mage_GetUnitHealthPercent("player")
-
         -- 如果血量低于 20% 且 冰箱在冷却(或有低温) 且 正在被近战攻击
         if hpPercent < 20 and (Mage_PlayerDeBU("低温") or Mage_GetSpellCooldown("寒冰屏障") > 0) then
             if enemyCount > 0 and Mage_HasSpell("隐形术") and Mage_GetSpellCooldown("隐形术") == 0 then
@@ -56,6 +56,18 @@ function Mage_playerSafe()
                     return true
                 end
             end
+        end
+    end
+
+    if Mage_GetMageSpec() == 2 and not Mage_PlayerBU("法力护盾") then
+        if enemyCount > 0 and UnitAffectingCombat("player")  then
+            if Mage_CastSpell("法力护盾") then  return true; end;
+        end
+        if Mage_Test_Battlefield() or Mage_PlayerInArena() then
+            if Mage_CastSpell("法力护盾") then  return true; end;
+        end
+        if UnitExists("target") and UnitCanAttack("player","target") and UnitIsPlayer("target") then
+            if Mage_CastSpell("法力护盾") then  return true; end;
         end
     end
 
@@ -249,9 +261,6 @@ function Mage_playerSafe()
             if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not Mage_PlayerBU("熔岩护甲") and not UnitAffectingCombat("player") then
                 if Mage_CastSpell("法师护甲") then  return true; end;
             end
-            if IsInInstance() and not Mage_PlayerBU("法力护盾") then
-                if Mage_CastSpell("法力护盾") then return true; end;
-            end;
     end
 
 

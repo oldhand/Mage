@@ -43,6 +43,22 @@ function Mage_playerSafe()
        end
     end
 
+    -- [奥法天赋，隐形术实时生效，才有价值] PVP 紧急保命：被多人围攻且冰箱不可用
+    if Mage_GetMageSpec() == 2 and UnitAffectingCombat("player") and (Mage_Test_Battlefield() or Mage_PlayerInArena()) then
+        local enemyCount = Mage_GetActiveMeleeCount() -- 获取近战围攻人数
+        local hpPercent = Mage_GetUnitHealthPercent("player")
+
+        -- 如果血量低于 20% 且 冰箱在冷却(或有低温) 且 正在被近战攻击
+        if hpPercent < 20 and (Mage_PlayerDeBU("低温") or Mage_GetSpellCooldown("寒冰屏障") > 0) then
+            if enemyCount > 0 and Mage_HasSpell("隐形术") and Mage_GetSpellCooldown("隐形术") == 0 then
+                if Mage_CastSpell("隐形术") then
+                    Mage_Combat_AddMessage("**被围攻且无法冰箱，紧急开启隐形术！**")
+                    return true
+                end
+            end
+        end
+    end
+
 
     -- 暗月卡片：幻象 使用逻辑
     if UnitAffectingCombat("player") and GetTimer("PlayerDamageEvent") < 2  then

@@ -182,7 +182,7 @@ function Mage_SendCommand(flag)
                  Mage_Combat_AddMessage("**烈焰风暴不可用，蓝量不够**");
                  Mage_Blizzard = 0;
               end
-        elseif Mage_GetMageSpec() == 0 then
+        elseif Mage_GetMageSpec() == 0 or Mage_GetMageSpec() == 2 then
               if Mage_IsManaEnough("暴风雪") then
                   local castspell = Mage_GetPlayerCasting()
                   if castspell then
@@ -308,7 +308,11 @@ function Mage_Frame_OnUpdate()
                  if Mage_StopPetAttack() then  return true; end
             end
         end
-        Mage_SetText("隐形中",0);
+        if GetTimer("正在隐形中") > 1 then
+              StartTimer("正在隐形中");
+              Blizzard_AddMessage("**------正在隐形中------**",1,0,0,"crit");
+        end;
+        Mage_SetText("正在隐形中",0);
         return ;
     end
 
@@ -404,7 +408,7 @@ function Mage_Frame_OnUpdate()
                 if GetTimer("Mage_Blizzard") > 2 then  Mage_Default_AddMessage("**使用烈焰风暴命令超时...**"); Mage_Blizzard = 0; end;
             end
             Mage_SetText("准备烈焰风暴中",0);
-        elseif Mage_GetMageSpec() == 0 then
+        elseif Mage_GetMageSpec() == 0 or Mage_GetMageSpec() == 2 then
             if not Mage_movement then
                   if GetTimer("Mage_Blizzard") > 10 then  Mage_Default_AddMessage("**使用暴风雪命令超时...**"); Mage_Blizzard = 0; end;
                   if Mage_IsManaEnough("暴风雪") then

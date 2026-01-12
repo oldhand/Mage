@@ -156,7 +156,6 @@ local Mage_Common_Slow_Buffs = {
 -- 检查目标是否已经处于某种减速状态
 function Mage_TargetHasSlowEffect()
     if not UnitExists("target") then return false end
-
     local i = 1
     while true do
         local name = UnitDebuff("target", i)
@@ -167,6 +166,32 @@ function Mage_TargetHasSlowEffect()
         i = i + 1
     end
     return false
+end
+
+-- 获取单位身上指定名称的堆叠层数 (兼容 Buff 和 Debuff)
+function Mage_GetBuffStacks(unit, spellName)
+    if not unit then unit = "player" end
+    -- 1. 先从 Buff 中查找
+    local i = 1
+    while true do
+        local name, _, count = UnitBuff(unit, i)
+        if not name then break end
+        if name == spellName then
+            return (count and count > 0) and count or 1
+        end
+        i = i+1
+    end
+    -- 2. 如果 Buff 没找到，从 Debuff 中查找 (应对奥术冲击是 Debuff 的情况)
+    i = 1
+    while true do
+        local name, _, count = UnitDebuff(unit, i)
+        if not name then break end
+        if name == spellName then
+            return (count and count > 0) and count or 1
+        end
+        i = i+1
+    end
+    return 0
 end
 
 function Mage_GetSpellCooldown(spellname)

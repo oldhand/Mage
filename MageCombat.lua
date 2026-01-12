@@ -106,7 +106,7 @@ function Mage_playerCombat()
                                      if Mage_StopPetAttack() then  return true; end
                                 end
                             end
-                            if Mage_CastSpell("变形术") then return true; end;
+                            if Mage_CastSpell("变形术") then StartTimer("变形术"); return true; end;
                         else
                              Mage_Combat_AddMessage("**目标>>"..UnitName("target").."<<目标有持续伤害效果，无法施放变形术...**");
                         end
@@ -305,9 +305,6 @@ function Mage_playerCombat()
                   return true
               end
           end
-          if Mage_GetSpellCooldown("奥术弹幕") == 0 then
-              if Mage_CastSpell("奥术弹幕") then return true; end
-          end
     end
 
 
@@ -339,48 +336,59 @@ function Mage_playerCombat()
             end
         end
 
-        if targetIsPlayer then
-            if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
-               if Mage_CastSpell("气定神闲") then return true; end
-            end
-            if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
-                if Mage_CastSpell("燃烧") then return true; end;
-            end
-            if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
-                if Mage_CastSpell("狮心") then return true; end;
-            end
-            if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
-                if Mage_CastSpell("冰冷血脉") then return true; end;
-            end
-            if Mage_HasSpell("奥术强化") and Mage_GetSpellCooldown("奥术强化") == 0 then
-                if Mage_CastSpell("奥术强化") then return true; end;
-            end
-        else
-            if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
-                if targetHP < 95 and burst_switch then
+        if targetIsPlayer and burst_switch then
+            if mageSpec == 2 then
+                if Mage_PlayerDeBU("奥术冲击") then
                     if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
                        if Mage_CastSpell("气定神闲") then return true; end
                     end
-                    if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
-                        if Mage_CastSpell("燃烧") then return true; end;
-                    end
                     if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
                         if Mage_CastSpell("狮心") then return true; end;
-                    end
-                    if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
-                        if Mage_CastSpell("冰冷血脉") then return true; end;
                     end
                     if Mage_HasSpell("奥术强化") and Mage_GetSpellCooldown("奥术强化") == 0 then
                         if Mage_CastSpell("奥术强化") then return true; end;
                     end
                 end
+            else
+                if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                    if Mage_CastSpell("燃烧") then return true; end;
+                end
+
+                if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                    if Mage_CastSpell("冰冷血脉") then return true; end;
+                end
+            end
+        else
+            if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
+                if targetHP < 95 and burst_switch then
+                   if mageSpec == 2 then
+                       if Mage_PlayerDeBU("奥术冲击") then
+                           if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
+                              if Mage_CastSpell("气定神闲") then return true; end
+                           end
+                           if Mage_HasSpell("狮心") and Mage_GetSpellCooldown("狮心") == 0 then
+                               if Mage_CastSpell("狮心") then return true; end;
+                           end
+                           if Mage_HasSpell("奥术强化") and Mage_GetSpellCooldown("奥术强化") == 0 then
+                               if Mage_CastSpell("奥术强化") then return true; end;
+                           end
+                       end
+                   else
+                       if Mage_HasSpell("燃烧") and Mage_GetSpellCooldown("燃烧") == 0 then
+                           if Mage_CastSpell("燃烧") then return true; end;
+                       end
+
+                       if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
+                           if Mage_CastSpell("冰冷血脉") then return true; end;
+                       end
+                   end
+                end
             end
         end
-
     end
 
 
-    if Mage_HasSpell("奥术冲击") and Mage_PlayerBU("气定神闲") and IsSpellInRange("奥术冲击","target") == 1 then
+    if Mage_HasSpell("奥术冲击") and Mage_PlayerDeBU("奥术冲击") and Mage_PlayerBU("气定神闲") and IsSpellInRange("奥术冲击","target") == 1 then
         if Mage_CastSpell("奥术冲击") then return true; end
     end
 
@@ -404,7 +412,7 @@ function Mage_playerCombat()
 		if IsSpellInRange("变形术","target") == 1 then
 			if not Mage_UnitTargetDeBU("target","变形术") then
                 if not targetIsReflect and not targetIsImmuneControl then
-				    if Mage_CastSpell("变形术") then return true; end;
+				    if Mage_CastSpell("变形术") then StartTimer("变形术"); return true; end;
                 end
 			end;
 		end
@@ -416,7 +424,7 @@ function Mage_playerCombat()
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
                             if not targetIsReflect and not targetIsImmuneControl then
-							    if Mage_CastSpell("变形术") then return true; end;
+							    if Mage_CastSpell("变形术") then StartTimer("变形术"); return true; end;
                             end
 						end;
 					end
@@ -431,7 +439,7 @@ function Mage_playerCombat()
 					if IsSpellInRange("变形术","target") == 1 then
 						if not Mage_UnitTargetDeBU("target","变形术") then
                             if not targetIsReflect and not targetIsImmuneControl then
-							    if Mage_CastSpell("变形术") then return true; end;
+							    if Mage_CastSpell("变形术") then StartTimer("变形术"); return true; end;
                             end
 						end;
 					end
@@ -439,7 +447,7 @@ function Mage_playerCombat()
 			end
 	end;
 
-	if targetIsPlayer and not Mage_TargetDeBU("冰霜新星")  and  IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
+	if targetIsPlayer and not Mage_TargetDeBU("冰霜新星") and IsSpellInRange("火焰冲击","target") == 1 and GetTimer("变形术") > 2 then
 	    if Mage_CastSpell("火焰冲击") then return true; end
 	end
 
@@ -471,10 +479,11 @@ function Mage_playerCombat()
         elseif mageSpec == 0 then
 		    if Mage_CastSpell("寒冰箭") then return true; end
         elseif mageSpec == 2 then
-            if Mage_PlayerBU("飞弹速射") then
-                if Mage_CastSpell("奥术飞弹") then return true; end
+            local arcStacks = Mage_GetBuffStacks("player", "奥术冲击");
+            if arcStacks > 1 and Mage_GetSpellCooldown("奥术弹幕") == 0 then
+                if Mage_CastSpell("奥术弹幕") then return true; end
             end
-            if Mage_GetBuffStacks("player", "奥术冲击") > 0 then
+            if Mage_PlayerBU("飞弹速射") then
                 if Mage_CastSpell("奥术飞弹") then return true; end
             end
             if Mage_CastSpell("奥术冲击") then return true; end
@@ -485,6 +494,9 @@ function Mage_playerCombat()
         if mageSpec == 1 and CheckInteractDistance("target", 3)  then
              if Mage_CastSpell("龙息术") then  return  true; end;
              if Mage_CastSpell("冲击波") then  return  true; end;
+        end
+        if mageSpec == 2 and Mage_GetSpellCooldown("奥术弹幕") == 0 then
+            if Mage_CastSpell("奥术弹幕") then return true; end
         end
 	    if not Mage_TargetDeBU("冰霜新星") and GetTimer("变形术") > 2 then
 			if UnitAffectingCombat("player")  and  IsSpellInRange("火焰冲击","target") == 1 then
@@ -673,6 +685,7 @@ function Mage_FocusControl()
                             end
                         end
                         if Mage_CastFocusPolymorph() then
+                            StartTimer("变形术");
                             Mage_Combat_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
                             Mage_Default_AddMessage("**对焦点>>"..UnitName("focus").."<<施放变形术...**");
                             return true;

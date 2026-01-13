@@ -433,16 +433,16 @@ function Mage_Frame_OnUpdate()
 	
 	if not UnitExists("target")  then
 		if Mage_AntiOffLine() then return ; end;
+		if Mage_AutoFocusMagicTarget() then return ; end;
 		Mage_SetText("没有目标",0);
 		return; 
 	end;		
 	
 	if not UnitCanAttack("player","target")  then
+        if Mage_AutoFocusMagicTarget() then return ; end;
         Mage_SetText("友善目标",0);
 		return;
 	end;
-
-
 	
 	if Mage_TargetBU("圣盾术") or  Mage_TargetBU("保护祝福") or  Mage_TargetBU("寒冰屏障")  then
 		Mage_Combat_AddMessage("**目标无法攻击**");

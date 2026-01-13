@@ -129,24 +129,7 @@ function Mage_playerCombat()
         return true;
     end
 
-    -- [新增] 自动专注魔法逻辑
-    if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
-        local fmTarget = Mage_GetFocusMagicTarget()
-        if fmTarget then
-            if Mage_playerSelectUnit(fmTarget) then
-                if Mage_CastSpell("专注魔法") then
-                    if Mage_Get_CombatLogMode() then
-                        Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
-                    end
-                    return true;
-                end;
-                Mage_SetText(">专注魔法",0);
-                return true;
-            else
-                if Mage_SelectTarget(fmTarget) then return true; end;
-            end
-        end
-    end
+
 
     -- 2. 非战斗/特殊目标检查
 	if not UnitAffectingCombat("player") and not UnitAffectingCombat("target")  then
@@ -731,6 +714,27 @@ function Mage_FocusControl()
     return false
 end
 
+function Mage_AutoFocusMagicTarget()
+    -- [新增] 自动专注魔法逻辑
+    if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
+        local fmTarget = Mage_GetFocusMagicTarget()
+        if fmTarget then
+            if Mage_playerSelectUnit(fmTarget) then
+                if Mage_CastSpell("专注魔法") then
+                    if Mage_Get_CombatLogMode() then
+                        Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
+                    end
+                    return true;
+                end;
+                Mage_SetText(">专注魔法",0);
+                return true;
+            else
+                if Mage_SelectTarget(fmTarget) then return true; end;
+            end
+        end
+    end
+    return false
+end
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
@@ -760,7 +764,13 @@ function Mage_GetFocusMagicTarget()
         local name, _, _, _, _, _, source = UnitBuff("player", i)
         if not name then break end
         if name == "专注魔法" and source then
-            return source; -- 找到了，当前队友给我施放了专注魔法
+            if UnitExists(source) and
+                not UnitIsUnit(unit, "player") and
+                not UnitIsDeadOrGhost(source) and
+                UnitIsVisible(source) and
+                IsSpellInRange("专注魔法", source) == 1 then
+                    return source; -- 找到了，当前队友给我施放了专注魔法
+            end
         end
     end
 

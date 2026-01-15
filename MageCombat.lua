@@ -268,14 +268,9 @@ function Mage_playerCombat()
                     end
             end
     elseif mageSpec == 0 then
-		   if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
-               if Mage_CastSpell("深度冻结") then  return true; end
-           end
-
            if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
                if Mage_CastSpell("冰枪术") then  return true; end
            end
-
            if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
                if Mage_CastSpell("冰枪术") then  return true; end
            end
@@ -340,6 +335,9 @@ function Mage_playerCombat()
                 if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                     if Mage_CastSpell("冰冷血脉") then return true; end;
                 end
+                if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
+                   if Mage_CastSpell("深度冻结") then  return true; end
+                end
             end
         else
             if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
@@ -366,6 +364,9 @@ function Mage_playerCombat()
                        if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                            if Mage_CastSpell("冰冷血脉") then return true; end;
                        end
+                       if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
+                           if Mage_CastSpell("深度冻结") then  return true; end
+                       end
                    end
                 end
             end
@@ -389,9 +390,15 @@ function Mage_playerCombat()
 		 if Mage_CastSpell("冰锥术") then  return true; end
 	end
 
-	if Mage_HasSpell("急速冷却") and Mage_GetSpellCooldown("冰霜新星") > 5 and  Mage_GetSpellCooldown("寒冰屏障") > 10 then
-		if Mage_CastSpell("急速冷却") then  return true; end;
-	end
+    if Mage_Test_Battlefield() or Mage_PlayerInArena() then
+        if Mage_HasSpell("急速冷却") and Mage_GetSpellCooldown("冰霜新星") > 2 and  Mage_GetSpellCooldown("寒冰屏障") > 10 then
+            if Mage_CastSpell("急速冷却") then  return true; end;
+        end
+    else
+        if Mage_HasSpell("急速冷却") and Mage_GetSpellCooldown("深度冻结") > 3 and  Mage_GetSpellCooldown("冰冷血脉") > 10 then
+            if Mage_CastSpell("急速冷却") then  return true; end;
+        end
+    end
 
 	if UnitClass("target") == "法师" and targetHP > 90 and GetTimer("变形术_"..UnitName("target")) > 12 then
 		if IsSpellInRange("变形术","target") == 1 then

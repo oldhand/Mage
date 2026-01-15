@@ -175,8 +175,13 @@ function Mage_playerCombat()
     end
 
 	if UnitExists("pet") and not UnitIsDead("pet") then
-        if not Mage_IsPetAttacking() and GetTimer("PetAttack") > 5 and GetTimer("PetAttack") < 0.3 then
-             if Mage_PetAttack() then StartTimer("PetAttack"); return true; end
+        if not Mage_IsPetAttacking() and (GetTimer("PetAttack") > 5 or GetTimer("PetAttack") < 0.3) then
+             if Mage_PetAttack() then
+                  if GetTimer("PetAttack") > 5 then
+                    StartTimer("PetAttack");
+                  end
+                 return true;
+            end
         end
     end
 
@@ -271,9 +276,6 @@ function Mage_playerCombat()
            if Mage_TargetDeBU("深度冻结") or Mage_TargetDeBU("霜寒刺骨") then
                if Mage_CastSpell("冰枪术") then  return true; end
            end
-           if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
-               if Mage_CastSpell("冰枪术") then  return true; end
-           end
     elseif mageSpec == 2 then
           if not Mage_TargetHasSlowEffect() and IsSpellInRange("减速", "target") == 1 then
               if Mage_CastSpell("减速") then
@@ -335,9 +337,6 @@ function Mage_playerCombat()
                 if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                     if Mage_CastSpell("冰冷血脉") then return true; end;
                 end
-                if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
-                   if Mage_CastSpell("深度冻结") then  return true; end
-                end
             end
         else
             if targetType == "worldboss" or ( targetType == "elite" and targetHP > 50 ) then
@@ -364,15 +363,28 @@ function Mage_playerCombat()
                        if Mage_HasSpell("冰冷血脉") and Mage_GetSpellCooldown("冰冷血脉") == 0 then
                            if Mage_CastSpell("冰冷血脉") then return true; end;
                        end
-                       if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0 and not Mage_TargetDeBU("霜寒刺骨") then
-                           if Mage_CastSpell("深度冻结") then  return true; end
-                       end
                    end
                 end
             end
         end
     end
 
+   if Mage_HasSpell("深度冻结") and
+       Mage_GetSpellCooldown("深度冻结") == 0 and
+       not Mage_TargetDeBU("霜寒刺骨") and
+       not Mage_TargetDeBU("深度冻结") then
+       if Mage_GetPlayerCasting() == "寒冰箭" or Mage_GetBuffStacks("player", "寒冰指") == 1 then
+           if Mage_CastSpell("深度冻结") then  return true; end
+       end
+   end
+
+    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
+       if Mage_CastSpell("冰枪术") then  return true; end
+    end
+
+    if Mage_TargetDeBU("霜寒刺骨") and Mage_HasSpell("冰枪术") then
+       if Mage_CastSpell("冰枪术") then  return true; end
+    end
 
     if Mage_HasSpell("奥术冲击") and Mage_PlayerDeBU("奥术冲击") and Mage_PlayerBU("气定神闲") and IsSpellInRange("奥术冲击","target") == 1 then
         if Mage_CastSpell("奥术冲击") then return true; end

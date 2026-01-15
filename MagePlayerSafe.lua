@@ -348,7 +348,7 @@ function Mage_playerSafe()
         end
     end
 
---     if Mage_AutoCreateManaGem() then  return true; end;
+    if Mage_AutoCreateManaGem() then  return true; end;
 
     if Mage_AutoUseManaGem() then  return true; end;
 

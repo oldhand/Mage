@@ -244,16 +244,24 @@ function Mage_playerSafe()
     elseif Mage_GetMageSpec() == 0 then
         if not Mage_PlayerBU("霜甲术") and not Mage_PlayerBU("冰甲术") and not Mage_PlayerBU("法师护甲") and not Mage_PlayerBU("熔岩护甲") and not UnitAffectingCombat("player") then
             if Mage_Test_Battlefield() or Mage_PlayerInArena() then
-               if Mage_HasSpell("冰甲术") then
-                  if Mage_CastSpell("冰甲术") then  return true; end;
+               if Mage_HasSpell("法师护甲") then
+                  if Mage_CastSpell("法师护甲") then  return true; end;
                else
-                  if Mage_CastSpell("霜甲术") then  return true; end;
+                   if Mage_HasSpell("冰甲术") then
+                         if Mage_CastSpell("冰甲术") then  return true; end;
+                   else
+                         if Mage_CastSpell("霜甲术") then  return true; end;
+                   end
               end
             else
-                if Mage_HasSpell("法师护甲") then
-                      if Mage_CastSpell("法师护甲") then  return true; end;
+                if Mage_HasSpell("熔岩护甲") then
+                      if Mage_CastSpell("熔岩护甲") then  return true; end;
                 else
-                      if Mage_CastSpell("霜甲术") then  return true; end;
+                      if Mage_HasSpell("冰甲术") then
+                           if Mage_CastSpell("冰甲术") then  return true; end;
+                     else
+                           if Mage_CastSpell("霜甲术") then  return true; end;
+                     end
                 end
             end
         end;
@@ -340,7 +348,7 @@ function Mage_playerSafe()
         end
     end
 
-    if Mage_AutoCreateManaGem() then  return true; end;
+--     if Mage_AutoCreateManaGem() then  return true; end;
 
     if Mage_AutoUseManaGem() then  return true; end;
 

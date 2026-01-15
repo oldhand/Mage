@@ -104,6 +104,10 @@ function Mage_OrganizeActionBar()
         ClearCursor();
     end
     if Mage_PickupSpellByBook("法师护甲") then
+        PlaceAction(64);
+        ClearCursor();
+    end
+    if Mage_PickupSpellByBook("熔岩护甲") then
         PlaceAction(65);
         ClearCursor();
     end
@@ -204,6 +208,10 @@ function Mage_OrganizeActionBar()
         PlaceAction(42);
         ClearCursor();
     end;
+    if Mage_PickupSpellByBook("专注魔法") then
+        PlaceAction(43);
+        ClearCursor();
+    end
 
 
     if Mage_GetMageSpec() == 1 then
@@ -219,10 +227,6 @@ function Mage_OrganizeActionBar()
             PlaceAction(10);
             ClearCursor();
         end;
-        if Mage_PickupSpellByBook("熔岩护甲") then
-            PlaceAction(64);
-            ClearCursor();
-        end
         if Mage_PickupSpellByBook("活动炸弹") then
             PlaceAction(65);
             ClearCursor();
@@ -270,10 +274,7 @@ function Mage_OrganizeActionBar()
             PlaceAction(69);
             ClearCursor();
         end
-        if Mage_PickupSpellByBook("专注魔法") then
-            PlaceAction(70);
-            ClearCursor();
-        end
+
     end;
 
 

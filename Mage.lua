@@ -76,6 +76,7 @@ function Mage_OnEvent(event)
             Mage_AddMessage("技能栏自动整理已完成")
         end)
 		SetCVar("cameraDistanceMax", 30)
+		SetCVar("SpellQueueWindow", 400)
 		SaveBindings(GetCurrentBindingSet())
 		
 	elseif event == "PLAYER_REGEN_DISABLED" then

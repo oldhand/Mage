@@ -370,7 +370,7 @@ function Mage_OrganizeActionBar()
 
     Mage_AddMessage("自动奔跑 : `键(ESC键下一个)");
     Mage_AddMessage("施放暴风雪/烈焰风暴 : R键");
-    Mage_AddMessage("施放闪现术 : Q键(");
+    Mage_AddMessage("施放闪现术/火箭靴 : Q键");
     Mage_AddMessage("施放变形术 : F键");
     Mage_AddMessage("施放唤醒 : T键");
     SetBinding("`", "TOGGLEAUTORUN");

@@ -369,17 +369,18 @@ function Mage_playerCombat()
         end
     end
 
-   if Mage_HasSpell("深度冻结") and
-       Mage_GetSpellCooldown("深度冻结") == 0 and
-       not Mage_TargetDeBU("霜寒刺骨") and
-       not Mage_TargetDeBU("深度冻结") then
-       if Mage_GetPlayerCasting() == "寒冰箭" or Mage_GetBuffStacks("player", "寒冰指") == 1 then
-           if Mage_CastSpell("深度冻结") then  return true; end
-       end
-   end
-
-    if Mage_PlayerBU("寒冰指") and Mage_HasSpell("冰枪术") then
-       if Mage_CastSpell("冰枪术") then  return true; end
+    if Mage_GetPlayerCasting() == "寒冰箭" and Mage_GetBuffStacks("player", "寒冰指") == 1 then
+        if Mage_HasSpell("深度冻结") and Mage_GetSpellCooldown("深度冻结") == 0  then
+              if Mage_CastSpell("深度冻结") then  return true; end
+        end
+        if Mage_PlayerBU("火球！") and IsSpellInRange("火球术","target") == 1 then
+              if Mage_HasSpell("霜火之箭") then
+                   if Mage_CastSpell("霜火之箭") then  return true; end
+              else
+                   if Mage_CastSpell("火球术") then  return true; end
+              end
+        end
+        if Mage_CastSpell("冰枪术") then  return true; end
     end
 
     if Mage_TargetDeBU("霜寒刺骨") and Mage_HasSpell("冰枪术") then

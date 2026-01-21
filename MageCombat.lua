@@ -778,7 +778,11 @@ function Mage_GetFocusMagicTarget()
             not UnitIsDeadOrGhost(unit) and
             UnitIsVisible(unit) then
             if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
-                return nil; -- 找到了，说明我已经施放过了
+                 local timeLeft = Mage_GetBeaconTimeByName(unit, "专注魔法");
+                 if timeLeft < 300 then
+                     return unit; -- 找到了，剩余小于5分钟，直接返回
+                 end
+                 return nil; -- 找到了，说明我已经施放过了
             end
         end
     end

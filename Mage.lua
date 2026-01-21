@@ -282,11 +282,13 @@ function Mage_Frame_OnUpdate()
 --
 -- 	if Mage_AutoDrinkAndMounted() then return; end
 
+    if IsMounted() and IsFlying() then Mage_SetText("飞行状态",0); return; end;
+
 	if IsMounted() then
 		Mage_SetText("骑乘状态",0);
 		return;
 	end;
-	
+
 	if not UnitAffectingCombat("player") then
         if  Mage_PlayerBU("饮用") or Mage_PlayerBU("喝水") then
             if not Mage_Get_AntiOffLineMode() then

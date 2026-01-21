@@ -28,7 +28,8 @@ function Mage_PickupSpellByBook(spell)
 end
 
 function Mage_OrganizeActionBar()
-
+    if GetTimer("OrganizeActionBar") < 3 then return; end
+	StartTimer("OrganizeActionBar");
     if Mage_PickupSpellByBook("寒冰箭") then
         PlaceAction(1);
         ClearCursor();

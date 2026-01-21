@@ -496,6 +496,9 @@ function Mage_playerCombat()
 		Mage_SetText("无动作",0);
 		return;
 	else
+        if Mage_PlayerBU("寒冰指") and IsSpellInRange("冰枪术","target") == 1 then
+               if Mage_CastSpell("冰枪术") then  return true; end
+        end
 	    if not Mage_TargetDeBU("冰霜新星") and GetTimer("变形术") > 2 then
             if mageSpec == 1 and CheckInteractDistance("target", 3)  then
                  if Mage_CastSpell("龙息术") then  return  true; end;

@@ -513,9 +513,13 @@ function Mage_playerCombat()
             if Mage_HasSpell("气定神闲") and Mage_GetSpellCooldown("气定神闲") == 0 then
                if Mage_CastSpell("气定神闲") then return true; end
             end
+        	if CheckInteractDistance("target",2)  then
+        		 if Mage_CastSpell("冰锥术") then  return true; end
+        	end
             if CheckInteractDistance("target", 3)  then
                 if Mage_CastSpell("魔爆术") then  return  true; end;
             end
+            if Mage_CastSpell("冰枪术") then  return true; end
 	    end;
 		Mage_SetText("移动中",0);
 		return;

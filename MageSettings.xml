@@ -130,12 +130,62 @@
 				</Scripts>
 			</CheckButton>
 
+			<CheckButton name="$parentBurstMode" inherits="UICheckButtonTemplate">
+				<Size><AbsDimension x="24" y="24"/></Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentAllDispel" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="0" y="-2"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Layers>
+					<Layer level="ARTWORK">
+						<FontString name="$parentLbL" inherits="GameFontNormalSmall" text="">
+							<Anchors>
+								<Anchor point="LEFT">
+									<Offset><AbsDimension x="25" y="0"/></Offset>
+								</Anchor>
+							</Anchors>
+						</FontString>
+					</Layer>
+				</Layers>
+				<Scripts>
+					<OnShow>
+						getglobal(self:GetName().."LbL"):SetText("自动爆发模式");
+					</OnShow>
+					<OnClick>
+						Mage_Setting_onClick("BurstMode");
+					</OnClick>
+				</Scripts>
+			</CheckButton>
+
+			<Button name="$parentBurstModeName" inherits="GameMenuButtonTemplate" text="选择">
+				<Size>
+					<AbsDimension x="120" y="30"/>
+				</Size>
+				<Anchors>
+					<Anchor point="TOPLEFT" relativeTo="$parentAllDispel" relativePoint="BOTTOMLEFT">
+						<Offset><AbsDimension x="150" y="2"/></Offset>
+					</Anchor>
+				</Anchors>
+				<Scripts>
+					<OnClick>
+						Mage_SelectBurstMode_onClick();
+					</OnClick>
+					<OnEnter>
+						Mage_SelectBurstMode_OnEnter();
+					</OnEnter>
+					<OnLeave>
+						MageSettingsTooltip:Hide();
+					</OnLeave>
+				</Scripts>
+			</Button>
+
 			<Button name="$parentCloseButton" inherits="UIPanelButtonTemplate" text="关闭">
                 <Size>
                     <AbsDimension x="80" y="30"/>
                 </Size>
                 <Anchors>
-                    <Anchor point="TOPLEFT" relativeTo="$parentAllDispel" relativePoint="BOTTOMLEFT">
+                    <Anchor point="TOPLEFT" relativeTo="$parentBurstMode" relativePoint="BOTTOMLEFT">
                       	<Offset><AbsDimension x="100" y="-2"/></Offset>
                     </Anchor>
                 </Anchors>

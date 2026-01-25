@@ -296,6 +296,16 @@ function Mage_playerCombat()
             end
         end
 
+        if not targetIsPlayer and burst_switch then
+             if Mage_GetSetting("BurstMode")  then
+                if Mage_GetSetting("BurstModeName") == 2 and not Mage_IsTargetLegacyBoss() then
+                    burst_switch = false;
+                end
+            else
+                burst_switch = false;
+            end
+        end
+
         -- ========================================================
         -- 镜像使用逻辑
         -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
@@ -783,8 +793,8 @@ function Mage_GetFocusMagicTarget()
             UnitIsVisible(unit) then
             if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
                  local timeLeft = Mage_GetBeaconTimeByName(unit, "专注魔法");
-                 if timeLeft < 300 then
-                     return unit; -- 找到了，剩余小于5分钟，直接返回
+                 if timeLeft < 600 then
+                     return unit; -- 找到了，剩余小于10分钟，直接返回
                  end
                  return nil; -- 找到了，说明我已经施放过了
             end

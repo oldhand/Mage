@@ -6,7 +6,8 @@ local Mage_PopMenu = nil
 local Mage_MainTank = false; --治疗主坦克
 local Mage_MainTankName = nil; --治疗主坦克名字
 local Mage_AllDispel = false; --自动驱散
-
+local Mage_BurstMode = true; --爆发模式
+local Mage_BurstModeName = 1; --爆发模式名字
 
 
 function Mage_Settings_OnLoad(self)
@@ -26,6 +27,8 @@ function Mage_Settings_OnEvent(event)
 			Mage_Settings["MainTank"] = false;
 			Mage_Settings["MainTankName"] = nil;
 			Mage_Settings["AllDispel"] = false;
+			Mage_Settings["BurstMode"] = true;
+			Mage_Settings["BurstModeName"] = 1;
 		end
 		if Mage_Settings["MainTank"] ~= nil then
 			 Mage_MainTank = Mage_Settings["MainTank"];
@@ -36,6 +39,12 @@ function Mage_Settings_OnEvent(event)
 		if Mage_Settings["AllDispel"] ~= nil then
 			 Mage_AllDispel = Mage_Settings["AllDispel"];
 		end
+        if Mage_Settings["BurstMode"] ~= nil then
+             Mage_BurstMode = Mage_Settings["BurstMode"];
+        end
+        if Mage_Settings["BurstModeName"] ~= nil then
+             Mage_BurstModeName = Mage_Settings["BurstModeName"];
+        end
 		
     elseif (event == "GROUP_ROSTER_UPDATE") then
       
@@ -59,6 +68,10 @@ function Mage_GetSetting(key)
 		return Mage_MainTank;
 	elseif key == "AllDispel" then
 		return Mage_AllDispel;
+    elseif key == "BurstMode" then
+        return Mage_BurstMode;
+    elseif key == "BurstModeName" then
+        return Mage_BurstModeName;
 	end
 	return false;
 end
@@ -87,6 +100,16 @@ function Mage_Setting_onClick(key)
 				Mage_Settings["AllDispel"] = Mage_AllDispel;
 				Mage_Default_AddMessage("**自动驱散开启**");
 			end
+    elseif key == "BurstMode" then
+			if Mage_BurstMode then
+				Mage_BurstMode = false;
+				Mage_Settings["BurstMode"] = Mage_BurstMode;
+				Mage_Default_AddMessage("**自动爆发模式 -> 关闭**");
+			else
+				Mage_BurstMode = true;
+				Mage_Settings["BurstMode"] = Mage_BurstMode;
+				Mage_Default_AddMessage("**自动爆发模式 -> 开启**");
+			end
 	end 
 end
 
@@ -108,6 +131,15 @@ function Mage_Settings_fun()
 	else
 		if MageSettingsAllDispel:GetChecked() then
 	        MageSettingsAllDispel:SetChecked(false)
+		end
+    end
+    if Mage_BurstMode then
+		if not MageSettingsBurstMode:GetChecked() then
+	        MageSettingsBurstMode:SetChecked(true)
+		end
+	else
+		if MageSettingsBurstMode:GetChecked() then
+	        MageSettingsBurstMode:SetChecked(false)
 		end
     end
 end
@@ -212,6 +244,68 @@ function Mage_SelectMainTank_popuMenu(window)
 
 	ToggleDropDownMenu(1, nil, Mage_PopMenu,'cursor')
 	 
+end
+
+
+
+function Mage_SelectBurstMode_onClick()
+	if not Mage_PopMenu then
+		Mage_PopMenu = CreateFrame('Frame', nil, UIParent, 'UIDropDownMenuTemplate')
+	end
+
+	Mage_PopMenu.displayMode = "MENU"
+
+	local Mage_Groups_Datas = {};
+	table.insert(Mage_Groups_Datas,1);
+	table.insert(Mage_Groups_Datas,2);
+
+
+
+	function Mage_PopMenu_Initialize(level)
+		if not level then return end
+        for k, v in pairs(Mage_Groups_Datas) do
+            local info = {}
+            info.text = Mage_GetBurstModeName(v);
+            info.value = v
+            info.checked = (Mage_BurstModeName == v)
+            info.func = Mage_SelectBurstMode
+            UIDropDownMenu_AddButton(info, 1)
+        end;
+	end
+
+	Mage_PopMenu.initialize = Mage_PopMenu_Initialize
+
+	ToggleDropDownMenu(1, nil, Mage_PopMenu,'cursor')
+end
+
+
+function Mage_GetBurstModeName(key)
+    if key == 1 then
+        return "全自动开启";
+    elseif key == 2 then
+        return "遇到BOSS自动开启";
+    end
+    return 1;
+end
+
+function Mage_SelectBurstMode(self)
+	v =  self.value;
+	Mage_PopMenu:Hide();
+	if v ~= nil then
+		Mage_BurstModeName = v;
+		Mage_Settings["BurstModeName"] = Mage_BurstModeName;
+		Mage_AddMessage("**自动爆发模式>>"..Mage_GetBurstModeName(v).."<<**");
+		Blizzard_AddMessage("**自动爆发模式>>"..Mage_GetBurstModeName(v).."<<**",1,0,0,"crit");
+	end
+end
+
+function Mage_SelectBurstMode_OnEnter()
+	if Mage_BurstModeName ~= nil then
+		MageSettingsTooltip:SetOwner(MageSettingsBurstModeName, "ANCHOR_BOTTOMRIGHT",-120,-10);
+		local name = Mage_GetBurstModeName(Mage_Settings["BurstModename"])
+		MageSettingsTooltip:SetText("当前自动爆发模式: " .. name);
+		MageSettingsTooltip:Show();
+	end
 end
 
 -- ========================================================

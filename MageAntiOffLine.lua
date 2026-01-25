@@ -1,6 +1,6 @@
 ﻿Mage_AntiOffLine_Hit = "关闭防掉线模式"
 
-local Mage_IsAntiOffLineMode = true; --是否为防掉线模式
+local Mage_IsAntiOffLineMode = false; --是否为防掉线模式
  
 function Mage_AntiOffLine_OnUpdate()
     if UnitClass("player") ~= "法师" then

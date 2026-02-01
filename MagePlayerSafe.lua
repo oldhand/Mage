@@ -232,7 +232,7 @@ function Mage_playerSafe()
    	end;
 
    	if IsInInstance() then
-   		if not Mage_PlayerBU("寒冰护体") and not UnitAffectingCombat("player") then
+   		if not Mage_PlayerBU("寒冰护体") and not UnitAffectingCombat("player") and Mage_GetSpellCooldown("寒冰护体") ~= 0 then
    			if Mage_CastSpell("寒冰护体") then  return true; end;
    		end;
    	end
@@ -293,13 +293,13 @@ function Mage_playerSafe()
    		 end;
    	else
    		if UnitExists("target") then
-   			 if not UnitAffectingCombat("player") and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") then
+   			 if not UnitAffectingCombat("player") and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") and Mage_GetSpellCooldown("寒冰护体") ~= 0 then
    				if not Mage_PlayerBU("寒冰护体") and UnitCanAttack("player","target") then
    					if Mage_CastSpell("寒冰护体") then  return true; end;
    				end;
    			 end;
    			 if Test_Target_IsMe() and UnitCanAttack("player","target") and Mage_HasSpell("寒冰护体") then
-   				if not Mage_PlayerBU("寒冰护体") then
+   				if not Mage_PlayerBU("寒冰护体") and Mage_GetSpellCooldown("寒冰护体") ~= 0 then
    					if Mage_CastSpell("寒冰护体") then return true; end;
    					if Mage_GetSpellCooldown("寒冰护体") > 1 and GetTimer("HasSwingRange_Damage") > 3 and UnitAffectingCombat("player") and not Mage_PlayerBU("法力护盾") and Mage_GetUnitHealthPercent("player") < 30 then
    						if Mage_CastSpell("法力护盾") then  return true; end;

@@ -756,17 +756,19 @@ function Mage_AutoFocusMagicTarget()
     if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
         local fmTarget = Mage_GetFocusMagicTarget()
         if fmTarget then
-            if Mage_playerSelectUnit(fmTarget) then
-                if Mage_CastSpell("专注魔法") then
-                    if Mage_Get_CombatLogMode() then
-                        Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
-                    end
+            if IsSpellInRange("专注魔法", fmTarget) == 1 then
+                if Mage_playerSelectUnit(fmTarget) then
+                    if Mage_CastSpell("专注魔法") then
+                        if Mage_Get_CombatLogMode() then
+                            Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
+                        end
+                        return true;
+                    end;
+                    Mage_SetText(">专注魔法",0);
                     return true;
-                end;
-                Mage_SetText(">专注魔法",0);
-                return true;
-            else
-                if Mage_SelectTarget(fmTarget) then return true; end;
+                else
+                    if Mage_SelectTarget(fmTarget) then return true; end;
+                end
             end
         end
     end
@@ -806,7 +808,7 @@ function Mage_GetFocusMagicTarget()
         if not name then break end
         if name == "专注魔法" and source then
             if UnitExists(source) and
-                not UnitIsUnit(unit, "player") and
+                not UnitIsUnit(source, "player") and
                 not UnitIsDeadOrGhost(source) and
                 UnitIsVisible(source) and
                 IsSpellInRange("专注魔法", source) == 1 then

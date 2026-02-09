@@ -375,5 +375,32 @@ function Mage_OrganizeActionBar()
     Mage_AddMessage("施放变形术 : F键");
     Mage_AddMessage("施放唤醒 : T键");
     SetBinding("`", "TOGGLEAUTORUN");
-
+    CreateAndPlaceMageMacro(50); -- 将焦点变羊宏放在动作条第 50 格
 end;
+
+
+-- 自动创建宏并拖动到动作条的函数
+function CreateAndPlaceMageMacro(slot)
+    -- 定义宏的名称和内容
+    local macroName = "焦点变羊"
+    local macroIcon = "Interface\\Icons\\Spell_Nature_Polymorph"
+    local macroBody = "#showtooltip 变形术\n/cast [@focus,exists,harm] 变形术;"
+    -- 1. 检查宏是否已经存在，不存在则创建
+    local index = GetMacroIndexByName(macroName)
+    if index == 0 then
+        -- 参数：名称, 图标ID(1为默认), 内容, 是否为通用宏(nil为角色专用)
+        index = CreateMacro(macroName, macroIcon, macroBody, nil)
+    else
+        -- 如果宏已存在，更新其内容确保正确
+        EditMacro(index, macroName, macroIcon, macroBody)
+    end
+
+    -- 2. 尝试将宏放置在动作条上 (以第 12 号格子为例，通常是主条的最后一个)
+    -- 注意：如果在战斗中，无法进行此操作
+    if not UnitAffectingCombat("player") then
+        PickupMacro(index) -- 拿起宏
+        PlaceAction(slot)  -- 放置到指定动作条槽位
+        ClearCursor()      -- 清除鼠标状态
+        Mage_AddMessage("焦点变羊宏已自动放置到动作条第 " .. slot .. " 格")
+    end
+end

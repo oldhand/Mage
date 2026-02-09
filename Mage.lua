@@ -87,9 +87,6 @@ function Mage_OnEvent(event)
 	     StartTimer("NotUnitAffectingCombat");
  	elseif event == "PLAYER_STARTED_MOVING" then
  	   	 Mage_movement = true;
- 	   	 if Mage_Get_AntiOffLineMode() then
-            Mage_AntiOffLine_fun();
-         end
  	elseif event == "PLAYER_STOPPED_MOVING" then
  	     Mage_movement = false;
 	elseif event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then

@@ -774,11 +774,14 @@ function Mage_AutoFocusMagicTarget()
     end
     return false
 end
+
+Mage_FocusMagic_UnitName = nil;
+
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
 
-    local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5 }
+    local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5, ["PALADIN"] = 6 }
     local bestTarget = nil
     local bestPriority = 99
 
@@ -786,17 +789,41 @@ function Mage_GetFocusMagicTarget()
     local prefix = UnitInRaid("player") and "raid" or "party"
     local count = UnitInRaid("player") and 40 or 4
 
+
+    if Mage_FocusMagic_UnitName ~= nil then
+        local Mage_GetTargetUnit = Mage_GetTargetUnit(Mage_FocusMagic_UnitName);
+        if UnitExists(Mage_FocusMagic_Unit) then
+            local updateFocusMagicUnit = true;
+            if Mage_UnitTargetBU_ByPlayer(Mage_FocusMagic_Unit, "专注魔法") then
+                 local timeLeft = Mage_GetBeaconTimeByName(Mage_FocusMagic_Unit, "专注魔法");
+                 if timeLeft > 600 then
+                     local updateFocusMagicUnit = false
+                 end
+            end
+            if updateFocusMagicUnit then
+                if UnitIsVisible(Mage_FocusMagic_Unit) and IsSpellInRange("专注魔法", Mage_FocusMagic_Unit) == 1 then
+                    return unit; -- 找到了，剩余小于10分钟，直接返回
+                 else
+                     return nil;
+                 end
+             end
+         else
+            Mage_FocusMagic_Unit = nil; -- 之前记录的目标不存在了，重置记录
+         end
+    end
+
     -- 【第一步】先扫描全团，看我的专注魔法到底在谁身上
     for i = 1, count do
         local unit = prefix .. i
         if UnitExists(unit) and
             not UnitIsUnit(unit, "player") and
-            not UnitIsDeadOrGhost(unit) and
-            UnitIsVisible(unit) then
+            not UnitIsDeadOrGhost(unit) then
             if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
-                 local timeLeft = Mage_GetBeaconTimeByName(unit, "专注魔法");
-                 if timeLeft < 600 then
-                     return unit; -- 找到了，剩余小于10分钟，直接返回
+                 if Mage_FocusMagic_UnitName == nil then
+                     Mage_FocusMagic_UnitName = UnitName(unit); -- 记录当前专注魔法的目标
+                 end
+                 if Mage_FocusMagic_UnitName ~= UnitName(unit) then
+                    Mage_FocusMagic_UnitName = UnitName(unit); -- 发现专注魔法在另一个目标身上，更新记录
                  end
                  return nil; -- 找到了，说明我已经施放过了
             end
@@ -829,7 +856,7 @@ function Mage_GetFocusMagicTarget()
             if not Mage_UnitTargetBU(unit, "专注魔法") then
                 local _, classFileName = UnitClass(unit)
                 local currentPriority = priorityClasses[classFileName] or 10
-                if currentPriority < bestPriority then
+                if currentPriority ~= 10 and currentPriority < bestPriority then
                     bestPriority = currentPriority
                     bestTarget = unit
                 end

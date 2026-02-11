@@ -396,7 +396,33 @@ function Mage_CastSpell(spellname)
    return false;
 end
 
+-- ========================================================
+-- [新增] 独立封装：真实OT检测 (基于仇恨列表)
+-- 返回：true (确实OT了) / false (没有OT，只是随机点名/坦克抗怪)
+-- ========================================================
+function Warrior_Check_Player_Real_OT()
+    -- 1. 基础校验：单位存在
+    if not UnitExists("target") then return false end
 
+    -- 5. 核心：查询仇恨状态
+    -- UnitDetailedThreatSituation(unit, mob)
+    -- 我们检查 'unit' 相对于 'target'(当前的怪) 的仇恨状态
+    -- 如果你的目标不是怪(比如看着队友)，这里可能需要调整，但通常坦克都是盯着怪的
+    local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation("player", "target")
+
+    -- status 状态码解释:
+    -- nil = 该单位不在仇恨列表中
+    -- 0 = 低仇恨 (安全)
+    -- 1 = 高仇恨 (即将OT, >100% 但怪还没看他)
+    -- 2 = 正在坦怪 (已OT, 仇恨不稳)
+    -- 3 = 正在坦怪 (已OT, 仇恨稳固)
+
+    if status and status >= 2 then
+        return true
+    end
+
+    return false
+end
 
 function Test_Target_IsMe()
 	if UnitExists("playertargettarget") then

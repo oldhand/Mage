@@ -128,20 +128,13 @@ function Mage_playerSafe()
    	if UnitAffectingCombat("player") then
    		if  IsInInstance() then
    			if  UnitClassification("target") == "worldboss" or UnitClassification("target") == "elite" then
-   					if Test_Target_IsMe() and UnitLevel("target") > UnitLevel("player")  then
+   					if Test_Target_IsMe() and Warrior_Check_Player_Real_OT() and UnitLevel("target") > UnitLevel("player")  then
    						if not Mage_PlayerDeBU("低温") and Mage_GetSpellCooldown("寒冰屏障") == 0 and not Mage_PlayerBU("保护之手") then
-                           if GetTimer("player_ot_ice_barrier") > 120 then
-                               StartTimer("player_ot_ice_barrier")
-                               Mage_Combat_AddMessage("检测到->" .. UnitName("target") .. "<- OT，1.5秒后施放冰箱...")
-                           end
-                           if GetTimer("player_ot_ice_barrier") > 1.5 then
-                                if Mage_CastSpell("寒冰屏障") then
-                                    Mage_Default_AddMessage("**OT了,使用冰箱...**");
-                                    Mage_Combat_AddMessage("**OT了,使用冰箱...**");
-                                    return true;
-                                end;
-                           end
-
+                            if Mage_CastSpell("寒冰屏障") then
+                                Mage_Default_AddMessage("**OT了,使用冰箱...**");
+                                Mage_Combat_AddMessage("**OT了,使用冰箱...**");
+                                return true;
+                            end;
    						end;
    					end;
    			end;
@@ -169,20 +162,14 @@ function Mage_playerSafe()
     if UnitAffectingCombat("player") and Mage_HasSpell("隐形术") and Mage_GetSpellCooldown("隐形术") == 0 then
         -- 1. OT 清仇恨逻辑
         -- 如果在副本中，目标是强力怪，且目标正在看我
-        if Mage_PlayerDeBU("低温") and IsInInstance() and Test_Target_IsMe() and not Mage_PlayerBU("保护之手") then
+        if Mage_PlayerDeBU("低温") and IsInInstance() and Test_Target_IsMe() and Warrior_Check_Player_Real_OT() and not Mage_PlayerBU("保护之手") then
              local targetType = UnitClassification("target");
              if targetType == "worldboss" or targetType == "elite" then
-                  if GetTimer("player_raid_ot_invisible") > 120 then
-                       StartTimer("player_raid_ot_invisible")
-                       Mage_Combat_AddMessage("检测到->" .. UnitName("target") .. "<- OT，1.5秒后施放隐形术..")
-                  end
-                  if GetTimer("player_raid_ot_invisible") > 1.5 then
-                        if Mage_CastSpell("隐形术") then
-                            Mage_Default_AddMessage("**检测到OT且无法冰箱 (目标看我)，使用隐形术清仇恨...**");
-                            Mage_Combat_AddMessage("**检测到OT且无法冰箱，隐形术启动!**");
-                            return true;
-                        end
-                  end
+                    if Mage_CastSpell("隐形术") then
+                        Mage_Default_AddMessage("**检测到OT且无法冰箱 (目标看我)，使用隐形术清仇恨...**");
+                        Mage_Combat_AddMessage("**检测到OT且无法冰箱，隐形术启动!**");
+                        return true;
+                    end
              end
         end
 

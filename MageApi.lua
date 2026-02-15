@@ -775,7 +775,24 @@ function Mage_Test_Target_Debuff(unit)
 	return false;
 end
 
-
+function Mage_UseTrinket(str)
+        for slot = 13, 14 do
+            local itemName = Mage_GetItemInfo(slot)
+            if itemName and string.find(itemName, str) then
+                -- 检查饰品冷却 (使用 C_Container 接口或通用的物品Ready检测)
+                local start, duration, enable = GetInventoryItemCooldown("player", slot)
+                if start == 0 and duration == 0 then
+                    Mage_Combat_AddMessage("**开启 " .. str .. "...**")
+                    if slot == 13 then
+                        if Mage_UseTrinket13(str) then  return true; end;
+                    else
+                        if Mage_UseTrinket14(str) then  return true; end;
+                    end
+                end
+            end
+        end
+	return false;
+end
 
 local TimerDatas = {};
 

@@ -71,6 +71,16 @@
                 body = "/use 8",                        -- 宏内容：使用火箭靴
                 key = "ALT-CTRL-F1"
           },
+          {
+                name = "ACM_UseTrinket13",
+                body = "/use 13",                        -- 宏内容：使用上层饰品
+                key = "ALT-CTRL-F2"
+          },
+          {
+                name = "ACM_UseTrinket14",
+                body = "/use 14",                        -- 宏内容：使用下层饰品
+                key = "ALT-CTRL-F3"
+         },
          {
               name = "ACM_UserPolymorph",
               body = "/script Mage_SendCommand(1);",            -- 宏内容：使用变形术
@@ -197,3 +207,12 @@ function Mage_UseRocketBoot()
     return true;
 end
 
+function Mage_UseTrinket13(str)
+    Mage_SetText("使用"..str, 74);
+    return true;
+end
+
+function Mage_UseTrinket14(str)
+    Mage_SetText("使用"..str, 75);
+    return true;
+end

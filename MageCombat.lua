@@ -307,6 +307,23 @@ function Mage_playerCombat()
         end
 
         -- ========================================================
+        -- 爆发饰品使用逻辑
+        -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
+        -- ========================================================
+        if burst_switch and Mage_HasSpell("镜像") and Mage_GetSpellCooldown("镜像") == 0 then
+            local targetType = targetType;
+            -- 如果目标是玩家，或者 目标是BOSS/精英/稀有
+            if targetIsPlayer or
+              targetType == "worldboss" or
+              ( targetType == "rareelite" and targetHP > 40 ) or
+              ( targetType == "elite" and targetHP > 40 ) then
+                 if Mage_UseTrinket("短暂能量护符") then
+                     return true;
+                 end
+            end
+        end
+
+        -- ========================================================
         -- 镜像使用逻辑
         -- 场景：对抗玩家、世界BOSS、精英怪时，如果可用则使用
         -- ========================================================

@@ -383,7 +383,7 @@ end;
 function CreateAndPlaceMageMacro(slot)
     -- 定义宏的名称和内容
     local macroName = "焦点变羊"
-    local macroIcon = "Interface\\Icons\\Spell_Nature_Polymorph"
+    local macroIcon = 136071  -- 变形术·羊的专属图标数字ID
     local macroBody = "#showtooltip 变形术\n/cast [@focus,exists,harm] 变形术;"
     -- 1. 检查宏是否已经存在，不存在则创建
     local index = GetMacroIndexByName(macroName)

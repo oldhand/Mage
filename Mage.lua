@@ -87,6 +87,7 @@ function Mage_OnEvent(event)
 	     StartTimer("NotUnitAffectingCombat");
  	elseif event == "PLAYER_STARTED_MOVING" then
  	   	 Mage_movement = true;
+ 	   	 StartTimer("MAGE_PLAYER_STARTED_MOVING");
  	elseif event == "PLAYER_STOPPED_MOVING" then
  	     Mage_movement = false;
 	elseif event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then

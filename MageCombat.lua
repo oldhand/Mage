@@ -546,7 +546,9 @@ function Mage_playerCombat()
             if CheckInteractDistance("target", 3)  then
                 if Mage_CastSpell("魔爆术") then  return  true; end;
             end
-            if Mage_CastSpell("冰枪术") then  return true; end
+            if GetTimer("MAGE_PLAYER_STARTED_MOVING") > 1 then
+                if Mage_CastSpell("冰枪术") then  return true; end
+            end
 	    end;
 		Mage_SetText("移动中",0);
 		return;
@@ -775,6 +777,7 @@ function Mage_AutoFocusMagicTarget()
         if fmTarget then
             if IsSpellInRange("专注魔法", fmTarget) == 1 then
                 if Mage_playerSelectUnit(fmTarget) then
+                    StartTimer("专注魔法");
                     if Mage_CastSpell("专注魔法") then
                         if Mage_Get_CombatLogMode() then
                             Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
@@ -794,6 +797,10 @@ end
 
 Mage_FocusMagic_UnitName = nil;
 
+function Mage_ClearFocusMagicTarget()
+    Mage_FocusMagic_UnitName = nil;
+end
+
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
@@ -808,21 +815,24 @@ function Mage_GetFocusMagicTarget()
 
 
     if Mage_FocusMagic_UnitName ~= nil then
-        local Mage_GetTargetUnit = Mage_GetTargetUnit(Mage_FocusMagic_UnitName);
-        if UnitExists(Mage_FocusMagic_Unit) then
+        local Mage_FocusMagic_Unit = Mage_GetTargetUnit(Mage_FocusMagic_UnitName);
+
+        if Mage_FocusMagic_Unit ~= nil and UnitExists(Mage_FocusMagic_Unit) then
             local updateFocusMagicUnit = true;
             if Mage_UnitTargetBU_ByPlayer(Mage_FocusMagic_Unit, "专注魔法") then
                  local timeLeft = Mage_GetBeaconTimeByName(Mage_FocusMagic_Unit, "专注魔法");
-                 if timeLeft > 600 then
-                     local updateFocusMagicUnit = false
+                 if timeLeft > 1000 then
+                     return nil;
                  end
             end
             if updateFocusMagicUnit then
                 if UnitIsVisible(Mage_FocusMagic_Unit) and IsSpellInRange("专注魔法", Mage_FocusMagic_Unit) == 1 then
-                    return unit; -- 找到了，剩余小于10分钟，直接返回
+                    return Mage_FocusMagic_Unit; -- 找到了，剩余小于10分钟，直接返回
                  else
                      return nil;
                  end
+             else
+                return nil;
              end
          else
             Mage_FocusMagic_Unit = nil; -- 之前记录的目标不存在了，重置记录

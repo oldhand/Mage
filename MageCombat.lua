@@ -771,6 +771,7 @@ function Mage_FocusControl()
 end
 
 function Mage_AutoFocusMagicTarget()
+    if UnitAffectingCombat("player") then return false end
     -- [新增] 自动专注魔法逻辑
     if not UnitAffectingCombat("player") and Mage_HasSpell("专注魔法") then
         local fmTarget = Mage_GetFocusMagicTarget()
@@ -804,7 +805,6 @@ end
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
-
     local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5, ["PALADIN"] = 6 }
     local bestTarget = nil
     local bestPriority = 99

@@ -805,16 +805,32 @@ end
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
-    local priorityClasses = { ["MAGE"] = 1, ["WARLOCK"] = 2, ["PRIEST"] = 3, ["DRUID"] = 4, ["SHAMAN"] = 5, ["PALADIN"] = 6 }
-    local bestTarget = nil
-    local bestPriority = 99
+
 
     if not Mage_UnitInParty() then return nil end
     local prefix = UnitInRaid("player") and "raid" or "party"
     local count = UnitInRaid("player") and 40 or 4
 
+    -- 【第一步】先扫描全团，看我的专注魔法到底在谁身上
+    local Mage_Find_FocusMagic_UnitName = nil;
+    for i = 1, count do
+        local unit = prefix .. i
+        if UnitExists(unit) and
+            not UnitIsUnit(unit, "player") and
+            not UnitIsDeadOrGhost(unit) then
+            if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
+                 if Mage_Find_FocusMagic_UnitName == nil then
+                     Mage_Find_FocusMagic_UnitName = UnitName(unit); -- 记录当前专注魔法的目标
+                 end
+            end
+        end
+    end
+
 
     if Mage_FocusMagic_UnitName ~= nil then
+        if Mage_Find_FocusMagic_UnitName ~= nil and Mage_FocusMagic_UnitName ~= Mage_Find_FocusMagic_UnitName then
+            Mage_FocusMagic_UnitName = Mage_Find_FocusMagic_UnitName; -- 更新记录为当前专注魔法的目标
+        end
         local Mage_FocusMagic_Unit = Mage_GetTargetUnit(Mage_FocusMagic_UnitName);
 
         if Mage_FocusMagic_Unit ~= nil and UnitExists(Mage_FocusMagic_Unit) then
@@ -838,58 +854,5 @@ function Mage_GetFocusMagicTarget()
             Mage_FocusMagic_Unit = nil; -- 之前记录的目标不存在了，重置记录
          end
     end
-
-    -- 【第一步】先扫描全团，看我的专注魔法到底在谁身上
-    for i = 1, count do
-        local unit = prefix .. i
-        if UnitExists(unit) and
-            not UnitIsUnit(unit, "player") and
-            not UnitIsDeadOrGhost(unit) then
-            if Mage_UnitTargetBU_ByPlayer(unit, "专注魔法") then
-                 if Mage_FocusMagic_UnitName == nil then
-                     Mage_FocusMagic_UnitName = UnitName(unit); -- 记录当前专注魔法的目标
-                 end
-                 if Mage_FocusMagic_UnitName ~= UnitName(unit) then
-                    Mage_FocusMagic_UnitName = UnitName(unit); -- 发现专注魔法在另一个目标身上，更新记录
-                 end
-                 return nil; -- 找到了，说明我已经施放过了
-            end
-        end
-    end
-
-    for i = 1, 40 do
-        local name, _, _, _, _, _, source = UnitBuff("player", i)
-        if not name then break end
-        if name == "专注魔法" and source then
-            if UnitExists(source) and
-                not UnitIsUnit(source, "player") and
-                not UnitIsDeadOrGhost(source) and
-                UnitIsVisible(source) and
-                IsSpellInRange("专注魔法", source) == 1 then
-                    return source; -- 找到了，当前队友给我施放了专注魔法
-            end
-        end
-    end
-
-    -- 【第二步】如果没有人带着我的专注魔法，或者带 Buff 的人离得太远/死了，才去找新目标
-    for i = 1, count do
-        local unit = prefix .. i
-        if UnitExists(unit) and
-            not UnitIsUnit(unit, "player") and
-            not UnitIsDeadOrGhost(unit) and
-            UnitIsVisible(unit) and
-            IsSpellInRange("专注魔法", unit) == 1 then
-            -- 寻找优先级最高且没被别人挂专注的目标
-            if not Mage_UnitTargetBU(unit, "专注魔法") then
-                local _, classFileName = UnitClass(unit)
-                local currentPriority = priorityClasses[classFileName] or 10
-                if currentPriority ~= 10 and currentPriority < bestPriority then
-                    bestPriority = currentPriority
-                    bestTarget = unit
-                end
-            end
-        end
-    end
-
-    return bestTarget
+    return nil;
 end

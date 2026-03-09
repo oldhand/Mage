@@ -252,7 +252,7 @@ function Mage_Frame_OnUpdate()
     if castspell then
         if string.find(castspell, "寒冰箭") then
             Mage_SetText("正在施放"..castspell,0);
-            if Mage_GetCastRemainingTime("player") > 0.3 then return; end
+            if Mage_GetCastRemainingTime("player") > 0.4 then return; end
         elseif string.find(castspell, "霜火之箭") then
             Mage_SetText("正在施放"..castspell,0);
             if Mage_GetCastRemainingTime("player") > 0.3 then return; end

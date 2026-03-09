@@ -795,8 +795,6 @@ function Mage_AutoFocusMagicTarget()
     return false
 end
 
-Mage_FocusMagic_UnitName = nil;
-
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()
     if not Mage_HasSpell("专注魔法") then return nil end
@@ -847,6 +845,10 @@ function Mage_GetFocusMagicTarget()
              end
          else
             Mage_FocusMagic_Unit = nil; -- 之前记录的目标不存在了，重置记录
+         end
+     else
+         if Mage_Find_FocusMagic_UnitName ~= nil then
+             Mage_FocusMagic_UnitName = Mage_Find_FocusMagic_UnitName; -- 更新记录为当前专注魔法的目标
          end
     end
     return nil;

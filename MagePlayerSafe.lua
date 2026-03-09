@@ -479,7 +479,7 @@ end
 
 function Mage_AutoUseManaGem()
     -- 仅在战斗中且蓝量低于 30% 时使用
-    if not UnitAffectingCombat("player") or Mage_GetUnitManaPercent("player") > 30 then
+    if not UnitAffectingCombat("player") or Mage_GetUnitManaPercent("player") > 65 then
         return false
     end
 

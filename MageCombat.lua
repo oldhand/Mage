@@ -778,7 +778,6 @@ function Mage_AutoFocusMagicTarget()
         if fmTarget then
             if IsSpellInRange("专注魔法", fmTarget) == 1 then
                 if Mage_playerSelectUnit(fmTarget) then
-                    StartTimer("专注魔法");
                     if Mage_CastSpell("专注魔法") then
                         if Mage_Get_CombatLogMode() then
                             Mage_AddMessage("对>>" .. UnitName(fmTarget).."<<使用专注魔法");
@@ -797,10 +796,6 @@ function Mage_AutoFocusMagicTarget()
 end
 
 Mage_FocusMagic_UnitName = nil;
-
-function Mage_ClearFocusMagicTarget()
-    Mage_FocusMagic_UnitName = nil;
-end
 
 -- [优化] 寻找最适合专注魔法的目标（含互换逻辑）
 function Mage_GetFocusMagicTarget()

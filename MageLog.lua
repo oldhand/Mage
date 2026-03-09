@@ -151,8 +151,8 @@ if UnitClass("player") == "法师" then
             -- --------------------------------------------------
             -- 监控专注魔法成功施加
             -- --------------------------------------------------
-            if subevent == "SPELL_AURA_APPLIED" and arg13 == "专注魔法" then
-                if sourceGUID == playerGUID then
+            if subevent == "SPELL_AURA_APPLIED" and arg13 == "专注魔法" and arg12 == 54646 then
+                if sourceGUID == UnitGUID("player") then
                     local announceStr = "**已成功将[专注魔法]施放给 -> " .. (destName or "未知目标") .. "**"
                     -- 屏幕中央黄字提示
                     Blizzard_AddMessage(announceStr, 1, 1, 0, "crit")
@@ -160,14 +160,11 @@ if UnitClass("player") == "法师" then
                     if Mage_Get_CombatLogMode() then
                         Mage_AddMessage("|cff00ffff[增益]|r " .. announceStr)
                     end
-                    if GetTimer("专注魔法") > 2 then
-                        Mage_ClearFocusMagicTarget();
-                    end
                 end
             end
 
             -- 监控变形术成功施加 (SPELL_AURA_APPLIED 表示 Buff/Debuff 挂上了)
-           if subevent == "SPELL_AURA_APPLIED" and (spellName == "变形术" or spellId == 118) then
+           if subevent == "SPELL_AURA_APPLIED" and (arg13 == "变形术" or arg12 == 118) then
 
                -- 如果 flags 为 nil，将其设为 0，防止 bit.band 报错
                local dFlags = destFlags or 0

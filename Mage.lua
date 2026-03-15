@@ -91,9 +91,15 @@ function Mage_OnEvent(event)
  	elseif event == "PLAYER_STOPPED_MOVING" then
  	     Mage_movement = false;
 	elseif event == "CHARACTER_POINTS_CHANGED" or event == "SPELLS_CHANGED" then
-		Mage_OrganizeActionBar();
+        C_Timer.After(1, function()
+            Mage_OrganizeActionBar()
+            Mage_AddMessage("技能栏自动整理已完成")
+        end)
 	elseif event=="ADDON_LOADED" then
-		Mage_OrganizeActionBar();
+        C_Timer.After(1, function()
+            Mage_OrganizeActionBar()
+            Mage_AddMessage("技能栏自动整理已完成")
+        end)
 	end
 end;
 

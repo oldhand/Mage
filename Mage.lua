@@ -261,7 +261,7 @@ function Mage_Frame_OnUpdate()
             if Mage_GetCastRemainingTime("player") > 0.4 then return; end
         elseif string.find(castspell, "霜火之箭") then
             Mage_SetText("正在施放"..castspell,0);
-            if Mage_GetCastRemainingTime("player") > 0.3 then return; end
+            if Mage_GetCastRemainingTime("player") > 0.4 then return; end
         elseif string.find(castspell, "暴风雪") then
            if Mage_GetCastRemainingTime("player") > 0.5 then
                 Mage_Blizzard = 0;

@@ -374,8 +374,10 @@ function Mage_CastSpell(spellname)
 
    local _, globalid = GetActionInfo(actionid);
 
-   if not IsUsableAction(actionid)  then return false; end;
-   if Mage_GetActionCooldown(actionid) ~= 0 then return false; end;
+   if spellname ~= "寒冰箭" then
+       if not IsUsableAction(actionid)  then return false; end;
+       if Mage_GetActionCooldown(actionid) ~= 0 then return false; end;
+   end
 
    if actionid >= 1 and actionid <= 12 then
 		Mage_SetText(spellname,actionid );	------ key = 1234567890-=

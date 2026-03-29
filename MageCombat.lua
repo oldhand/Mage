@@ -846,7 +846,7 @@ function Mage_GetFocusMagicTarget()
                 return nil;
              end
          else
-            Mage_FocusMagic_Unit = nil; -- 之前记录的目标不存在了，重置记录
+            Mage_FocusMagic_UnitName = nil; -- 之前记录的目标不存在了，重置记录
          end
      else
          if Mage_Find_FocusMagic_UnitName ~= nil then
